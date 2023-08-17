@@ -45,11 +45,14 @@ public class TransactionURIHandler implements URIHandler {
             String content,
             Callback callback) {
         RestResponse<Object> restResponse = new RestResponse<>();
+        logger.debug("in TransactionURIHandler");
         try {
 
             /* uri: /trans/method?path=payment.bcos&xxx=xxx */
             UriDecoder uriDecoder = new UriDecoder(uri);
+            logger.debug("in TransactionURIHandler, uriDecoder : {}", uriDecoder);
             String method = uriDecoder.getMethod();
+            logger.debug("in TransactionURIHandler, method : {}", method);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("uri: {}, method: {}, request string: {}", uri, method, content);
@@ -129,10 +132,15 @@ public class TransactionURIHandler implements URIHandler {
                         String path;
                         int blockNumber, offset, size;
                         try {
+                            logger.debug("in listTransactions");
                             path = uriDecoder.getQueryBykey("path");
+                            logger.debug("in listTransactions 2");
                             blockNumber = Integer.parseInt(uriDecoder.getQueryBykey("blockNumber"));
+                            logger.debug("in listTransactions 3");
                             offset = Integer.parseInt(uriDecoder.getQueryBykey("offset"));
+                            logger.debug("in listTransactions 4");
                             size = Integer.parseInt(uriDecoder.getQueryBykey("size"));
+                            logger.debug("in listTransactions 5");
                         } catch (Exception e) {
                             restResponse.setErrorCode(NetworkQueryStatus.URI_QUERY_ERROR);
                             restResponse.setMessage(e.getMessage());
@@ -142,8 +150,11 @@ public class TransactionURIHandler implements URIHandler {
 
                         // check permission
                         try {
+                            logger.debug("in listTransactions 6");
                             UniversalAccount ua = accountManager.getUniversalAccount(userContext);
+                            logger.debug("in listTransactions 7");
                             AccountAccessControlFilter filter = ua.getAccessControlFilter();
+                            logger.debug("in listTransactions 8");
                             if (!filter.hasPermission(path)) {
                                 throw new Exception("Permission denied");
                             }
@@ -163,7 +174,7 @@ public class TransactionURIHandler implements URIHandler {
                                     offset,
                                     size);
                         }
-
+                        logger.debug("in listTransactions 9");
                         if (offset < 0 || size <= 0 || size > WeCrossDefault.MAX_SIZE_FOR_LIST) {
                             restResponse.setErrorCode(NetworkQueryStatus.URI_QUERY_ERROR);
                             restResponse.setMessage(
@@ -172,10 +183,12 @@ public class TransactionURIHandler implements URIHandler {
                             callback.onResponse(restResponse);
                             return;
                         }
-
+                        logger.debug("in listTransactions 10");
                         Path chain;
                         try {
                             chain = Path.decode(path);
+                            logger.debug("in listTransactions 11");
+                            logger.debug(chain.toString());
                         } catch (Exception e) {
                             logger.warn("Decode chain path error: {}", path);
                             restResponse.setErrorCode(NetworkQueryStatus.URI_QUERY_ERROR);
@@ -190,6 +203,7 @@ public class TransactionURIHandler implements URIHandler {
                                 offset,
                                 size,
                                 (fetchException, response) -> {
+                                    logger.debug("in listTransactions 12 - out of transactionFetcher.asyncFetchTransactionList");
                                     if (logger.isDebugEnabled()) {
                                         logger.debug(
                                                 "listTransactions, response: {}, fetchException: ",

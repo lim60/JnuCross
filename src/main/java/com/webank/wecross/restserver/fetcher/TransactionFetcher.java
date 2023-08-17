@@ -123,12 +123,19 @@ public class TransactionFetcher {
             int offset,
             int size,
             FetchTransactionListCallback callback) {
+        logger.debug("in asyncFetchTransactionList");
+        logger.debug(" blockNumber : {}", blockNumber);
+        logger.debug(" offset : {}", offset);
+        logger.debug(" size : {}", size);
+        logger.debug(" chainPath : {}", chainPath);
         Chain chain = zoneManager.getChain(chainPath);
+        logger.debug(" chain : {}", chain);
         Driver driver = chain.getDriver();
-
+        logger.debug(" driver : {}", driver);
         driver.asyncGetBlockNumber(
                 chain.chooseConnection(),
                 (getBlockNumberException, currentBlockNumber) -> {
+                    logger.debug("in asyncFetchTransactionList - driver.asyncGetBlockNumber 1");
                     if (Objects.nonNull(getBlockNumberException)) {
                         logger.warn("Failed to get block number: ", getBlockNumberException);
                         callback.onResponse(
@@ -138,6 +145,8 @@ public class TransactionFetcher {
                                 null);
                         return;
                     }
+                    logger.debug("in asyncFetchTransactionList - driver.asyncGetBlockNumber 2");
+                    logger.debug(" currentBlockNumber : {}", currentBlockNumber);
 
                     // update real block number for query
                     long newBlockNumber = blockNumber;
@@ -161,22 +170,29 @@ public class TransactionFetcher {
             int size,
             TransactionListResponse response,
             FetchTransactionListCallback mainCallback) {
+        logger.debug("in recursiveFetchTransactionList 1");
 
         if (logger.isDebugEnabled()) {
             logger.debug("Fetch transaction list, size: {}, response: {}", size, response);
         }
 
         long blockNumber = response.getNextBlockNumber();
+        logger.debug("in recursiveFetchTransactionList 1");
+        logger.debug(" blockNumber : {}", blockNumber);
         if (size == 0 || blockNumber == -1) {
             mainCallback.onResponse(null, response);
             return;
         }
+        logger.debug(" driver : {}", driver);
+        logger.debug(" chain.chooseConnection() : {}", chain.chooseConnection());
 
         driver.asyncGetBlock(
                 blockNumber,
                 false,
                 chain.chooseConnection(),
                 (getBlockException, block) -> {
+                    logger.debug("in recursiveFetchTransactionList - driver.asyncGetBlock");
+                    logger.debug(" block : {}", block);
                     if (Objects.nonNull(getBlockException)) {
                         logger.warn(
                                 "Failed to get block, response: {}, error: ",
@@ -246,10 +262,15 @@ public class TransactionFetcher {
                         }
                     }
 
+                    logger.debug("in recursiveFetchTransactionList - driver.asyncGetBlock");
+                    logger.debug(" count = {}", count);
+
                     long nextBlockNumber =
                             index == block.transactionsHashes.size()
                                     ? blockNumber - 1
                                     : blockNumber;
+                    logger.debug(" nextBlockNumber = {}", nextBlockNumber);
+
                     int nextOffset = index == block.transactionsHashes.size() ? 0 : index;
                     response.setNextBlockNumber(nextBlockNumber);
                     response.setNextOffset(nextOffset);
