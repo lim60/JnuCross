@@ -46,6 +46,10 @@ public class WeCrossException extends java.lang.Exception {
 
         // web service
         public static final int PAGE_NOT_FOUND = 701;
+
+        //business
+        public static final int REQ_CONTENT_EMPTY = 10001;//请求内容为空
+
     }
 
     public static final int UNKNOWN_INTERNAL_ERROR = -6535;

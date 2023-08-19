@@ -142,6 +142,15 @@ dependencies {
         compile group: 'org.fisco-bcos', name: 'tcnative', version: '2.0.51.0'
     }
 
+    //mybatis
+    // MyBatis核心依赖
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.15'
+    compile 'com.alibaba:druid:1.2.9'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.5.2'
+    compile group: 'cn.hutool', name: 'hutool-all', version: '5.8.20'
+    compile group: 'com.mysql', name: 'mysql-connector-j', version: '8.0.33'
     compile 'org.quartz-scheduler:quartz:2.3.2'
     compile('com.moandjiezana.toml:toml4j:0.7.2') {
         exclude group: 'com.google.code.gson', module: 'gson'
@@ -170,7 +179,8 @@ dependencies {
 sourceSets {
     main {
         resources {
-            exclude '/*'
+//            exclude '/*'
+            srcDirs = ["src/main/resources"]
         }
     }
 }
@@ -188,8 +198,14 @@ jar {
     manifest {
         attributes(
                 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'com.webank.wecross.Application'
+//                'Main-Class': 'com.webank.wecross.Application'
+                'Main-Class': 'com.webank.wecross.Service'
         )
+//        from {
+//            configurations.compile.collect {
+//                it.isDirectory() ? it : zipTree(it)
+//            }
+//        }
 
         try {
             def repo = grgit.open(dir: file('.').canonicalPath)

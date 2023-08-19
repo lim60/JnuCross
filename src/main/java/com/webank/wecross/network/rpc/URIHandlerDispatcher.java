@@ -1,18 +1,25 @@
 package com.webank.wecross.network.rpc;
 
+import com.jnu.jnucross.handler.JnuCrossURIHandler;
 import com.webank.wecross.host.WeCrossHost;
+import com.webank.wecross.mapper.*;
 import com.webank.wecross.network.UriDecoder;
 import com.webank.wecross.network.rpc.handler.*;
 import com.webank.wecross.network.rpc.netty.URIMethod;
 import com.webank.wecross.network.rpc.web.WebService;
 import com.webank.wecross.restserver.fetcher.ResourceFetcher;
 import com.webank.wecross.restserver.fetcher.TransactionFetcher;
+import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Data
 public class URIHandlerDispatcher {
 
     private static final Logger logger = LoggerFactory.getLogger(URIHandlerDispatcher.class);
@@ -26,6 +33,19 @@ public class URIHandlerDispatcher {
 
     private String urlPrefix;
 
+    private TransactionTemplate transactionTemplate;
+//    private UserTableJPA userTableJPA;
+//    private CrossTransactionJPA crossTransactionJPA;
+//    private TransactionJPA transactionJPA;
+//    private TUniversalAccountsJPA tUniversalAccountsJPA;
+//    private TChainAccountsJPA tChainAccountsJPA;
+
+    //mapper
+    private CrossTransactionMapper crossTransactionMapper;
+    private TransactionMapper transactionMapper;
+    private TChainAccountsMapper tChainAccountsMapper;
+    private TUniversalAccountsMapper tUniversalAccountsMapper;
+
     public Map<URIMethod, URIHandler> getRequestURIMapper() {
         return requestURIMapper;
     }
@@ -33,6 +53,7 @@ public class URIHandlerDispatcher {
     public void setRequestURIMapper(Map<URIMethod, URIHandler> requestURIMapper) {
         this.requestURIMapper = requestURIMapper;
     }
+
 
     /**
      * initialize uri request mapper
@@ -102,6 +123,21 @@ public class URIHandlerDispatcher {
         ResourceURIHandler resourceURIHandler = new ResourceURIHandler(host);
         registerURIHandler(RESOURCE_URIMETHOD, resourceURIHandler);
 
+        //测试
+
+        MyUserURIHandler myUserURIHandler = new MyUserURIHandler();
+        myUserURIHandler.setTransactionTemplate(transactionTemplate);
+        registerURIHandler(new URIMethod("GET", "/test/getMyUser"), myUserURIHandler);
+
+        //JnuCross接口
+        JnuCrossURIHandler  jnuCrossURIHandler = new JnuCrossURIHandler();
+        jnuCrossURIHandler.setAccountManager(host.getAccountManager());
+        jnuCrossURIHandler.setTransactionTemplate(transactionTemplate);//事务
+        jnuCrossURIHandler.setCrossTransactionMapper(crossTransactionMapper);
+        jnuCrossURIHandler.setTransactionMapper(transactionMapper);
+        jnuCrossURIHandler.setTChainAccountsMapper(tChainAccountsMapper);
+        jnuCrossURIHandler.setTUniversalAccountsMapper(tUniversalAccountsMapper);
+        registerURIHandler(new URIMethod("POST", "/transaction/crossChainTransfer"), jnuCrossURIHandler);
         logger.info(" initialize size: {}", requestURIMapper.size());
         logger.info(" URIMethod: {} ", requestURIMapper.keySet());
     }
@@ -109,7 +145,7 @@ public class URIHandlerDispatcher {
     /**
      * register uri handler by method and uri
      *
-     * @param path method and uri
+     * @param path       method and uri
      * @param uriHandler
      */
     public void registerURIHandler(URIMethod path, URIHandler uriHandler) {
