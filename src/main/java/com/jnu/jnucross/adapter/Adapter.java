@@ -514,9 +514,9 @@ public class Adapter {
         }
     }
 
-    /* start the cross chain transction
+    /* start the cross chain transaction
      * (1): call asyncStartXATransaction to start a XA
-     * (2): when the response of asyncStartXATransaction is success, then execute each raw transaction
+     * (2): when the response of asyncStartXATransaction is success, then execute each raw transaction recursively
     */
     public static void startXATransaction(String content,
                                           UniversalAccount ua, RestResponse<XAResponse> restResponse,
