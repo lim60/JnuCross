@@ -1,15 +1,16 @@
-package com.webank.wecross.stub;
+package com.jnu.jnucross.chains;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Block {
-    public byte[] rawBytes;
-    public BlockHeader blockHeader;
-    public List<String> transactionsHashes = new LinkedList<>();
+    private int chainType;
+    private byte[] rawBytes;
+    private BlockHeader blockHeader;
+    private List<String> transactionsHashes = new LinkedList<>();
 
-    public BlockHeader getBlockHeader() {
+    private BlockHeader getBlockHeader() {
         return blockHeader;
     }
 
@@ -33,15 +34,21 @@ public class Block {
         this.rawBytes = rawBytes;
     }
 
+    public int getChainType() {
+        return chainType;
+    }
+
+    public void setChainType(int chainType) {
+        this.chainType = chainType;
+    }
+
     @Override
     public String toString() {
-        return "Block{"
-                + "rawBytes="
-                + Arrays.toString(rawBytes)
-                + ", blockHeader="
-                + blockHeader
-                + ", transactionsHashes="
-                + Arrays.toString(transactionsHashes.toArray())
-                + '}';
+        return "Block{" +
+                "chainType=" + chainType +
+                ", rawBytes=" + Numeric.toHexString(rawBytes) +
+                ", blockHeader=" + blockHeader +
+                ", transactionsHashes=" + Arrays.toString(transactionsHashes.toArray()) +
+                '}';
     }
 }

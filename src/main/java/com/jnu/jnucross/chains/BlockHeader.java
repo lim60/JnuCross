@@ -1,4 +1,4 @@
-package com.webank.wecross.stub;
+package com.jnu.jnucross.chains;
 
 public class BlockHeader {
     private long number;

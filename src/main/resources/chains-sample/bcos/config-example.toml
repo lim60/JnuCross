@@ -1,5 +1,5 @@
 [cryptoMaterial]
-certPath = "conf"                           # The certification path  
+certPath = "./src/main/resources/chains-sample/bcos/conf"                           # The certification path
 
 # The following configurations take the certPath by default if commented
 # caCert = "conf/ca.crt"                    # CA cert file path
@@ -40,8 +40,8 @@ peers=["10.154.24.6:20200", "10.154.24.6:20201", "10.154.24.6:20202", "10.154.24
 
 
 [account]
-keyStoreDir = "account"         # The directory to load/store the account file, default is "account"
-accountFilePath = "./account/0x945d9ba66648a256d52d6c4b6e9129a758b388fd.pem"          # The account file path (default load from the path specified by the keyStoreDir)
+keyStoreDir = "./src/main/resources/chains-sample/bcos/account"         # The directory to load/store the account file, default is "account"
+#accountFilePath = ""          # The account file path (default load from the path specified by the keyStoreDir)
 accountFileFormat = "pem"       # The storage format of account file (Default is "pem", "p12" as an option)
 
 # accountAddress = ""           # The transactions sending account address

@@ -11,25 +11,29 @@ import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.http.HttpService;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author SDKany
- * @ClassName EthereumWapper
+ * @ClassName EthereumWrapper
  * @Date 2023/8/18 22:46
  * @Version V1.0
  * @Description
  */
-public class EthereumWapper extends ChainWapper {
+public class EthereumWrapper extends ChainWrapper {
     String geth_url; // = "http://10.154.24.12:8545";
     Web3j web3j;// = Web3j.build(new HttpService(geth_url));
     Credentials credentials;//  = null;
     static ObjectMapper objectMapper = new ObjectMapper();
 
-    public EthereumWapper(){
+    public EthereumWrapper(){
         geth_url = "http://10.154.24.12:8545";
         web3j = Web3j.build(new HttpService(geth_url));
         try {
@@ -42,7 +46,7 @@ public class EthereumWapper extends ChainWapper {
     }
 
     public static void main(String[] args) {
-        ChainWapper chainWapper = new EthereumWapper();
+        ChainWrapper chainWapper = new EthereumWrapper();
 
         System.out.println("BlockNumber = " + chainWapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
@@ -57,6 +61,7 @@ public class EthereumWapper extends ChainWapper {
 
         //RawTransaction rawTransaction = new RawTransaction();
         //client.stop();
+        //generateClass("src/main/resources/chains-sample/ethereum/contract/SimpleStorage.abi", "src/main/resources/chains-sample/ethereum/contract/SimpleStorage.bin", "src/main/java/com/jnu/jnucross/chains/ethereum/generated");
 
         System.exit(0);
 
@@ -80,8 +85,7 @@ public class EthereumWapper extends ChainWapper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return null;
+        return new Block();
     }
 
     @Override
@@ -92,7 +96,7 @@ public class EthereumWapper extends ChainWapper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new Block();
     }
 
 
@@ -104,8 +108,11 @@ public class EthereumWapper extends ChainWapper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new Transaction();
     }
+
+//    public void deployContract(String bin, String abi){
+//    }
 
     public static Block covertToBlock(EthBlock.Block ethBlock){
         Block block = new Block();
@@ -117,7 +124,7 @@ public class EthereumWapper extends ChainWapper {
         blockHeader.setTransactionRoot(ethBlock.getTransactionsRoot());
         blockHeader.setStateRoot(ethBlock.getStateRoot());
         block.setBlockHeader(blockHeader);
-        block.setChainType(EnumType.ChainType.BCOS);
+        block.setChainType(EnumType.ChainType.Ethereum);
         List<EthBlock.TransactionResult> transactionResults = ethBlock.getTransactions();
         List<String> transactionsHashes = new ArrayList<>();
         for (EthBlock.TransactionResult transaction : transactionResults) {
@@ -146,7 +153,19 @@ public class EthereumWapper extends ChainWapper {
             e.printStackTrace();
             transaction.setRawBytes(new byte[0]);
         }
-        transaction.setChainType(EnumType.ChainType.BCOS);
+        transaction.setChainType(EnumType.ChainType.Ethereum);
         return transaction;
     }
+//
+//    public static void generateClass(String abiFile,String binFile,String generateFile){
+//        String[] args = Arrays.asList(
+//                "-a",abiFile,
+//                "-b",binFile,
+//                "-p","",
+//                "-o",generateFile
+//        ).toArray(new String[0]);
+//        Stream.of(args).forEach(System.out::println);
+//        SolidityFunctionWrapperGenerator.main(args);
+//    }
+
 }

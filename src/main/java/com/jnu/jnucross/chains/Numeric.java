@@ -1,7 +1,8 @@
-package com.webank.wecross.stub.xuperchain.utils;
+package com.jnu.jnucross.chains;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -92,6 +93,19 @@ public final class Numeric {
         return toBigIntNoPrefix(cleanValue);
     }
 
+    public static byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        buffer.putLong(0, x);
+        return buffer.array();
+    }
+
+    public static long bytesToLong(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        buffer.put(bytes, 0, bytes.length);
+        buffer.flip();
+        return buffer.getLong();
+    }
+
     public static BigInteger toBigIntNoPrefix(String hexValue) {
         return new BigInteger(hexValue, 16);
     }
@@ -108,35 +122,35 @@ public final class Numeric {
         return toHexString(input, 0, input.length, false);
     }
 
-    public static String toHexStringWithPrefixZeroPadded(BigInteger value, int size) {
-        return toHexStringZeroPadded(value, size, true);
-    }
+//    public static String toHexStringWithPrefixZeroPadded(BigInteger value, int size) {
+//        return toHexStringZeroPadded(value, size, true);
+//    }
+//
+//    public static String toHexStringNoPrefixZeroPadded(BigInteger value, int size) {
+//        return toHexStringZeroPadded(value, size, false);
+//    }
 
-    public static String toHexStringNoPrefixZeroPadded(BigInteger value, int size) {
-        return toHexStringZeroPadded(value, size, false);
-    }
-
-    private static String toHexStringZeroPadded(BigInteger value, int size, boolean withPrefix) {
-        String result = toHexStringNoPrefix(value);
-
-        int length = result.length();
-        if (length > size) {
-            throw new UnsupportedOperationException(
-                    "Value " + result + "is larger then length " + size);
-        } else if (value.signum() < 0) {
-            throw new UnsupportedOperationException("Value cannot be negative");
-        }
-
-        if (length < size) {
-            result = Strings.zeros(size - length) + result;
-        }
-
-        if (withPrefix) {
-            return HEX_PREFIX + result;
-        } else {
-            return result;
-        }
-    }
+//    private static String toHexStringZeroPadded(BigInteger value, int size, boolean withPrefix) {
+//        String result = toHexStringNoPrefix(value);
+//
+//        int length = result.length();
+//        if (length > size) {
+//            throw new UnsupportedOperationException(
+//                    "Value " + result + "is larger then length " + size);
+//        } else if (value.signum() < 0) {
+//            throw new UnsupportedOperationException("Value cannot be negative");
+//        }
+//
+//        if (length < size) {
+//            result = Strings.zeros(size - length) + result;
+//        }
+//
+//        if (withPrefix) {
+//            return HEX_PREFIX + result;
+//        } else {
+//            return result;
+//        }
+//    }
 
     public static byte[] toBytesPadded(BigInteger value, int length) {
         byte[] result = new byte[length];

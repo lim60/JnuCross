@@ -13,31 +13,30 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author SDKany
- * @ClassName BCOSWapper
+ * @ClassName BCOSWrapper
  * @Date 2023/8/17 22:34
  * @Version V1.0
  * @Description
  */
-public class BCOSWapper extends ChainWapper {
+public class BCOSWrapper extends ChainWrapper {
     public String configFile;
     public BcosSDK sdk;
     public Client client;
 
     static ObjectMapper objectMapper = new ObjectMapper();
 
-    public BCOSWapper() {
+    public BCOSWrapper() {
         configFile = "./src/main/resources/chains-sample/bcos/config-example.toml";
         sdk = BcosSDK.build(configFile);
         client = sdk.getClient(Integer.valueOf(1));
     }
 
     public static void main(String[] args) throws IOException {
-        ChainWapper chainWapper = new BCOSWapper();
+        ChainWrapper chainWapper = new BCOSWrapper();
         System.out.println("BlockNumber = " + chainWapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
         System.out.println("The 1st block is = " + chainWapper.getBlockByNumber(1)); // 通过块高获取块
@@ -57,11 +56,15 @@ public class BCOSWapper extends ChainWapper {
 
     public Block getBlockByNumber(long blockNumber) {
         BcosBlock.Block bcosBlock = client.getBlockByNumber(BigInteger.valueOf(blockNumber), true).getResult();
+        if (bcosBlock == null)
+            return new Block();
         return coverToBlock(bcosBlock);
     }
 
     public Block getBlockByHash(String blockHash) {
         BcosBlock.Block bcosBlock = client.getBlockByHash(blockHash, true).getBlock();
+        if (bcosBlock == null)
+            return new Block();
         return coverToBlock(bcosBlock);
     }
 
@@ -73,6 +76,8 @@ public class BCOSWapper extends ChainWapper {
     public Transaction getTransaction(String transactionHash) {
         TransactionReceipt bcosTransactionReceipt =
                 client.getTransactionReceipt(transactionHash).getResult();
+        if (bcosTransactionReceipt == null)
+            return new Transaction();
         return coverToTransaction(bcosTransactionReceipt);
     }
 
