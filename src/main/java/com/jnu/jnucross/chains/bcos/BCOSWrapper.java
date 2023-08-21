@@ -54,6 +54,12 @@ public class BCOSWrapper extends ChainWrapper {
         System.exit(0);
     }
 
+    @Override
+    public BigInteger getBalance(){
+        return BigInteger.ZERO;
+    }
+
+
     public Block getBlockByNumber(long blockNumber) {
         BcosBlock.Block bcosBlock = client.getBlockByNumber(BigInteger.valueOf(blockNumber), true).getResult();
         if (bcosBlock == null)

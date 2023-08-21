@@ -44,6 +44,8 @@ public class CITAWrapper extends ChainWrapper {
     public static void main(String[] args) {
         ChainWrapper chainWapper = new CITAWrapper();
 
+        System.out.println("Balance = " + chainWapper.getBalance());
+
         System.out.println("BlockNumber = " + chainWapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
         System.out.println("The 105509 block is = " + chainWapper.getBlockByNumber(105509)); // 通过块高获取块
@@ -60,6 +62,18 @@ public class CITAWrapper extends ChainWrapper {
 
         System.exit(0);
 
+    }
+
+
+
+    @Override
+    public BigInteger getBalance(){
+        try {
+            return citaj.appGetBalance(credentials.getAddress(), DefaultBlockParameter.valueOf("lasest")).send().getBalance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BigInteger.valueOf(0);
+        }
     }
 
     @Override

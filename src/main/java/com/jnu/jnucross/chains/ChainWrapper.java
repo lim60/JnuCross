@@ -1,5 +1,7 @@
 package com.jnu.jnucross.chains;
 
+import java.math.BigInteger;
+
 /**
  * @author SDKany
  * @ClassName ChainWrapper
@@ -15,6 +17,8 @@ public abstract class ChainWrapper {
     public abstract long getBlockNumber();
 
     public abstract Transaction getTransaction(String transactionHash);
+
+    public abstract BigInteger getBalance();
 
 //    public abstract void call();
 //

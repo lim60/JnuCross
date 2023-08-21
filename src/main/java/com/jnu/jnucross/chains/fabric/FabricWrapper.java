@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
 import com.jnu.jnucross.chains.Transaction;
 import com.jnu.jnucross.chains.ethereum.EthereumWrapper;
-import org.hyperledger.fabric.gateway.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -35,36 +34,36 @@ public class FabricWrapper extends ChainWrapper {
 
     public static void main(String[] args) throws IOException {
         // Load an existing wallet holding identities used to access the network.
-        Path walletDirectory = Paths.get("wallet");
-        Wallet wallet = Wallets.newFileSystemWallet(walletDirectory);
-
-        // Path to a common connection profile describing the network.
-        Path networkConfigFile = Paths.get("connection.json");
-
-        // Configure the gateway connection used to access the network.
-        Gateway.Builder builder = Gateway.createBuilder()
-                .identity(wallet, "user1")
-                .networkConfig(networkConfigFile);
-
-        // Create a gateway connection
-        try (Gateway gateway = builder.connect()) {
-
-            // Obtain a smart contract deployed on the network.
-            Network network = gateway.getNetwork("mychannel");
-            Contract contract = network.getContract("fabcar");
-
-            // Submit transactions that store state to the ledger.
-            byte[] createCarResult = contract.createTransaction("createCar")
-                    .submit("CAR10", "VW", "Polo", "Grey", "Mary");
-            System.out.println(new String(createCarResult, StandardCharsets.UTF_8));
-
-            // Evaluate transactions that query state from the ledger.
-            byte[] queryAllCarsResult = contract.evaluateTransaction("queryAllCars");
-            System.out.println(new String(queryAllCarsResult, StandardCharsets.UTF_8));
-
-        } catch (ContractException | TimeoutException | InterruptedException e) {
-            e.printStackTrace();
-        }
+//        Path walletDirectory = Paths.get("wallet");
+//        Wallet wallet = Wallets.newFileSystemWallet(walletDirectory);
+//
+//        // Path to a common connection profile describing the network.
+//        Path networkConfigFile = Paths.get("connection.json");
+//
+//        // Configure the gateway connection used to access the network.
+//        Gateway.Builder builder = Gateway.createBuilder()
+//                .identity(wallet, "user1")
+//                .networkConfig(networkConfigFile);
+//
+//        // Create a gateway connection
+//        try (Gateway gateway = builder.connect()) {
+//
+//            // Obtain a smart contract deployed on the network.
+//            Network network = gateway.getNetwork("mychannel");
+//            Contract contract = network.getContract("fabcar");
+//
+//            // Submit transactions that store state to the ledger.
+//            byte[] createCarResult = contract.createTransaction("createCar")
+//                    .submit("CAR10", "VW", "Polo", "Grey", "Mary");
+//            System.out.println(new String(createCarResult, StandardCharsets.UTF_8));
+//
+//            // Evaluate transactions that query state from the ledger.
+//            byte[] queryAllCarsResult = contract.evaluateTransaction("queryAllCars");
+//            System.out.println(new String(queryAllCarsResult, StandardCharsets.UTF_8));
+//
+//        } catch (ContractException | TimeoutException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
 //    public static void main(String[] args) {
@@ -87,6 +86,11 @@ public class FabricWrapper extends ChainWrapper {
 //        System.exit(0);
 //
 //    }
+
+    @Override
+    public BigInteger getBalance(){
+        return BigInteger.ZERO;
+    }
 
     @Override
     public long getBlockNumber() {
