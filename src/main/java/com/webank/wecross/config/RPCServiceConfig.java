@@ -12,7 +12,6 @@ import com.webank.wecross.network.rpc.netty.RPCConfig;
 import com.webank.wecross.network.rpc.web.WebService;
 import javax.annotation.Resource;
 
-import com.webank.wecross.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -70,11 +69,6 @@ public class RPCServiceConfig {
         URIHandlerDispatcher uriHandlerDispatcher = new URIHandlerDispatcher();
         uriHandlerDispatcher.setWebService(webService);
         uriHandlerDispatcher.setTransactionTemplate(transactionTemplate);
-//        uriHandlerDispatcher.setUserTableJPA(userTableJPA);
-//        uriHandlerDispatcher.setCrossTransactionJPA(crossTransactionJPA);
-//        uriHandlerDispatcher.setTransactionJPA(transactionJPA);
-//        uriHandlerDispatcher.setTUniversalAccountsJPA(universalAccountsJPA);
-//        uriHandlerDispatcher.setTChainAccountsJPA(tChainAccountsJPA);
         uriHandlerDispatcher.setCrossTransactionMapper(crossTransactionMapper);
         uriHandlerDispatcher.setTransactionMapper(transactionMapper);
         uriHandlerDispatcher.setTChainAccountsMapper(tChainAccountsMapper);

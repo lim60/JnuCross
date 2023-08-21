@@ -33,12 +33,8 @@ public class URIHandlerDispatcher {
 
     private String urlPrefix;
 
+    //事务
     private TransactionTemplate transactionTemplate;
-//    private UserTableJPA userTableJPA;
-//    private CrossTransactionJPA crossTransactionJPA;
-//    private TransactionJPA transactionJPA;
-//    private TUniversalAccountsJPA tUniversalAccountsJPA;
-//    private TChainAccountsJPA tChainAccountsJPA;
 
     //mapper
     private CrossTransactionMapper crossTransactionMapper;
@@ -129,7 +125,7 @@ public class URIHandlerDispatcher {
         myUserURIHandler.setTransactionTemplate(transactionTemplate);
         registerURIHandler(new URIMethod("GET", "/test/getMyUser"), myUserURIHandler);
 
-        //JnuCross接口
+        //JnuCross接口-----------------
         JnuCrossURIHandler  jnuCrossURIHandler = new JnuCrossURIHandler();
         jnuCrossURIHandler.setAccountManager(host.getAccountManager());
         jnuCrossURIHandler.setTransactionTemplate(transactionTemplate);//事务
@@ -138,8 +134,12 @@ public class URIHandlerDispatcher {
         jnuCrossURIHandler.setTChainAccountsMapper(tChainAccountsMapper);
         jnuCrossURIHandler.setTUniversalAccountsMapper(tUniversalAccountsMapper);
         registerURIHandler(new URIMethod("POST", "/transaction/crossChainTransfer"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("GET", "/transaction/getJnuCrossTransaction"), jnuCrossURIHandler);
+        //JnuCross接口-------------------
+
         logger.info(" initialize size: {}", requestURIMapper.size());
         logger.info(" URIMethod: {} ", requestURIMapper.keySet());
+
     }
 
     /**

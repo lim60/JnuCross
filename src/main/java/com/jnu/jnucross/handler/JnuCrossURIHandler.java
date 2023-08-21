@@ -2,6 +2,7 @@ package com.jnu.jnucross.handler;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -26,12 +27,14 @@ import com.webank.wecross.mapper.TransactionMapper;
 import com.webank.wecross.network.UriDecoder;
 import com.webank.wecross.network.rpc.handler.URIHandler;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -43,10 +46,6 @@ public class JnuCrossURIHandler implements URIHandler {
 
     private TransactionTemplate transactionTemplate;
     private AccountManager accountManager;
-//    private CrossTransactionJPA crossTransactionJPA;
-//    private TransactionJPA transactionJPA;
-//    private TUniversalAccountsJPA tUniversalAccountsJPA;
-//    private TChainAccountsJPA tChainAccountsJPA;
     private CrossTransactionMapper crossTransactionMapper;
     private TransactionMapper transactionMapper;
     private TChainAccountsMapper tChainAccountsMapper;
@@ -63,12 +62,13 @@ public class JnuCrossURIHandler implements URIHandler {
             case "crossChainTransfer":
                 handleCrossChainTransfer(userContext, uri, method, content, callback);
                 break;
-            case "listChain":
-//                listChain(userContext, uri, method, content, callback);
+            case "getTransaction":
+                handleGetTransaction(userContext, uri, method, content, callback);
                 break;
         }
 
     }
+
 
     private void handleCrossChainTransfer(UserContext userContext, String uri, String method, String content, Callback callback) {
 
@@ -143,6 +143,8 @@ public class JnuCrossURIHandler implements URIHandler {
                         transactionMapper.insert(transaction);
                     }
                     //调用开启事务接口 todo
+                    InetAddress byName = InetAddress.getByName("192.168.50.106");
+                    boolean reachable = byName.isReachable(500);
 
                     callback.onResponse(ResultUtil.success());
                 } catch (Exception e) {
@@ -150,121 +152,23 @@ public class JnuCrossURIHandler implements URIHandler {
                     logger.error("跨链转账交易发起异常", e);
                     callback.onResponse("跨链转账交易发起失败");
                 }
+
                 return null;
             }
         });
 
     }
 
+    private void handleGetTransaction(UserContext userContext, String uri, String method, String content, Callback callback) {
 
+        transactionTemplate.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                return null;
 
+            }
+        });
 
-    /*
-    入参
-     */
-//    private void handleCrossChainTransfer(UserContext userContext, String uri, String method, String content, Callback callback) {
-//        Connection connection = null;
-//        List<PreparedStatement> statements = null;
-//        List<ResultSet> resultSets = null;
-//        try {
-//            if (StrUtil.isBlank(content)){
-//                throw new WeCrossException(WeCrossException.ErrorCode.REQ_CONTENT_EMPTY,"req content is null");
-//            }
-//
-//            CrossChainTransferReq req = JSONUtil.toBean(content, CrossChainTransferReq.class);
-//            logger.info("handleCrossChainTransfer request:{}",req);
-//            UniversalAccount universalAccount = accountManager.getUniversalAccount(userContext);
-//            String uaID = universalAccount.getUaID();
-//            String chainIds = req.getChainIds();//链ids
-//            String launchAccountId = req.getLaunchAccountId();//发起账户id
-//            Integer participateAccountId = Integer.parseInt(req.getParticipateAccountId());
-//            String transactionId = req.getTransactionId();
-//            //事务表生成记录，拿到事务id
-//            connection = JdbcUtils.getConnection();
-//            connection.setAutoCommit(true);
-//            String insertField = StrUtil.join(",",
-//                    CrossTransactionTable.ID,
-//                    CrossTransactionTable.TYPE,
-//                    CrossTransactionTable.CHAINS,
-//                    CrossTransactionTable.STATE,
-//                    CrossTransactionTable.INITIATE_ACCOUNT,
-//                    CrossTransactionTable.ADDRESSING_STRATEGY,
-//                    CrossTransactionTable.CREATOR_ID);
-//            String sql1 = "INSERT INTO " +
-//                    "cross_transaction("+ insertField + ")\n" +
-//                    "VALUES(?,?,?,?,?,?,?,?)";
-//            PreparedStatement ps1 = connection.prepareStatement(sql1);
-//            ps1.setString(1, transactionId);
-//            ps1.setInt(2, TransactionTypeConstant.CROSS_CHAIN_TRANSFER);
-//            ps1.setString(3, chainIds);
-//            ps1.setInt(4, TransactionStatesConstant.EXECUTING);
-//            ps1.setString(5, launchAccountId);
-//            ps1.setInt(6, addressingStrategyConstant.DEFAULT_Strategy);
-//            ps1.setInt(7, Integer.parseInt(uaID));//
-//            logger.info("handleCrossChainTransfer sql1:{}",ps1.toString());
-//            ps1.executeUpdate();
-//            //记录交易表
-//            List<String> split = StrUtil.split(chainIds, ",");
-//            Integer firstChainId = Integer.parseInt(split.get(1));
-//            Integer secondChainId = Integer.parseInt(split.get(2));
-//
-//            //先把两条链的admin账户id拿出来
-//            String sql2  = "SELECT id FROM t_chain_accounts WHERE chain_id = ? AND username = 'admin' LIMIT 1";
-//            PreparedStatement ps2 = connection.prepareStatement(sql2);
-//            ps2.setInt(1,firstChainId);
-//            ResultSet sql2Result = ps2.executeQuery();
-//            sql2Result.next();
-//            int firstAdminId = sql2Result.getInt(1);
-//            String sql3  = "SELECT id FROM t_chain_accounts WHERE chain_id = ? AND username = 'admin' LIMIT 1";
-//            PreparedStatement ps3 = connection.prepareStatement(sql3);
-//            ps3.setInt(1,secondChainId);
-//            ResultSet sql3Result = ps3.executeQuery();
-//            sql3Result.next();
-//            int secondAdminId = sql3Result.getInt(1);
-//
-//            String insertField2 = StrUtil.join(",",
-//                    TransactionTable.CROSS_TRANSACTION_ID,
-//                    TransactionTable.CHAIN_ID,
-//                    TransactionTable.INITIATE_ACCOUNT_ID,
-//                    TransactionTable.PARAMETER,
-//                    TransactionTable.EXECUTION_ORDER);
-//            String sql4 = "INSERT INTO " +
-//                    "transaction("+ insertField2 + ")\n" +
-//                    "VALUES(?,?,?,?,?,?,?)";
-//            PreparedStatement ps4 = connection.prepareStatement(sql4);
-//            //第一条交易记录
-//            ps4.setString(1,transactionId);
-//            ps4.setInt(2,firstChainId);
-//            ps4.setInt(3,Integer.parseInt(launchAccountId));
-//            TransactionParamJson firstJson = new TransactionParamJson();
-//            firstJson.setMoney(req.getMoney());
-//            firstJson.setReceiverAccountId(firstAdminId);
-//            ps4.setString(4,firstJson.toString());
-//            ps4.setInt(5,1);
-//            ps4.addBatch();
-//            //第二条条交易记录
-//            ps4.setString(1,transactionId);
-//            ps4.setInt(2,secondChainId);
-//            ps4.setInt(3,secondAdminId);
-//            TransactionParamJson secondJson = new TransactionParamJson();
-//            secondJson.setMoney(req.getMoney());
-//            secondJson.setReceiverAccountId(participateAccountId);
-//            ps4.setString(4,secondJson.toString());
-//            ps4.setInt(5,2);
-//            ps4.addBatch();
-//            ps4.executeUpdate();
-//
-//            // TODO: 2023/8/17 调用发起事务接口
-//
-//        } catch (Exception e) {
-//            try {
-//                connection.rollback();
-//            } catch (SQLException throwables) {
-//                logger.error("数据库事务回滚失败");
-//            }
-//            logger.error("方法出错",e);
-//            callback.onResponse("跨链转账交易发起失败");
-//        }finally {
-////            JdbcUtils.close(connection,);
-//        }
+    }
+
     }
