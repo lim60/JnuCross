@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
 import com.jnu.jnucross.chains.ethereum.generated.SimpleStorage;
 import org.web3j.codegen.SolidityFunctionWrapperGenerator;
-import org.web3j.crypto.CipherException;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.RawTransaction;
-import org.web3j.crypto.WalletUtils;
+import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
@@ -43,19 +40,71 @@ public class EthereumWrapper extends ChainWrapper {
     static ObjectMapper objectMapper = new ObjectMapper();
 
     public EthereumWrapper(){
-        geth_url = "http://10.154.24.12:8545";
+        super();
+    }
+
+    public EthereumWrapper(String url, BigInteger privateKey){
+        super();
+        geth_url = url;
         web3j = Web3j.build(new HttpService(geth_url));
         try {
-            credentials = WalletUtils.loadJsonCredentials("", "{\"address\":\"07c65a8e7aea175283057afa9fb6ac28d43cb69d\",\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"7284312eb0495fac8962de86aaf0960a4e8a047180d5a3d51ff02c7e6f3bea08\",\"cipherparams\":{\"iv\":\"df390e190df78bf2f002ce6704ffe1b3\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":4096,\"p\":6,\"r\":8,\"salt\":\"6eaafa73bf89c18816dd6172fb17cefe77711903a83ee144ff8d9bad2159d907\"},\"mac\":\"bb70c6736b21e6a145ec23cc0a968c11e6f39e1b50fccf9cc28f19c6c5ebf22d\"},\"id\":\"ca3cf343-8d2b-4a81-b037-f5e2046bf4db\",\"version\":3}");
+            credentials = Credentials.create(ECKeyPair.create(privateKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public EthereumWrapper(String url, String hexPrivateKeyString){
+        super();
+        geth_url = url;
+        web3j = Web3j.build(new HttpService(geth_url));
+        try {
+            credentials = Credentials.create(hexPrivateKeyString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static EthereumWrapper build(){
+        EthereumWrapper ethereumWrapper = new EthereumWrapper();
+        ethereumWrapper.geth_url = "http://10.154.24.12:8545";
+        ethereumWrapper.web3j = Web3j.build(new HttpService(ethereumWrapper.geth_url));
+        try {
+            ethereumWrapper.credentials = WalletUtils.loadJsonCredentials("", "{\"address\":\"07c65a8e7aea175283057afa9fb6ac28d43cb69d\",\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"7284312eb0495fac8962de86aaf0960a4e8a047180d5a3d51ff02c7e6f3bea08\",\"cipherparams\":{\"iv\":\"df390e190df78bf2f002ce6704ffe1b3\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":4096,\"p\":6,\"r\":8,\"salt\":\"6eaafa73bf89c18816dd6172fb17cefe77711903a83ee144ff8d9bad2159d907\"},\"mac\":\"bb70c6736b21e6a145ec23cc0a968c11e6f39e1b50fccf9cc28f19c6c5ebf22d\"},\"id\":\"ca3cf343-8d2b-4a81-b037-f5e2046bf4db\",\"version\":3}");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CipherException e) {
             e.printStackTrace();
         }
+        return ethereumWrapper;
+    }
+
+    @Override
+    public void setChain(String url) {
+        geth_url = url;
+        web3j = Web3j.build(new HttpService(geth_url));
+    }
+
+    @Override
+    public void setAccount(String hexPrivateKeyString) {
+        try {
+            credentials = Credentials.create(hexPrivateKeyString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void setAccount(BigInteger privateKey) {
+        try {
+            credentials = Credentials.create(ECKeyPair.create(privateKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
-        EthereumWrapper chainWrapper = new EthereumWrapper();
+        EthereumWrapper chainWrapper = EthereumWrapper.build();
 
         System.out.println("Balance = " + chainWrapper.getBalance());
 

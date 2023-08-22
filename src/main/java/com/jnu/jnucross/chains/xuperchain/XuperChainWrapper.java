@@ -31,24 +31,61 @@ public class XuperChainWrapper extends ChainWrapper {
     static ObjectMapper objectMapper = new ObjectMapper();
 
     public XuperChainWrapper(){
-        xuperChain_url = "10.154.24.12:37101";
+        super();
+    }
+
+    public XuperChainWrapper(String url, BigInteger privateKey){
+        xuperChain_url = url;
         client = new XuperClient(xuperChain_url);
+        ECKeyPair ecKeyPair = ECKeyPair.create(privateKey);
+        account = Account.create(ecKeyPair);
+    }
+
+    public XuperChainWrapper(String url, String hexPrivateKeyString){
+        xuperChain_url = url;
+        client = new XuperClient(xuperChain_url);
+        ECKeyPair ecKeyPair = ECKeyPair.create(Numeric.toBigInt(hexPrivateKeyString));
+        account = Account.create(ecKeyPair);
+    }
+
+    public static XuperChainWrapper build(){
+        XuperChainWrapper xuperChainWrapper = new XuperChainWrapper();
+        xuperChainWrapper.xuperChain_url = "10.154.24.12:37101";
+        xuperChainWrapper.client = new XuperClient(xuperChainWrapper.xuperChain_url);
         ECKeyPair ecKeyPair = ECKeyPair.create(new BigInteger("111497060296999106528800133634901141644446751975433315540300236500052690483486"));
+        xuperChainWrapper.account = Account.create(ecKeyPair);
+        return xuperChainWrapper;
+    }
+
+    @Override
+    public void setChain(String url){
+        client = new XuperClient(url);
+    }
+
+    @Override
+    public void setAccount(String hexPrivateKeyString){
+        ECKeyPair ecKeyPair = ECKeyPair.create(Numeric.toBigInt(hexPrivateKeyString));
+        account = Account.create(ecKeyPair);
+    }
+
+    @Override
+    public void setAccount(BigInteger privateKey){
+        ECKeyPair ecKeyPair = ECKeyPair.create(privateKey);
         account = Account.create(ecKeyPair);
     }
 
     public static void main(String[] args) {
-        ChainWrapper chainWapper = new XuperChainWrapper();
+        ChainWrapper chainWrapper = XuperChainWrapper.build();
 
-        System.out.println("BlockNumber = " + chainWapper.getBlockNumber()); // 获取块高
+        System.out.println("BlockNumber = " + chainWrapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
-        System.out.println("The 1st block is = " + chainWapper.getBlockByNumber(2)); // 通过块高获取块
+        System.out.println("The 1st block is = " + chainWrapper.getBlockByNumber(2)); // 通过块高获取块
         System.out.println("----------------------------------");
         // 通过hash获取块
-        System.out.println("The block with hash 2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61 is = " + chainWapper.getBlockByHash("2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61"));
+        System.out.println("The block with hash 2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61 is = " + chainWrapper.getBlockByHash("2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61"));
         System.out.println("----------------------------------");
 //        // 获取transaction by hash
-        System.out.println("Get Transaction by hash = " + chainWapper.getTransaction("5939f2423d45b7512d9af6ac9f56553b21d5d03f0057da407f1133dbdc4a8c86"));
+        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("5939f2423d45b7512d9af6ac9f56553b21d5d03f0057da407f1133dbdc4a8c86"));
         System.out.println("----------------------------------");
 
         //RawTransaction rawTransaction = new RawTransaction();
@@ -108,9 +145,26 @@ public class XuperChainWrapper extends ChainWrapper {
         return coverToTransaction(xuperChainTransaction);
     }
 
-    public String deployContract(String bin, String abi, String contractName, Map<String, String> args){
-        com.jnu.jnucross.chains.xuperchain.xuper.api.Transaction t = client.deployEVMContract(account, bin.getBytes(), abi.getBytes(), contractName, args);
-        return t.getTxid();
+//    public String deployContract(String bin, String abi, String contractName, Map<String, String> args){
+//        com.jnu.jnucross.chains.xuperchain.xuper.api.Transaction t = client.deployEVMContract(account, bin.getBytes(), abi.getBytes(), contractName, args);
+//        return t.getTxid();
+//    }
+
+    public Transaction transfer(String to, BigInteger amount){
+        com.jnu.jnucross.chains.xuperchain.xuper.api.Transaction t =  client.transfer(account, to, amount, "1");
+        return coverToTransaction(t.getRawTx());
+    }
+
+    // query不会发生交易，只请求合约上的函数
+    public Transaction query(String contractName, String method, Map<String, String> args){
+        com.jnu.jnucross.chains.xuperchain.xuper.api.Transaction t = client.queryEVMContract(account, contractName, method, args);;
+        return coverToTransaction(t.getRawTx());
+    }
+
+    // invoke会产生交易
+    public Transaction invoke(String contractName, String method, Map<String, String> args, BigInteger amount){
+        com.jnu.jnucross.chains.xuperchain.xuper.api.Transaction t = client.invokeEVMContract(account, contractName, method, args, amount);
+        return coverToTransaction(t.getRawTx());
     }
 
     public static Block covertToBlock(XchainOuterClass.InternalBlock xuperBlock){

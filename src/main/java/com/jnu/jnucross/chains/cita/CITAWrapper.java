@@ -2,16 +2,18 @@ package com.jnu.jnucross.chains.cita;
 
 import com.citahub.cita.protocol.core.DefaultBlockParameter;
 import com.citahub.cita.protocol.core.methods.response.AppBlock;
-import com.citahub.cita.protocol.core.methods.response.TransactionReceipt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.jnu.jnucross.chains.*;
 
-import com.citahub.cita.crypto.WalletUtils;
+
 import com.citahub.cita.crypto.Credentials;
 import com.citahub.cita.protocol.CITAj;
 import com.citahub.cita.protocol.http.HttpService;
+import com.jnu.jnucross.chains.xuperchain.xuper.api.Account;
+import com.jnu.jnucross.chains.xuperchain.xuper.api.XuperClient;
+import com.jnu.jnucross.chains.xuperchain.xuper.crypto.xchain.sign.ECKeyPair;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -27,34 +29,67 @@ import java.util.List;
  */
 public class CITAWrapper extends ChainWrapper {
     String cita_url; // = "http://10.154.24.12:8545";
-    CITAj citaj;// = Web3j.build(new HttpService(geth_url));
+    CITAj client;// = Web3j.build(new HttpService(geth_url));
     Credentials credentials;//  = null;
     static ObjectMapper objectMapper = new ObjectMapper();
 
-    public CITAWrapper() {
-        cita_url = "http://10.154.24.5:1337";
-        citaj = CITAj.build(new HttpService(cita_url));
+    public CITAWrapper(){
+        super();
+    }
+
+    public static CITAWrapper build() {
+        CITAWrapper citaWrapper = new CITAWrapper();
+        citaWrapper.cita_url = "http://10.154.24.5:1337";
+        citaWrapper.client = CITAj.build(new HttpService(citaWrapper.cita_url));
         try {
-            credentials = Credentials.create("0x2e40857e98f1da9300b4991eca62231ebb7e0f4a13fabbd2fc9a1f19bff53825");
+            citaWrapper.credentials = Credentials.create("0x2e40857e98f1da9300b4991eca62231ebb7e0f4a13fabbd2fc9a1f19bff53825");
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return citaWrapper;
+    }
+
+    public CITAWrapper(String url, BigInteger privateKey){
+        cita_url = url;
+        client = CITAj.build(new HttpService(cita_url));
+        credentials = Credentials.create(com.citahub.cita.crypto.ECKeyPair.create(privateKey));
+    }
+
+    public CITAWrapper(String url, String hexPrivateKeyString){
+        cita_url = url;
+        client = CITAj.build(new HttpService(cita_url));
+        credentials = Credentials.create(hexPrivateKeyString);
+    }
+
+    @Override
+    public void setChain(String url){
+        client = CITAj.build(new HttpService(url));
+    }
+
+    @Override
+    public void setAccount(String hexPrivateKeyString){
+        credentials = Credentials.create(hexPrivateKeyString);
+    }
+
+    @Override
+    public void setAccount(BigInteger privateKey){
+        credentials = Credentials.create(com.citahub.cita.crypto.ECKeyPair.create(privateKey));
     }
 
     public static void main(String[] args) {
-        ChainWrapper chainWapper = new CITAWrapper();
+        ChainWrapper chainWrapper = CITAWrapper.build();
 
-        System.out.println("Balance = " + chainWapper.getBalance());
+        System.out.println("Balance = " + chainWrapper.getBalance());
 
-        System.out.println("BlockNumber = " + chainWapper.getBlockNumber()); // 获取块高
+        System.out.println("BlockNumber = " + chainWrapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
-        System.out.println("The 105509 block is = " + chainWapper.getBlockByNumber(105509)); // 通过块高获取块
+        System.out.println("The 105509 block is = " + chainWrapper.getBlockByNumber(105509)); // 通过块高获取块
         System.out.println("----------------------------------");
 //        // 通过hash获取块
-        System.out.println("The block with hash 0x1d927c4fe970cc51468f95e52a7690d8d251fbebf5a59df529ee264ea876bed3 is = " + chainWapper.getBlockByHash("0x1d927c4fe970cc51468f95e52a7690d8d251fbebf5a59df529ee264ea876bed3"));
+        System.out.println("The block with hash 0x1d927c4fe970cc51468f95e52a7690d8d251fbebf5a59df529ee264ea876bed3 is = " + chainWrapper.getBlockByHash("0x1d927c4fe970cc51468f95e52a7690d8d251fbebf5a59df529ee264ea876bed3"));
         System.out.println("----------------------------------");
 ////        // 获取transaction by hash
-        System.out.println("Get Transaction by hash = " + chainWapper.getTransaction("0xbf6b70703c95892bf42d3b1ef8cdc7538089d68eb54defb74fc08ccc8df8820f"));
+        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("0xbf6b70703c95892bf42d3b1ef8cdc7538089d68eb54defb74fc08ccc8df8820f"));
         System.out.println("----------------------------------");
 
         //RawTransaction rawTransaction = new RawTransaction();
@@ -69,7 +104,7 @@ public class CITAWrapper extends ChainWrapper {
     @Override
     public BigInteger getBalance(){
         try {
-            return citaj.appGetBalance(credentials.getAddress(), DefaultBlockParameter.valueOf("lasest")).send().getBalance();
+            return client.appGetBalance(credentials.getAddress(), DefaultBlockParameter.valueOf("lasest")).send().getBalance();
         } catch (Exception e) {
             e.printStackTrace();
             return BigInteger.valueOf(0);
@@ -79,7 +114,7 @@ public class CITAWrapper extends ChainWrapper {
     @Override
     public long getBlockNumber() {
         try {
-            return citaj.appBlockNumber().send().getBlockNumber().longValue();
+            return client.appBlockNumber().send().getBlockNumber().longValue();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,7 +125,7 @@ public class CITAWrapper extends ChainWrapper {
     public Block getBlockByNumber(long blockNumber) {
         AppBlock.Block citaBlock;
         try {
-            citaBlock = citaj.appGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), true).send().getResult();
+            citaBlock = client.appGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), true).send().getResult();
         } catch (IOException e) {
             e.printStackTrace();
             return new Block();
@@ -102,7 +137,7 @@ public class CITAWrapper extends ChainWrapper {
     public Block getBlockByHash(String blockHash) {
         AppBlock.Block citaBlock = null;
         try {
-            citaBlock = citaj.appGetBlockByHash(blockHash, true).send().getBlock();
+            citaBlock = client.appGetBlockByHash(blockHash, true).send().getBlock();
         } catch (IOException e) {
             e.printStackTrace();
             return new Block();
@@ -113,7 +148,7 @@ public class CITAWrapper extends ChainWrapper {
     @Override
     public Transaction getTransaction(String transactionHash) {
         try {
-            com.citahub.cita.protocol.core.methods.response.Transaction citaTransaction = citaj.appGetTransactionByHash(transactionHash).send().getTransaction();
+            com.citahub.cita.protocol.core.methods.response.Transaction citaTransaction = client.appGetTransactionByHash(transactionHash).send().getTransaction();
             return coverToTransaction(citaTransaction);
         } catch (IOException e) {
             e.printStackTrace();

@@ -93,6 +93,23 @@ public class FabricWrapper extends ChainWrapper {
     }
 
     @Override
+    public void setChain(String url) {
+        // todo
+    }
+
+    @Override
+    public void setAccount(String hexPrivateKeyString) {
+        // todo
+
+    }
+
+    @Override
+    public void setAccount(BigInteger privateKey) {
+        // todo
+
+    }
+
+    @Override
     public long getBlockNumber() {
 //        try {
 //            return web3j.ethBlockNumber().send().getBlockNumber().longValue();

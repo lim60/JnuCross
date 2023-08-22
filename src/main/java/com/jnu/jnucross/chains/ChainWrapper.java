@@ -1,5 +1,9 @@
 package com.jnu.jnucross.chains;
 
+import com.citahub.cita.crypto.Credentials;
+import com.citahub.cita.protocol.CITAj;
+import com.citahub.cita.protocol.http.HttpService;
+
 import java.math.BigInteger;
 
 /**
@@ -19,6 +23,12 @@ public abstract class ChainWrapper {
     public abstract Transaction getTransaction(String transactionHash);
 
     public abstract BigInteger getBalance();
+
+    public abstract void setChain(String url);
+
+    public abstract void setAccount(String hexPrivateKeyString);
+
+    public abstract void setAccount(BigInteger privateKey);
 
 //    public abstract void call();
 //

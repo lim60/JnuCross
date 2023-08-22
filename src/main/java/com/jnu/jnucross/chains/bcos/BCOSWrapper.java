@@ -5,9 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.client.ClientImpl;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
+import org.fisco.bcos.sdk.config.Config;
+import org.fisco.bcos.sdk.config.ConfigOption;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 import java.io.IOException;
@@ -29,14 +34,27 @@ public class BCOSWrapper extends ChainWrapper {
 
     static ObjectMapper objectMapper = new ObjectMapper();
 
-    public BCOSWrapper() {
-        configFile = "./src/main/resources/chains-sample/bcos/config-example.toml";
+    public BCOSWrapper(){
+        super();
+    }
+
+    public static BCOSWrapper build() {
+        BCOSWrapper bcosWrapper = new BCOSWrapper();
+        bcosWrapper.configFile = "./src/main/resources/chains-sample/bcos/config-example.toml";
+        bcosWrapper.sdk = BcosSDK.build(bcosWrapper.configFile);
+        bcosWrapper.client = bcosWrapper.sdk.getClient(Integer.valueOf(1));
+        return bcosWrapper;
+    }
+
+    public BCOSWrapper(String tomlPath){
+        super();
+        configFile = tomlPath;
         sdk = BcosSDK.build(configFile);
         client = sdk.getClient(Integer.valueOf(1));
     }
 
     public static void main(String[] args) throws IOException {
-        ChainWrapper chainWapper = new BCOSWrapper();
+        ChainWrapper chainWapper = BCOSWrapper.build();
         System.out.println("BlockNumber = " + chainWapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
         System.out.println("The 1st block is = " + chainWapper.getBlockByNumber(1)); // 通过块高获取块
@@ -57,6 +75,34 @@ public class BCOSWrapper extends ChainWrapper {
     @Override
     public BigInteger getBalance(){
         return BigInteger.ZERO;
+    }
+
+    @Override
+    public void setChain(String url) {
+        // todo: bcos的client实例化逻辑较为复杂，且进行了较多的封装，建议生成公私钥之后，产生config-example.toml文件后载入
+//        configFile = "./src/main/resources/chains-sample/bcos/config-example.toml";
+//        try {
+//            ConfigOption configOption = Config.load(configFile);
+//            NetworkConfig networkConfig = configOption.getNetworkConfig();
+//            List<String> peers = networkConfig.getPeers();
+//            peers.add(url);
+//            networkConfig.setPeers(peers);
+//            configOption.setNetworkConfig(networkConfig);
+//            sdk = new BcosSDK(configOption);
+//            client = sdk.getClient(Integer.valueOf(1));
+//        } catch (ConfigException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    @Override
+    public void setAccount(String hexPrivateKeyString) {
+        // todo
+    }
+
+    @Override
+    public void setAccount(BigInteger privateKey) {
+        // todo
     }
 
 

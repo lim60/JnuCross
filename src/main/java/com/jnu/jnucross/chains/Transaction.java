@@ -1,5 +1,10 @@
 package com.jnu.jnucross.chains;
 
+import com.google.protobuf.ByteString;
+
+import java.util.Arrays;
+import java.util.Map;
+
 public class Transaction {
     private String from;
     private String to;
@@ -7,6 +12,15 @@ public class Transaction {
     private String hash;
     private byte[] rawBytes; //
     private long blockNumber;
+
+    // 合约调用相关
+    private String contractName;
+    private String methodName;
+    private Map<String, String> args;
+    private int status;
+    private String message;
+
+
 
     public Transaction() {
     }
@@ -59,6 +73,46 @@ public class Transaction {
         this.blockNumber = blockNumber;
     }
 
+    public String getContractName() {
+        return contractName;
+    }
+
+    public void setContractName(String contractName) {
+        this.contractName = contractName;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public Map<String, String> getArgs() {
+        return args;
+    }
+
+    public void setArgs(Map<String, String> args) {
+        this.args = args;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     @Override
     public String toString() {
         return "Transaction{" +
@@ -66,8 +120,13 @@ public class Transaction {
                 ", to='" + to + '\'' +
                 ", chainType=" + chainType +
                 ", hash='" + hash + '\'' +
-                ", rawBytes=" + Numeric.toHexString(rawBytes) +
+                ", rawBytes=" + Arrays.toString(rawBytes) +
                 ", blockNumber=" + blockNumber +
+                ", contractName='" + contractName + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", args=" + args +
+                ", status=" + status +
+                ", message='" + message + '\'' +
                 '}';
     }
 }
