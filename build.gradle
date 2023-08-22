@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.sherter.google-java-format' version '0.8'
+    //id 'com.github.sherter.google-java-format' version '0.8'
     id 'org.ajoberstar.grgit' version '4.0.1'
 }
 
@@ -106,18 +106,18 @@ publishing {
 }
 
 
-googleJavaFormat {
-    options style: 'AOSP'
-    source = sourceSets*.allJava
-    include '**/*.java'
-    exclude '**/temp/*.java'
-}
+//googleJavaFormat {
+//    options style: 'AOSP'
+//    source = sourceSets*.allJava
+//    include '**/*.java'
+//    exclude '**/temp/*.java'
+//}
 
-verifyGoogleJavaFormat {
-    source = sourceSets*.allJava
-    include '**/*.java'
-    exclude '**/temp/*.java'
-}
+//verifyGoogleJavaFormat {
+//    source = sourceSets*.allJava
+ //   include '**/*.java'
+ //   exclude '**/temp/*.java'
+//}
 
 configurations.all {
     exclude module: "spring-boot-starter-logging"

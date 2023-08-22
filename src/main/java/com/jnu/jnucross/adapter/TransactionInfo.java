@@ -29,6 +29,15 @@ public class TransactionInfo {
     private String ErrorMessage;
     private String ipAddr;
     private Map<String, Object> options = new HashMap<String, Object>();
+    private int chain_type;
+
+    public int getChain_type() {
+        return chain_type;
+    }
+
+    public void setChain_type(int chain_type) {
+        this.chain_type = chain_type;
+    }
 
 
     public void setErrorMessage(String ErrorMessage) {
