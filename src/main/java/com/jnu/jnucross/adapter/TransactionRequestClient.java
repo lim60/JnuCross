@@ -24,6 +24,7 @@ public class TransactionRequestClient {
     private int seq;    // the execution sequence
     private String type; // call or sendTransaction
     private  String transaction_ip; //交易地址
+    private int chain_type;
 
     /** format of option:
       * options: {
@@ -65,6 +66,9 @@ public class TransactionRequestClient {
     public String getType(){return type;}  // the type: contractInvocation or Transaction
     public void setType(String type){this.type = type;}
     public int getChain() {return chain_id;}
+    public int getChain_type() {
+        return chain_type;
+    }
 
     public int getInitiate_account_id() {
         return initiate_account_id;
@@ -98,6 +102,7 @@ public class TransactionRequestClient {
             node.setOptions(transactionRequest.getOptions());
             node.setXaTransactionID(XATransactionID);
             node.setStatus(1);
+            node.setChain_type(transactionRequest.getChain_type());
             DatabaseUtil.updateTransaction(node,"insert");
             alltransactions.add(node);
         }

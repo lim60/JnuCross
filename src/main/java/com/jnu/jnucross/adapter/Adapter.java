@@ -60,13 +60,7 @@ public class Adapter {
     }
 
     /* supported blockchains */
-    public enum chainType{
-        bcos,
-        farbic,
-        cita,
-        xuperChain,
-        ethereum
-    }
+
 
     /* may not be used */
     public static class TransactionErrorCode {
@@ -176,7 +170,7 @@ public class Adapter {
     }
 
     /** obtain all raw transaction from the request of client *
-      * We also construct the transaction graph according to the seq
+     * We also construct the transaction graph according to the seq
      **/
     public static List<TransactionInfo> obtainAllTransactions(RestRequest<XATransactionRequest> Requests) throws ExecutionException, InterruptedException{
         String XATransactionID =  Requests.getData().getXaTransactionID();
@@ -375,26 +369,49 @@ public class Adapter {
         return message;
     }
 
+    public static void processTransactionError(TransactionInfo item, int index,
+                                                   RestRequest<XATransactionRequest> xaRequest,
+                                                   List<TransactionInfo> bfsResult,
+                                                   XATransactionManager xaTransactionManager,
+                                                   UniversalAccount ua)
+    {
+        /* update the status of a raw transaction to be executing */
+        item.setStatus(TransactionStatus.fail.ordinal());
+        //setTransactionExceptionMessage(transactionException.getErrorCode(), item);
+        //item.setErrorMessage(transactionException.getMessage());
+        DatabaseUtil.updateTransaction(item, "fail");
+        /* update the status of the cross chain transaction to fail */
+        DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), item.getXaTransactionID());
+        /* once a raw transaction failed, roll back all previously executed raw transactions */
+        rollbackPreviousTransactions(bfsResult, index, xaRequest, ua, xaTransactionManager);
+
+        /* update the status of the cross chain transaction to rollbacked */
+        ZonedDateTime XAendTime = ZonedDateTime.now();
+        DatabaseUtil.updateXATransactionFinish(XATransactionStatus.rollbacked.ordinal(),
+                xaRequest.getData().getXaTransactionID(),
+                XAendTime);
+    }
+
     /** Execute each raw transaction recursively **/
     public static void executeAllTransactions(UniversalAccount ua, List<TransactionInfo> bfsResult,
                                               int index, RestRequest<XATransactionRequest> xaRequest,
                                               XATransactionManager xaTransactionManager, WeCrossHost host) {
 
         /** all transactions are executed,
-            update the status of the cross chain transaction to success
-        **/
+         update the status of the cross chain transaction to success
+         **/
         if (index >= bfsResult.size()) {
             logger.info("All transactions executed.");
             ZonedDateTime endTime = ZonedDateTime.now();
             DatabaseUtil.updateXATransactionFinish(XATransactionStatus.success.ordinal(),
-                                                    xaRequest.getData().getXaTransactionID(),
-                                                    endTime);
+                    xaRequest.getData().getXaTransactionID(),
+                    endTime);
             return;
         }
-        TransactionInfo item = bfsResult.get(index);
-        List<String> txpaths = item.getPaths();
-        logger.info("txpaths " + txpaths.get(0));
 
+        TransactionInfo item = bfsResult.get(index);
+
+        List<String> txpaths = item.getPaths();
         Path path = obtain_path(txpaths.get(0));
         String tx_method = item.getMethod();
         List<String> method_args = item.getArgs();
@@ -402,122 +419,126 @@ public class Adapter {
         Map<String, Object> options = item.getOptions();
         logger.info("before calling getResource");
         Resource resourceObj = getResource(path,host);
-        logger.info("resourceobj" + resourceObj);
-        for (Map.Entry<String, Object> entry : options.entrySet()) {
-            logger.info("options: " + entry.getKey());
-            logger.info("options: " + entry.getValue());
-        }
+
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setMethod(tx_method);
         transactionRequest.setArgs(method_args.toArray(new String[0]));
         transactionRequest.setOptions(options);
 
-        if (Objects.equals(item.getType(), "transaction")) {
-            String startTime =  ZonedDateTime.now().format(formatter);
-            item.setStartTimestamp(startTime);
-            /* update the status of a raw transaction to be executing */
-            item.setStatus(TransactionStatus.executing.ordinal());
-            DatabaseUtil.updateTransaction(item,"status");
-            assert resourceObj != null;
-            /* send transaction */
-            resourceObj.asyncSendTransaction(transactionRequest, ua, (transactionException, transactionResponse) -> {
-                ZonedDateTime endTime =  ZonedDateTime.now();
-                item.setEndTimestamp(endTime);
-                item.setResponse(transactionResponse);
-                logger.info(item.getTransactionID() + " TransactionResponse: {}, TransactionException, ", transactionResponse, transactionException);
+        int chain_type = item.getChain_type();
 
-                if (transactionException != null) {
-                    /* update the status of the raw transaction to fail */
-                    item.setStatus(TransactionStatus.fail.ordinal());
-                    //setTransactionExceptionMessage(transactionException.getErrorCode(), item);
-                    item.setErrorMessage(transactionException.getMessage());
-                    DatabaseUtil.updateTransaction(item,"fail");
-                    /* update the status of the cross chain transaction to fail */
-                    DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), item.getXaTransactionID());
-                    /* once a raw transaction failed, roll back all previously executed raw transactions */
-                    rollbackPreviousTransactions(bfsResult,index,xaRequest,ua,xaTransactionManager);
+        switch(chain_type){
+            case (ChainType.cita_chain):
+            {
+                break;
+            }
+            case (ChainType.ethereum_chain) :
+            {
+                break;
+            }
+            case (ChainType.xuperChain):
+            {
+                break;
+            }
+            case(ChainType.bcos_chain):
+            case(ChainType.farbic_chain): {
+                if (Objects.equals(item.getType(), "transaction")) {
+                    String startTime = ZonedDateTime.now().format(formatter);
+                    item.setStartTimestamp(startTime);
+                    /* update the status of a raw transaction to be executing */
+                    item.setStatus(TransactionStatus.executing.ordinal());
+                    DatabaseUtil.updateTransaction(item, "status");
+                    assert resourceObj != null;
+                    /* send transaction */
+                    resourceObj.asyncSendTransaction(transactionRequest, ua, (transactionException, transactionResponse) -> {
+                        ZonedDateTime endTime = ZonedDateTime.now();
+                        item.setEndTimestamp(endTime);
+                        item.setResponse(transactionResponse);
+                        logger.info(item.getTransactionID() + " TransactionResponse: {}, TransactionException, ", transactionResponse, transactionException);
 
-                    /* update the status of the cross chain transaction to rollbacked */
-                    ZonedDateTime XAendTime = ZonedDateTime.now();
-                    DatabaseUtil.updateXATransactionFinish(XATransactionStatus.rollbacked.ordinal(),
-                            xaRequest.getData().getXaTransactionID(),
-                            XAendTime);
-                } else {
-                    if (transactionResponse.getErrorCode() != 0){
-                        /* update the status of the raw transaction to fail */
-                        item.setStatus(TransactionStatus.fail.ordinal());
-                        String errorMsg = createErrorMessage(item);
-                        item.setErrorMessage(errorMsg);
-                        DatabaseUtil.updateTransaction(item,"fail");
-                        /* update the status of the cross chain transaction to fail */
-                        DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), item.getXaTransactionID());
-                        /* once a raw transaction failed, roll back all previously executed raw transactions */
-                        rollbackPreviousTransactions(bfsResult,index,xaRequest,ua,xaTransactionManager);
+                        if (transactionException != null) {
+                            /* update the status of the raw transaction to fail */
+                            processTransactionError(item,
+                                                        index,
+                                                        xaRequest,
+                                                        bfsResult,
+                                                        xaTransactionManager,
+                                                        ua);
+                        } else {
+                            if (transactionResponse.getErrorCode() != 0) {
+                                /* update the status of the raw transaction to fail */
+                                processTransactionError(item,
+                                        index,
+                                        xaRequest,
+                                        bfsResult,
+                                        xaTransactionManager,
+                                        ua);
+                            } else {
+                                /* raw transaction executed successfully, update its status to success */
+                                item.setStatus(TransactionStatus.success.ordinal());
+                                DatabaseUtil.updateTransaction(item, "success");
+                                int nextIndex = index + 1;
+                                // Execute next transaction
+                                executeAllTransactions(ua, bfsResult, nextIndex, xaRequest, xaTransactionManager, host);
+                            }
+                        }
+                    });
+                } else if (Objects.equals(item.getType(), "call")) {
+                    String startTime = ZonedDateTime.now().format(formatter);
+                    item.setStartTimestamp(startTime);
+                    item.setStatus(TransactionStatus.executing.ordinal());
+                    DatabaseUtil.updateTransaction(item, "status");
+                    assert resourceObj != null;
+                    resourceObj.asyncCall(transactionRequest, ua, (transactionException, transactionResponse) -> {
+                        ZonedDateTime endTime = ZonedDateTime.now();
+                        item.setEndTimestamp(endTime);
+                        item.setResponse(transactionResponse);
 
-                        /* update the status of the cross chain transaction to rollbacked */
-                        ZonedDateTime XAendTime = ZonedDateTime.now();
-                        DatabaseUtil.updateXATransactionFinish(XATransactionStatus.rollbacked.ordinal(),
-                                xaRequest.getData().getXaTransactionID(),
-                                XAendTime);
-                    }
-                    else {
-                        /* raw transaction executed successfully, update its status to success */
-                        item.setStatus(TransactionStatus.success.ordinal());
-                        DatabaseUtil.updateTransaction(item,"success");
-                        int nextIndex = index + 1;
-                        // Execute next transaction
-                        executeAllTransactions(ua, bfsResult, nextIndex, xaRequest,xaTransactionManager,host);
-                    }
+                        logger.info(item.getTransactionID() + " TransactionResponse: {}, TransactionException, ", transactionResponse, transactionException);
+
+                        if (transactionException != null) {
+                            processTransactionError(item,
+                                    index,
+                                    xaRequest,
+                                    bfsResult,
+                                    xaTransactionManager,
+                                    ua);
+                        } else {
+                            if (transactionResponse.getErrorCode() != 0) {
+                                processTransactionError(item,
+                                        index,
+                                        xaRequest,
+                                        bfsResult,
+                                        xaTransactionManager,
+                                        ua);
+                            } else {
+                                item.setStatus(TransactionStatus.success.ordinal());
+                                DatabaseUtil.updateTransaction(item, "success");
+                                int nextIndex = index + 1;
+                                // execute next transaction
+                                executeAllTransactions( ua,
+                                                        bfsResult,
+                                                        nextIndex,
+                                                        xaRequest,
+                                                        xaTransactionManager,
+                                                        host);
+                            }
+                        }
+                    });
                 }
-            });
-        }
-        else if (Objects.equals(item.getType(), "call")){
-            String startTime =  ZonedDateTime.now().format(formatter);
-            item.setStartTimestamp(startTime);
-            item.setStatus(TransactionStatus.executing.ordinal());
-            DatabaseUtil.updateTransaction(item,"status");
-            assert resourceObj != null;
-            resourceObj.asyncCall(transactionRequest, ua, (transactionException, transactionResponse) -> {
-                ZonedDateTime endTime = ZonedDateTime.now();
-                item.setEndTimestamp(endTime);
-                item.setResponse(transactionResponse);
-
-                logger.info(item.getTransactionID() + " TransactionResponse: {}, TransactionException, ", transactionResponse, transactionException);
-
-                if (transactionException != null) {
-                    item.setErrorMessage(transactionException.getMessage());
-                    item.setStatus(TransactionStatus.fail.ordinal());
-                    DatabaseUtil.updateTransaction(item,"fail");
-                    DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), item.getXaTransactionID());
-                    rollbackPreviousTransactions(bfsResult,index,xaRequest,ua,xaTransactionManager);
-                    DatabaseUtil.updateXATransaction(XATransactionStatus.rollbacked.ordinal(), item.getXaTransactionID());
-
-                } else {
-                    if (transactionResponse.getErrorCode() !=0 ){
-                        item.setStatus(TransactionStatus.fail.ordinal());
-                        item.setErrorMessage(item.getResponse().getMessage());
-                        DatabaseUtil.updateTransaction(item,"fail");
-                        DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), item.getXaTransactionID());
-                        rollbackPreviousTransactions(bfsResult,index,xaRequest,ua,xaTransactionManager);
-
-                        DatabaseUtil.updateXATransaction(XATransactionStatus.rollbacked.ordinal(), item.getXaTransactionID());
-                    }
-                    else {
-                        item.setStatus(TransactionStatus.success.ordinal());
-                        DatabaseUtil.updateTransaction(item,"success");
-                        int nextIndex = index + 1;
-                        // execute next transaction
-                        executeAllTransactions(ua, bfsResult, nextIndex, xaRequest,xaTransactionManager,host);
-                    }
-                }
-            });
+                break;
+            }
+            default:
+                logger.info("unsupported chains");
+                new RuntimeException();
+                break;
         }
     }
 
-    /* start the cross chain transction
+    /* start the cross chain transaction
      * (1): call asyncStartXATransaction to start a XA
-     * (2): when the response of asyncStartXATransaction is success, then execute each raw transaction
-    */
+     * (2): when the response of asyncStartXATransaction is success, then execute each raw transaction recursively
+     */
     public static void startXATransaction(String content,
                                           UniversalAccount ua, RestResponse<XAResponse> restResponse,
                                           XATransactionManager xaTransactionManager,
@@ -567,10 +588,12 @@ public class Adapter {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
             restResponse.setMessage(e.getMessage());
+            throw  new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
             restResponse.setMessage("Undefined error: " + e.getMessage());
+            throw  new RuntimeException();
         }
     }
 
@@ -614,10 +637,12 @@ public class Adapter {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
             restResponse.setMessage(e.getMessage());
+            throw  new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
             restResponse.setMessage("Undefined error: " + e.getMessage());
+            throw  new RuntimeException();
         }
     }
 
@@ -679,10 +704,12 @@ public class Adapter {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
             restResponse.setMessage(e.getMessage());
+            throw new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
             restResponse.setMessage("Undefined error: " + e.getMessage());
+            throw  new RuntimeException();
         }
     }
 
@@ -728,10 +755,12 @@ public class Adapter {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
             restResponse.setMessage(e.getMessage());
+            throw  new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
             restResponse.setMessage("Undefined error: " + e.getMessage());
+            throw  new RuntimeException();
         }
     }
 
@@ -768,10 +797,12 @@ public class Adapter {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
             restResponse.setMessage(e.getMessage());
+            throw  new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
             restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
             restResponse.setMessage("Undefined error: " + e.getMessage());
+            throw  new RuntimeException();
         }
 
     }

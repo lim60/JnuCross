@@ -36,6 +36,7 @@ public class MyUserURIHandler implements URIHandler {
 //                        int a = 10/0;
 //                    User czg = userTableJPA.findByUsername("czg");
 //                        callback.onResponse(ResultUtil.success(students));
+                        callback.onResponse("调用success");
                         // 如果出现异常，事务将会回滚
                         // 如果没有异常，事务将会提交
                     } catch (Exception e) {
