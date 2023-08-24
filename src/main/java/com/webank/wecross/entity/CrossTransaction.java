@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 跨链事务表
@@ -18,6 +19,7 @@ public class CrossTransaction implements Serializable {
     /**
      * 事务id,uuid
      */
+    @TableId(type = IdType.INPUT)
     private String id;
 
     /**

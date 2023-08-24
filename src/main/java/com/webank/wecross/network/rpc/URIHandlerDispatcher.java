@@ -9,6 +9,7 @@ import com.webank.wecross.network.rpc.netty.URIMethod;
 import com.webank.wecross.network.rpc.web.WebService;
 import com.webank.wecross.restserver.fetcher.ResourceFetcher;
 import com.webank.wecross.restserver.fetcher.TransactionFetcher;
+import com.webank.wecross.routine.xa.XATransactionManager;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +37,18 @@ public class URIHandlerDispatcher {
     //事务
     private TransactionTemplate transactionTemplate;
 
+    private XATransactionManager xaTransactionManager;
+
     //mapper
     private CrossTransactionMapper crossTransactionMapper;
     private TransactionMapper transactionMapper;
     private TChainAccountsMapper tChainAccountsMapper;
     private TUniversalAccountsMapper tUniversalAccountsMapper;
+    private ChainMapper chainMapper;
+    private SmartContractMapper smartContractMapper;
+    private GatewayMapper gatewayMapper;
+    private ChainNodeMapper chainNodeMapper;
+    //mapper
 
     public Map<URIMethod, URIHandler> getRequestURIMapper() {
         return requestURIMapper;
@@ -126,15 +134,29 @@ public class URIHandlerDispatcher {
         registerURIHandler(new URIMethod("GET", "/test/getMyUser"), myUserURIHandler);
 
         //JnuCross接口-----------------
-        JnuCrossURIHandler  jnuCrossURIHandler = new JnuCrossURIHandler();
+        JnuCrossURIHandler jnuCrossURIHandler = new JnuCrossURIHandler();
         jnuCrossURIHandler.setAccountManager(host.getAccountManager());
+
+        jnuCrossURIHandler.setXaTransactionManager(xaTransactionManager);
+        jnuCrossURIHandler.setWeCrossHost(host);
         jnuCrossURIHandler.setTransactionTemplate(transactionTemplate);//事务
         jnuCrossURIHandler.setCrossTransactionMapper(crossTransactionMapper);
         jnuCrossURIHandler.setTransactionMapper(transactionMapper);
         jnuCrossURIHandler.setTChainAccountsMapper(tChainAccountsMapper);
         jnuCrossURIHandler.setTUniversalAccountsMapper(tUniversalAccountsMapper);
-        registerURIHandler(new URIMethod("POST", "/transaction/crossChainTransfer"), jnuCrossURIHandler);
-        registerURIHandler(new URIMethod("GET", "/transaction/getJnuCrossTransaction"), jnuCrossURIHandler);
+        jnuCrossURIHandler.setChainMapper(chainMapper);
+        jnuCrossURIHandler.setSmartContractMapper(smartContractMapper);
+        jnuCrossURIHandler.setGatewayMapper(gatewayMapper);
+        jnuCrossURIHandler.setChainNodeMapper(chainNodeMapper);
+        registerURIHandler(new URIMethod("POST", "/transaction/generateTransferTransaction"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("GET", "/transaction/getCrossTransaction"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("GET", "/transaction/getAddressPageInfo"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("GET", "/transaction/getAvailableIp"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("GET", "/transaction/doPing"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("GET", "/transaction/getTransactionInfo"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("POST", "/transaction/startCrossTransaction"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("POST", "/transaction/commitTransaction"), jnuCrossURIHandler);
+        registerURIHandler(new URIMethod("POST", "/transaction/rollbackTransaction"), jnuCrossURIHandler);
         //JnuCross接口-------------------
 
         logger.info(" initialize size: {}", requestURIMapper.size());

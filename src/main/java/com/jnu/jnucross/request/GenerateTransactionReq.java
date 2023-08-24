@@ -3,30 +3,35 @@ package com.jnu.jnucross.request;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
- * 跨链转账请求
+ * 转账事务生成请求
  */
 @Data
-public class CrossChainTransferReq {
+public class GenerateTransactionReq {
 
 
     /**
-     * 事务idid-uuid
+     * 事务id
      */
-    private String transactionId;
+    private String crossTransactionId;
     /**
      * 发起账户id  A1
      */
     private Long launchAccountId;
     /**
+     * 发起账户名
+     */
+    private String launchAccountName;
+    /**
      * 参与账户id
      */
     private Long participateAccountId;
     /**
-     * 寻址策略
+     * 参与账户名
      */
-    private Integer addressingStrategy;
+    private String participateAccountName;
     /**
      * 区块链ids
      */
@@ -36,6 +41,13 @@ public class CrossChainTransferReq {
      * 金额
      */
     private BigDecimal money;
+
+    /**
+     * 交易id
+     */
+    private List<Long> transactionIds;
+
+
 
 
 

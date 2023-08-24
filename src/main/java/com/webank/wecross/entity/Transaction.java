@@ -18,13 +18,18 @@ public class Transaction implements Serializable {
     /**
      * 交易id
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.INPUT)
     private Long id;
 
     /**
      * 交易哈希值
      */
     private String hash;
+
+    /**
+     * 交易类型：0，余额转账；1，合约调用
+     */
+    private Integer type;
 
     /**
      * 所属事务id

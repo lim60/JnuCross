@@ -3,6 +3,7 @@ package com.webank.wecross.config;
 import com.moandjiezana.toml.Toml;
 import com.webank.wecross.account.AccountManager;
 import com.webank.wecross.exception.WeCrossException;
+import com.webank.wecross.host.WeCrossHost;
 import com.webank.wecross.mapper.*;
 import com.webank.wecross.network.rpc.RPCService;
 import com.webank.wecross.network.rpc.URIHandlerDispatcher;
@@ -12,6 +13,7 @@ import com.webank.wecross.network.rpc.netty.RPCConfig;
 import com.webank.wecross.network.rpc.web.WebService;
 import javax.annotation.Resource;
 
+import com.webank.wecross.routine.xa.XATransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +28,8 @@ public class RPCServiceConfig {
 
     @Resource AuthFilter authFilter;
 
-    @Resource AccountManager accountManager;
+    @Resource
+    AccountManager accountManager;
 
     @Resource WebService webService;
 
@@ -35,17 +38,13 @@ public class RPCServiceConfig {
 
     @Resource
     TransactionTemplate transactionTemplate;
-//    @Resource
-//    UserTableJPA userTableJPA;
-//    @Resource
-//    CrossTransactionJPA crossTransactionJPA;
-//    @Resource
-//    TransactionJPA transactionJPA;
-//    @Resource
-//    TUniversalAccountsJPA universalAccountsJPA;
-//    @Resource
-//    TChainAccountsJPA tChainAccountsJPA;
 
+    @Resource
+    XATransactionManager xaTransactionManager;
+    @Resource
+    WeCrossHost weCrossHost;
+
+    //mapper
     @Resource
     CrossTransactionMapper crossTransactionMapper;
     @Resource
@@ -54,6 +53,15 @@ public class RPCServiceConfig {
     TChainAccountsMapper tChainAccountsMapper;
     @Resource
     TUniversalAccountsMapper tUniversalAccountsMapper;
+    @Resource
+    ChainMapper chainMapper;
+    @Resource
+    SmartContractMapper smartContractMapper;
+    @Resource
+    GatewayMapper gatewayMapper;
+    @Resource
+    ChainNodeMapper chainNodeMapper;
+    //mapper
 
 
 
@@ -68,11 +76,16 @@ public class RPCServiceConfig {
 
         URIHandlerDispatcher uriHandlerDispatcher = new URIHandlerDispatcher();
         uriHandlerDispatcher.setWebService(webService);
+        uriHandlerDispatcher.setXaTransactionManager(xaTransactionManager);
         uriHandlerDispatcher.setTransactionTemplate(transactionTemplate);
         uriHandlerDispatcher.setCrossTransactionMapper(crossTransactionMapper);
         uriHandlerDispatcher.setTransactionMapper(transactionMapper);
         uriHandlerDispatcher.setTChainAccountsMapper(tChainAccountsMapper);
         uriHandlerDispatcher.setTUniversalAccountsMapper(tUniversalAccountsMapper);
+        uriHandlerDispatcher.setChainMapper(chainMapper);
+        uriHandlerDispatcher.setSmartContractMapper(smartContractMapper);
+        uriHandlerDispatcher.setGatewayMapper(gatewayMapper);
+        uriHandlerDispatcher.setChainNodeMapper(chainNodeMapper);
         rpcBootstrap.setUriHandlerDispatcher(uriHandlerDispatcher);
 
         RPCService rpcService = new RPCService();
