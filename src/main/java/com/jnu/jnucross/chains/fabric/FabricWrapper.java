@@ -195,5 +195,9 @@ public class FabricWrapper extends ChainWrapper {
 //        transaction.setChainType(EnumType.ChainType.Ethereum);
 //        return transaction;
 //    }
+
+    public String getAddress(String hexPrivateKeyString){
+        return "";
+    }
 }
 

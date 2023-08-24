@@ -11,14 +11,14 @@ import com.jnu.jnucross.chains.*;
 import com.citahub.cita.crypto.Credentials;
 import com.citahub.cita.protocol.CITAj;
 import com.citahub.cita.protocol.http.HttpService;
-import com.jnu.jnucross.chains.xuperchain.xuper.api.Account;
-import com.jnu.jnucross.chains.xuperchain.xuper.api.XuperClient;
-import com.jnu.jnucross.chains.xuperchain.xuper.crypto.xchain.sign.ECKeyPair;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.jnu.jnucross.chains.cita.CITAUtils.coverToTransaction;
+import static com.jnu.jnucross.chains.cita.CITAUtils.covertToBlock;
 
 /**
  * @author SDKany
@@ -31,7 +31,6 @@ public class CITAWrapper extends ChainWrapper {
     String cita_url; // = "http://10.154.24.12:8545";
     CITAj client;// = Web3j.build(new HttpService(geth_url));
     Credentials credentials;//  = null;
-    static ObjectMapper objectMapper = new ObjectMapper();
 
     public CITAWrapper(){
         super();
@@ -156,46 +155,4 @@ public class CITAWrapper extends ChainWrapper {
         return new Transaction();
     }
 
-    public static Block covertToBlock(AppBlock.Block citaBlock) {
-        Block block = new Block();
-        BlockHeader blockHeader = new BlockHeader();
-        blockHeader.setNumber(Numeric.toBigInt(citaBlock.getHeader().getNumber()).longValue());
-        blockHeader.setHash(citaBlock.getHash());
-        blockHeader.setPrevHash(citaBlock.getHeader().getPrevHash());
-        blockHeader.setReceiptRoot(citaBlock.getHeader().getReceiptsRoot());
-        blockHeader.setTransactionRoot(citaBlock.getHeader().getTransactionsRoot());
-        blockHeader.setStateRoot(citaBlock.getHeader().getStateRoot());
-        block.setBlockHeader(blockHeader);
-        block.setChainType(EnumType.ChainType.CITA);
-        List<AppBlock.TransactionObject> transactionResults = citaBlock.getBody().getTransactions();
-        List<String> transactionsHashes = new ArrayList<>();
-        for (AppBlock.TransactionObject transaction : transactionResults) {
-            transactionsHashes.add((transaction.get()).getHash());
-        }
-        block.setTransactionsHashes(transactionsHashes);
-        try {
-            byte[] bytes = objectMapper.writeValueAsBytes(block);
-            block.setRawBytes(bytes);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            block.setRawBytes(new byte[0]);
-        }
-        return block;
-    }
-
-    public static Transaction coverToTransaction(com.citahub.cita.protocol.core.methods.response.Transaction citaTransaction) throws InvalidProtocolBufferException {
-        Transaction transaction = new Transaction();
-        transaction.setFrom(citaTransaction.getFrom());
-        transaction.setTo(citaTransaction.decodeContent().getTo());
-        transaction.setHash(citaTransaction.getHash());
-        transaction.setBlockNumber(citaTransaction.getBlockNumber().longValue());
-        try {
-            transaction.setRawBytes(objectMapper.writeValueAsBytes(citaTransaction));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            transaction.setRawBytes(new byte[0]);
-        }
-        transaction.setChainType(EnumType.ChainType.CITA);
-        return transaction;
-    }
 }

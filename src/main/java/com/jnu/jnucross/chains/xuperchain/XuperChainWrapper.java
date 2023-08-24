@@ -1,21 +1,17 @@
 package com.jnu.jnucross.chains.xuperchain;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
 import com.jnu.jnucross.chains.xuperchain.xuper.api.Account;
 import com.jnu.jnucross.chains.xuperchain.xuper.api.XuperClient;
 import com.jnu.jnucross.chains.xuperchain.xuper.crypto.xchain.sign.ECKeyPair;
 import com.jnu.jnucross.chains.xuperchain.xuper.pb.XchainOuterClass;
-import org.web3j.protocol.core.DefaultBlockParameter;
 
-
-import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static com.jnu.jnucross.chains.xuperchain.XuperChainUtils.coverToTransaction;
+import static com.jnu.jnucross.chains.xuperchain.XuperChainUtils.covertToBlock;
 
 /**
  * @author SDKany
@@ -28,7 +24,6 @@ public class XuperChainWrapper extends ChainWrapper {
     String xuperChain_url; // = "http://10.154.24.12:8545";
     XuperClient client;// = Web3j.build(new HttpService(geth_url));
     Account account;//  = null;
-    static ObjectMapper objectMapper = new ObjectMapper();
 
     public XuperChainWrapper(){
         super();
@@ -165,53 +160,5 @@ public class XuperChainWrapper extends ChainWrapper {
     public Transaction invoke(String contractName, String method, Map<String, String> args, BigInteger amount){
         com.jnu.jnucross.chains.xuperchain.xuper.api.Transaction t = client.invokeEVMContract(account, contractName, method, args, amount);
         return coverToTransaction(t.getRawTx());
-    }
-
-    public static Block covertToBlock(XchainOuterClass.InternalBlock xuperBlock){
-        Block block = new Block();
-        BlockHeader blockHeader = new BlockHeader();
-        blockHeader.setNumber(xuperBlock.getHeight());
-        blockHeader.setHash(Numeric.toHexStringNoPrefix(xuperBlock.getBlockid().toByteArray()));
-        blockHeader.setPrevHash(Numeric.toHexStringNoPrefix(xuperBlock.getPreHash().toByteArray()));
-        blockHeader.setReceiptRoot(Numeric.toHexStringNoPrefix(xuperBlock.getMerkleRoot().toByteArray()));
-        blockHeader.setTransactionRoot(""); // xuper chain block似乎不存在这样的数据
-        blockHeader.setStateRoot(""); // xuper chain block似乎不存在这样的数据
-        block.setBlockHeader(blockHeader);
-        block.setChainType(EnumType.ChainType.XuperChain);
-        List<XchainOuterClass.Transaction> transactionResults = xuperBlock.getTransactionsList();
-        List<String> transactionsHashes = new ArrayList<>();
-        for (XchainOuterClass.Transaction transaction : transactionResults) {
-            transactionsHashes.add(Numeric.toHexStringNoPrefix(transaction.getTxid().toByteArray()));
-        }
-        block.setTransactionsHashes(transactionsHashes);
-        try {
-            byte[] bytes = objectMapper.writeValueAsBytes(block);
-            block.setRawBytes(bytes);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            block.setRawBytes(new byte[0]);
-        }
-        return block;
-    }
-
-    public static Transaction coverToTransaction(XchainOuterClass.Transaction xuperChainTransaction){
-        Transaction transaction = new Transaction();
-        transaction.setFrom(xuperChainTransaction.getInitiator());
-        try {
-            transaction.setTo(Numeric.toHexStringNoPrefix(xuperChainTransaction.getTxOutputs(0).getToAddr().toByteArray()));
-        }catch (Exception e){
-            transaction.setTo("");
-            e.printStackTrace();
-        }
-        transaction.setHash(Numeric.toHexStringNoPrefix(xuperChainTransaction.getTxid().toByteArray()));
-        transaction.setBlockNumber(Numeric.toBigInt(xuperChainTransaction.getBlockid().toByteArray()).longValue());
-        try {
-            transaction.setRawBytes(xuperChainTransaction.toByteArray());
-        } catch (Exception e) {
-            e.printStackTrace();
-            transaction.setRawBytes(new byte[0]);
-        }
-        transaction.setChainType(EnumType.ChainType.XuperChain);
-        return transaction;
     }
 }

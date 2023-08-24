@@ -13,12 +13,19 @@ import org.fisco.bcos.sdk.config.Config;
 import org.fisco.bcos.sdk.config.ConfigOption;
 import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.config.model.NetworkConfig;
+import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
+import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.jnu.jnucross.chains.bcos.BCOSUtils.coverToBlock;
+import static com.jnu.jnucross.chains.bcos.BCOSUtils.coverToTransaction;
 
 /**
  * @author SDKany
@@ -32,7 +39,6 @@ public class BCOSWrapper extends ChainWrapper {
     public BcosSDK sdk;
     public Client client;
 
-    static ObjectMapper objectMapper = new ObjectMapper();
 
     public BCOSWrapper(){
         super();
@@ -54,7 +60,7 @@ public class BCOSWrapper extends ChainWrapper {
     }
 
     public static void main(String[] args) throws IOException {
-        ChainWrapper chainWapper = BCOSWrapper.build();
+        BCOSWrapper chainWapper = BCOSWrapper.build();
         System.out.println("BlockNumber = " + chainWapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
         System.out.println("The 1st block is = " + chainWapper.getBlockByNumber(1)); // 通过块高获取块
@@ -65,6 +71,16 @@ public class BCOSWrapper extends ChainWrapper {
         // 获取transaction by hash
         System.out.println("Get Transaction by hash = " + chainWapper.getTransaction("0x5ba2c19295185f055fda7f62bb0778510789b28caa86a63692d8708c487733d6"));
         System.out.println("----------------------------------");
+        System.out.println("old address");
+        System.out.println(chainWapper.client.getCryptoSuite().getCryptoKeyPair().getAddress());
+        ECDSAKeyPair ecdsaKeyPair = new ECDSAKeyPair();
+        chainWapper.setAccount(ecdsaKeyPair.getHexPrivateKey());
+        System.out.println("new address");
+        System.out.println(chainWapper.client.getCryptoSuite().getCryptoKeyPair().getAddress());
+
+
+
+
 
         //RawTransaction rawTransaction = new RawTransaction();
         //client.stop();
@@ -97,12 +113,16 @@ public class BCOSWrapper extends ChainWrapper {
 
     @Override
     public void setAccount(String hexPrivateKeyString) {
-        // todo
+        KeyPair keyPair = KeyTool.convertHexedStringToKeyPair(hexPrivateKeyString, CryptoKeyPair.ECDSA_CURVE_NAME);
+        CryptoKeyPair cryptoKeyPair = new ECDSAKeyPair(keyPair);
+        client.getCryptoSuite().setCryptoKeyPair(cryptoKeyPair);
     }
 
     @Override
     public void setAccount(BigInteger privateKey) {
-        // todo
+        KeyPair keyPair = KeyTool.convertPrivateKeyToKeyPair(privateKey, CryptoKeyPair.ECDSA_CURVE_NAME);
+        CryptoKeyPair cryptoKeyPair = new ECDSAKeyPair(keyPair);
+        client.getCryptoSuite().setCryptoKeyPair(cryptoKeyPair);
     }
 
 
@@ -133,46 +153,4 @@ public class BCOSWrapper extends ChainWrapper {
         return coverToTransaction(bcosTransactionReceipt);
     }
 
-    public static Block coverToBlock(BcosBlock.Block bcosBlock){
-        Block block = new Block();
-        BlockHeader blockHeader = new BlockHeader();
-        blockHeader.setNumber(bcosBlock.getNumber().longValue());
-        blockHeader.setHash(bcosBlock.getHash());
-        blockHeader.setPrevHash(bcosBlock.getParentHash());
-        blockHeader.setReceiptRoot(bcosBlock.getReceiptsRoot());
-        blockHeader.setTransactionRoot(bcosBlock.getTransactionsRoot());
-        blockHeader.setStateRoot(bcosBlock.getStateRoot());
-        block.setBlockHeader(blockHeader);
-        block.setChainType(EnumType.ChainType.BCOS);
-        List<BcosBlock.TransactionResult> transactionResults = bcosBlock.getTransactions();
-        List<String> transactionsHashes = new ArrayList<>();
-        for (BcosBlock.TransactionResult transaction : transactionResults) {
-            transactionsHashes.add(((JsonTransactionResponse)transaction.get()).getHash());
-        }
-        block.setTransactionsHashes(transactionsHashes);
-        try {
-            byte[] bytes = objectMapper.writeValueAsBytes(block);
-            block.setRawBytes(bytes);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            block.setRawBytes(new byte[0]);
-        }
-        return block;
-    }
-
-    public static Transaction coverToTransaction(TransactionReceipt bcosTransactionReceipt){
-        Transaction transaction = new Transaction();
-        transaction.setFrom(bcosTransactionReceipt.getFrom());
-        transaction.setTo(bcosTransactionReceipt.getTo());
-        transaction.setHash(bcosTransactionReceipt.getTransactionHash());
-        transaction.setBlockNumber(Numeric.toBigInt(bcosTransactionReceipt.getBlockNumber()).longValue());
-        try {
-            transaction.setRawBytes(objectMapper.writeValueAsBytes(bcosTransactionReceipt));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            transaction.setRawBytes(new byte[0]);
-        }
-        transaction.setChainType(EnumType.ChainType.BCOS);
-        return transaction;
-    }
 }
