@@ -94,4 +94,9 @@ public class XuperChainUtils {
         ECPoint p = ecKeyPair.getPublicKey();
         return publicKeyJSON;
     }
+
+    public static String creatPrivateKey(){
+        ECKeyPair ecKeyPair = ECKeyPair.create();
+        return Numeric.toHexStringWithPrefix(ecKeyPair.privateKey);
+    }
 }

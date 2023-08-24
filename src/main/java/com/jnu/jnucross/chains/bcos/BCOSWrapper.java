@@ -78,7 +78,7 @@ public class BCOSWrapper extends ChainWrapper {
         System.out.println("new address");
         System.out.println(chainWapper.client.getCryptoSuite().getCryptoKeyPair().getAddress());
 
-
+        System.out.println(BCOSUtils.getAddressAndPublicKey(chainWapper.client.getCryptoSuite().getCryptoKeyPair().getHexPrivateKey()));
 
 
 

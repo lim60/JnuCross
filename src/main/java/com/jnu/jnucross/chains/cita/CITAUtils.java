@@ -1,12 +1,16 @@
 package com.jnu.jnucross.chains.cita;
 
 import com.citahub.cita.crypto.Credentials;
+import com.citahub.cita.crypto.Keys;
 import com.citahub.cita.protocol.core.methods.response.AppBlock;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.jnu.jnucross.chains.*;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,5 +84,18 @@ public class CITAUtils {
     public static String getPublicKey(String hexPrivateKeyString){
         Credentials credentials = Credentials.create(hexPrivateKeyString);
         return Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPublicKey());
+    }
+
+    public static String creatPrivateKey(){
+        try {
+            return Numeric.toHexStringWithPrefix(Keys.createEcKeyPair().getPrivateKey());
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

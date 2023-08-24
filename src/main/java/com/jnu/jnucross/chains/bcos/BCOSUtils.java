@@ -89,4 +89,9 @@ public class BCOSUtils {
         CryptoKeyPair cryptoKeyPair = new ECDSAKeyPair(keyPair);
         return cryptoKeyPair.getHexPublicKey();
     }
+
+    public static String creatPrivateKey(){
+        CryptoKeyPair cryptoKeyPair = new ECDSAKeyPair();
+        return cryptoKeyPair.getHexPrivateKey();
+    }
 }

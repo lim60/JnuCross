@@ -6,6 +6,8 @@ import com.jnu.jnucross.chains.*;
 import com.jnu.jnucross.chains.ethereum.generated.SimpleStorage;
 import org.web3j.codegen.SolidityFunctionWrapperGenerator;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Keys;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.tx.Contract;
 import org.web3j.tx.RawTransactionManager;
@@ -14,6 +16,9 @@ import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -121,5 +126,19 @@ public class EthereumUtils {
     public static String getPublicKey(String hexPrivateKeyString){
         Credentials credentials = Credentials.create(hexPrivateKeyString);
         return Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPublicKey());
+    }
+
+    public static String creatPrivateKey(){
+        try {
+            ECKeyPair ecKeyPair = Keys.createEcKeyPair();
+            return Numeric.toHexStringWithPrefix(ecKeyPair.getPrivateKey());
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }
