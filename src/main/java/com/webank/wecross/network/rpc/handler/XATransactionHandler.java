@@ -70,16 +70,16 @@ public class XATransactionHandler implements URIHandler {
                 case "startXATransaction": {
                     logger.info("now I'm in startXATransaction");
 
-                    RestResponse<XAResponse> restXAResponse = new RestResponse<XAResponse>();
-                    Adapter.startXATransaction(content,ua,restXAResponse,xaTransactionManager,host,callback);
+
+                    Adapter.startXATransaction(content,ua,xaTransactionManager,host);
                     return;
                 }
                 case "commitXATransaction": {
-                    Adapter.commitTransaction(content,ua,restResponse,xaTransactionManager,callback);
+                    Adapter.commitTransaction(content,ua,xaTransactionManager);
                     return;
                 }
                 case "rollbackXATransaction": {
-                    Adapter.rollbackTransaction(content,ua,restResponse,xaTransactionManager,callback);
+                    Adapter.rollbackTransaction(content,ua,xaTransactionManager);
                     return;
                 }
                 case "getXATransaction": {

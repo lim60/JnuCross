@@ -172,10 +172,10 @@ public class Adapter {
     /** obtain all raw transaction from the request of client *
      * We also construct the transaction graph according to the seq
      **/
-    public static List<TransactionInfo> obtainAllTransactions(RestRequest<XATransactionRequest> Requests) throws ExecutionException, InterruptedException{
-        String XATransactionID =  Requests.getData().getXaTransactionID();
+    public static List<TransactionInfo> obtainAllTransactions(XATransactionRequest Requests) throws ExecutionException, InterruptedException{
+        String XATransactionID =  Requests.getXaTransactionID();
         List<TransactionInfo> allTransactions = TransactionRequestClient.obtainTransactionList(
-                Requests.getData().getTransactionRequests(),XATransactionID);
+                Requests.getTransactionRequests(),XATransactionID);
 
         TransactionGraph.constructTransactionGraph(allTransactions);
         List<TransactionInfo> bfsResult = TransactionGraph.bfsSearch(allTransactions.get(0));
@@ -297,16 +297,16 @@ public class Adapter {
 
     /* roll back the raw transactions that have been executed after a raw transaction failed */
     public static void rollbackPreviousTransactions(List<TransactionInfo> bfsResult, int index,
-                                                    RestRequest<XATransactionRequest> xaRequest,
+                                                    XATransactionRequest xaRequest,
                                                     UniversalAccount ua,
                                                     XATransactionManager xaTransactionManager){
 
         try {
             logger.info("now try to rollback the executed transactions");
             xaTransactionManager.asyncRollbackXATransaction(
-                    xaRequest.getData().getXaTransactionID(),
+                    xaRequest.getXaTransactionID(),
                     ua,
-                    filterAndSortChainPaths(xaRequest.getData().getPaths()),
+                    filterAndSortChainPaths(xaRequest.getPaths()),
                     (response) -> {
                         if (logger.isDebugEnabled()) {
                             logger.debug(
@@ -370,7 +370,7 @@ public class Adapter {
     }
 
     public static void processTransactionError(TransactionInfo item, int index,
-                                                   RestRequest<XATransactionRequest> xaRequest,
+                                                   XATransactionRequest xaRequest,
                                                    List<TransactionInfo> bfsResult,
                                                    XATransactionManager xaTransactionManager,
                                                    UniversalAccount ua)
@@ -388,13 +388,13 @@ public class Adapter {
         /* update the status of the cross chain transaction to rollbacked */
         ZonedDateTime XAendTime = ZonedDateTime.now();
         DatabaseUtil.updateXATransactionFinish(XATransactionStatus.rollbacked.ordinal(),
-                xaRequest.getData().getXaTransactionID(),
+                xaRequest.getXaTransactionID(),
                 XAendTime);
     }
 
     /** Execute each raw transaction recursively **/
     public static void executeAllTransactions(UniversalAccount ua, List<TransactionInfo> bfsResult,
-                                              int index, RestRequest<XATransactionRequest> xaRequest,
+                                              int index, XATransactionRequest xaRequest,
                                               XATransactionManager xaTransactionManager, WeCrossHost host) {
 
         /** all transactions are executed,
@@ -404,7 +404,7 @@ public class Adapter {
             logger.info("All transactions executed.");
             ZonedDateTime endTime = ZonedDateTime.now();
             DatabaseUtil.updateXATransactionFinish(XATransactionStatus.success.ordinal(),
-                    xaRequest.getData().getXaTransactionID(),
+                    xaRequest.getXaTransactionID(),
                     endTime);
             return;
         }
@@ -540,38 +540,37 @@ public class Adapter {
      * (2): when the response of asyncStartXATransaction is success, then execute each raw transaction recursively
      */
     public static void startXATransaction(String content,
-                                          UniversalAccount ua, RestResponse<XAResponse> restResponse,
+                                          UniversalAccount ua,
                                           XATransactionManager xaTransactionManager,
-                                          WeCrossHost host,
-                                          URIHandler.Callback callback) {
+                                          WeCrossHost host) {
 
 
         try {
-            RestRequest<XATransactionRequest> Requests =
+            XATransactionRequest Requests =
                     objectMapper.readValue(
                             content,
-                            new TypeReference<RestRequest<XATransactionRequest>>() {
+                            new TypeReference<XATransactionRequest>() {
                             });
 
             ua.getAccessControlFilter()
                     .checkPermissions(
-                            Requests.getData().getPaths().toArray(new String[0]));
+                            Requests.getPaths().toArray(new String[0]));
 
             List<TransactionInfo> bfsResult = obtainAllTransactions(Requests);
-            DatabaseUtil.updateXATransaction(XATransactionStatus.executing.ordinal(), Requests.getData().getXaTransactionID());
-            int transactionType = Requests.getData().getType();
+            DatabaseUtil.updateXATransaction(XATransactionStatus.executing.ordinal(), Requests.getXaTransactionID());
+            int transactionType = Requests.getType();
             xaTransactionManager.asyncStartXATransaction(
-                    Requests.getData().getXaTransactionID(),
+                    Requests.getXaTransactionID(),
                     ua,
-                    Requests.getData().getPaths(),
+                    Requests.getPaths(),
                     (response) -> {
                         //if (logger.isDebugEnabled())
                         {
                             logger.info(
                                     "startXATransaction, final response: {}", response);
                         }
-                        restResponse.setData(response);
-                        callback.onResponse(restResponse);
+                        //restResponse.setData(response);
+                        //callback.onResponse(restResponse);
                         //DatabaseUtil.updateXATransaction(XATransactionStatus.executing.ordinal(), Requests.getData().getXaTransactionID());
                         /*if (Objects.equals(transactionType, "htlc")) {
                             executeHTLCTransactions(ua, bfsResult, 0, null,Requests,host);
@@ -581,95 +580,108 @@ public class Adapter {
                             executeAllTransactions(ua, bfsResult, 0,Requests,xaTransactionManager,host);
                         }
                         else{
-                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), Requests.getData().getXaTransactionID());
+                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), Requests.getXaTransactionID());
                         }
                     });
         }catch (WeCrossException e) {
             logger.error("Error while processing xa: ", e);
-            restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
-            restResponse.setMessage(e.getMessage());
+            //restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
+            //restResponse.setMessage(e.getMessage());
             throw  new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
-            restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
-            restResponse.setMessage("Undefined error: " + e.getMessage());
+            //restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
+            //restResponse.setMessage("Undefined error: " + e.getMessage());
             throw  new RuntimeException();
         }
     }
 
-    /* commit the cross chain transaction */
+    /* commit the cross chain transaction
+    * content is:
+    *  public static  class XATransactionRequest {
+        private  int type;    // type of the cross chain transaction
+        private String xaTransactionID;   //ID of cross chain transaction
+        private Set<String> paths;   // all paths needed in the cross chain transaction
+    * }
+    * */
     public static void commitTransaction(String content,
-                                         UniversalAccount ua, RestResponse<Object> restResponse,
-                                         XATransactionManager xaTransactionManager,
-                                         URIHandler.Callback callback){
+                                         UniversalAccount ua,
+                                         XATransactionManager xaTransactionManager){
         try {
             logger.info("now commitTransaction");
-            RestRequest<XATransactionRequest> xaRequest =
+            XATransactionRequest xaRequest =
                     objectMapper.readValue(
                             content,
-                            new TypeReference<RestRequest<XATransactionRequest>>() {
+                            new TypeReference<XATransactionRequest>() {
                             });
 
             ua.getAccessControlFilter()
                     .checkPermissions(
-                            xaRequest.getData().getPaths().toArray(new String[0]));
+                            xaRequest.getPaths().toArray(new String[0]));
 
             xaTransactionManager.asyncCommitXATransaction(
-                    xaRequest.getData().getXaTransactionID(),
+                    xaRequest.getXaTransactionID(),
                     ua,
-                    filterAndSortChainPaths(xaRequest.getData().getPaths()),
+                    filterAndSortChainPaths(xaRequest.getPaths()),
                     (response) -> {
                         if (logger.isDebugEnabled()) {
                             logger.debug(
                                     "commitXATransaction, final response: {}",
                                     response);
                         }
-                        restResponse.setData(response);
-                        callback.onResponse(restResponse);
+                        //restResponse.setData(response);
+                        //callback.onResponse(restResponse);
                         if (response.getStatus() ==0){
-                            DatabaseUtil.updateXATransaction(XATransactionStatus.success.ordinal(), xaRequest.getData().getXaTransactionID());
+                            DatabaseUtil.updateXATransaction(XATransactionStatus.success.ordinal(), xaRequest.getXaTransactionID());
                         }
                         else{
-                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(),xaRequest.getData().getXaTransactionID());
+                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(),xaRequest.getXaTransactionID());
                         }
                     });
         }catch (WeCrossException e) {
             logger.error("Error while processing xa: ", e);
-            restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
-            restResponse.setMessage(e.getMessage());
+            //restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
+            //restResponse.setMessage(e.getMessage());
             throw  new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
-            restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
-            restResponse.setMessage("Undefined error: " + e.getMessage());
+            //restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
+            //restResponse.setMessage("Undefined error: " + e.getMessage());
             throw  new RuntimeException();
         }
     }
 
-    /* rollback the cross chain transaction */
+    /* rollback the cross chain transaction
+    * content is:
+    *  public static  class XATransactionRequest {
+        private  int type;    // type of the cross chain transaction
+        private String xaTransactionID;   //ID of cross chain transaction
+        private Set<String> paths;   // all paths needed in the cross chain transaction
+    * }
+    * */
     public static void rollbackTransaction(String content,
-                                           UniversalAccount ua, RestResponse<Object> restResponse,
-                                           XATransactionManager xaTransactionManager,
-                                           URIHandler.Callback callback){
+                                           UniversalAccount ua,
+                                           XATransactionManager xaTransactionManager
+                                            ){
 
         try{
-            RestRequest<XATransactionRequest> xaRequest =
+            XATransactionRequest xaRequest =
                     objectMapper.readValue(
                             content,
-                            new TypeReference<RestRequest<XATransactionRequest>>() {
+                            new TypeReference<XATransactionRequest>() {
                             });
 
             ua.getAccessControlFilter()
                     .checkPermissions(
-                            xaRequest.getData().getPaths().toArray(new String[0]));
+                            xaRequest.getPaths().toArray(new String[0]));
 
             List<Integer> transactionIds;
-            transactionIds = DatabaseUtil.findTransactionFromXA(xaRequest.getData().getXaTransactionID());
+            transactionIds = DatabaseUtil.findTransactionFromXA(xaRequest.getXaTransactionID());
 
             xaTransactionManager.asyncRollbackXATransaction(
-                    xaRequest.getData().getXaTransactionID(),
+                    xaRequest.getXaTransactionID(),
                     ua,
-                    filterAndSortChainPaths(xaRequest.getData().getPaths()),
+                    filterAndSortChainPaths(xaRequest.getPaths()),
                     (response) -> {
                         if (logger.isDebugEnabled())
                         {
@@ -677,8 +689,8 @@ public class Adapter {
                                     "rollbackXATransaction, final response: {}",
                                     response);
                         }
-                        restResponse.setData(response);
-                        callback.onResponse(restResponse);
+                        //restResponse.setData(response);
+                        //callback.onResponse(restResponse);
                         /* update the status of each raw transaction and the cross chain transaction */
                         if (response.getStatus() == 0)
                         {
@@ -695,23 +707,24 @@ public class Adapter {
                             // update the status and endTime for XATransaction
                             ZonedDateTime endTime = ZonedDateTime.now();
                             DatabaseUtil.updateXATransactionFinish(XATransactionStatus.rollbacked.ordinal(),
-                                    xaRequest.getData().getXaTransactionID(),
+                                    xaRequest.getXaTransactionID(),
                                     endTime);
 
                         }
                     });
         }catch (WeCrossException e) {
             logger.error("Error while processing xa: ", e);
-            restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
-            restResponse.setMessage(e.getMessage());
+            //restResponse.setErrorCode(NetworkQueryStatus.XA_ERROR + e.getErrorCode());
+            //restResponse.setMessage(e.getMessage());
             throw new RuntimeException();
         } catch (Exception e) {
             logger.error("Error while processing xa: ", e);
-            restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
-            restResponse.setMessage("Undefined error: " + e.getMessage());
+            //restResponse.setErrorCode(NetworkQueryStatus.INTERNAL_ERROR);
+            //restResponse.setMessage("Undefined error: " + e.getMessage());
             throw  new RuntimeException();
         }
     }
+
 
     /* may not use */
     public static void listXATransactions(String content,

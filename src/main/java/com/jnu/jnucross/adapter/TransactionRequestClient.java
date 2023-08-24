@@ -26,7 +26,7 @@ public class TransactionRequestClient {
     private  String transaction_ip; //交易地址
     private int chain_type;
 
-    /** format of option:
+    /** format of options:
       * options: {
       *  'XA_TRANSACTION_ID': this.transactionForm.transactionID,
       *  'XA_TRANSACTION_SEQ': Date.now()+2
@@ -36,6 +36,10 @@ public class TransactionRequestClient {
 
     public Map<String, Object> getOptions() {
         return options;
+    }
+
+    public Long getXATransactionSeq(){
+        return (Long) options.get("XA_TRANSACTION_SEQ");
     }
 
     public void setOptions(Map<String, Object> options) {
@@ -91,7 +95,8 @@ public class TransactionRequestClient {
             logger.info("transactionID: "+transactionRequest.gettxID());
             TransactionInfo node
                     = new TransactionInfo(
-                    transactionRequest.gettxID(),
+                    //transactionRequest.gettxID(),
+                    transactionRequest.getXATransactionSeq(),
                     transactionRequest.getPaths(),
                     transactionRequest.getMethod(),
                     transactionRequest.getArgs(),

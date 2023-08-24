@@ -9,7 +9,7 @@ import java.util.*;
 
 // add negihbor information to each transaction, so that we can construct the DAG.
 public class TransactionInfo {
-    private int transactionID;
+    private Long transactionID;
     private List<String> paths;   // path of resource
     private List<TransactionInfo> neighbors; // the next transactions going to be executed
     private int chain_id;   // id of the chain: [BCOS, FABRIC]
@@ -78,7 +78,7 @@ public class TransactionInfo {
     }
 
     // This is the constructor for transactions that require arguments
-    public  TransactionInfo (int id, List<String> paths,String method, List<String> args,long seq) {
+    public  TransactionInfo (Long id, List<String> paths,String method, List<String> args,long seq) {
         this.response = new TransactionResponse();
         this.transactionID = id;
         //this.chain_id = chainId;
@@ -98,18 +98,18 @@ public class TransactionInfo {
         neighbors.add(neighbor);
     }
 
-    public TransactionInfo(int transactionID, List<String> paths) {
+    public TransactionInfo(Long transactionID, List<String> paths) {
         this.transactionID = transactionID;
         this.paths = paths;
     }
 
     public TransactionInfo() {}
     //end
-    public int getTransactionID() {
+    public Long getTransactionID() {
         return transactionID;
     }
 
-    public void setTransactionID(int transactionID) {
+    public void setTransactionID(Long transactionID) {
         this.transactionID = transactionID;
     }
 

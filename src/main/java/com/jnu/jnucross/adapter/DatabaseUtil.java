@@ -92,7 +92,7 @@ public class DatabaseUtil {
         logger.info("Inserting a new row into the database.");
 
         try (PreparedStatement insertStatement = connection.prepareStatement(insertQuery)) {
-            insertStatement.setInt(1, transaction.getTransactionID());
+            insertStatement.setLong(1, transaction.getTransactionID());
             insertStatement.setInt(2, transaction.getStatus());
             insertStatement.setString(3, transaction.getXaTransactionID());
             int rowsAffected = insertStatement.executeUpdate();
@@ -105,10 +105,10 @@ public class DatabaseUtil {
     }
 
     // Utility method to check if a transaction already exists in the database
-    private static boolean transactionExists(Connection connection, int transactionID) throws SQLException {
+    private static boolean transactionExists(Connection connection, Long transactionID) throws SQLException {
         String selectQuery = "SELECT COUNT(*) FROM transaction WHERE id = ?";
         try (PreparedStatement selectStatement = connection.prepareStatement(selectQuery)) {
-            selectStatement.setInt(1, transactionID);
+            selectStatement.setLong(1, transactionID);
             try (ResultSet resultSet = selectStatement.executeQuery()) {
                 resultSet.next();
                 return resultSet.getInt(1) > 0;
@@ -135,7 +135,7 @@ public class DatabaseUtil {
         try (PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
             updateStatement.setInt(1, transaction.getStatus());
             //updateStatement.setObject(2, transaction.getEndTimestamp());
-            updateStatement.setInt(2, transaction.getTransactionID());
+            updateStatement.setLong(2, transaction.getTransactionID());
             int rowsUpdated = updateStatement.executeUpdate();
             if (rowsUpdated > 0) {
                 logger.info("Data updated successfully.");
@@ -155,7 +155,7 @@ public class DatabaseUtil {
             updateStatement.setObject(2, transaction.getEndTimestamp());
             updateStatement.setInt(3, transaction.getBlockNumber());
             updateStatement.setString(4, transaction.getTxHash());
-            updateStatement.setInt(5, transaction.getTransactionID());
+            updateStatement.setLong(5, transaction.getTransactionID());
 
             int rowsUpdated = updateStatement.executeUpdate();
             if (rowsUpdated > 0) {
@@ -177,7 +177,7 @@ public class DatabaseUtil {
             updateStatement.setInt(1, transaction.getStatus());
             //updateStatement.setObject(2, transaction.getEndTimestamp());
             //updateStatement.setString(3, transaction.getResponse().getMessage());
-            updateStatement.setInt(2, transaction.getTransactionID());
+            updateStatement.setLong(2, transaction.getTransactionID());
 
             int rowsUpdated = updateStatement.executeUpdate();
             if (rowsUpdated > 0) {
