@@ -1,12 +1,18 @@
 package com.jnu.jnucross.handler;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.jnu.jnucross.adapter.Adapter;
-import com.jnu.jnucross.constants.TransactionTypeConstant;
+import com.jnu.jnucross.constants.*;
 import com.jnu.jnucross.json.AvailableIpJson;
+import com.jnu.jnucross.json.getAvailableInfoJson;
 import com.jnu.jnucross.response.AvailableIpRsp;
 
 import cn.hutool.core.collection.CollUtil;
@@ -14,9 +20,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.jnu.jnucross.constants.AddressingStrategyConstant;
-import com.jnu.jnucross.constants.TransactionStatesConstant;
-import com.jnu.jnucross.constants.CrossTransactionTypeConstant;
 import com.jnu.jnucross.request.GenerateTransactionReq;
 import com.jnu.jnucross.response.GetCrossTransactionRSp;
 import com.jnu.jnucross.response.GetAddressPageInfoRsp;
@@ -36,10 +39,12 @@ import com.webank.wecross.routine.xa.XATransactionManager;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.geo.Distance;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.net.InetAddress;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,6 +69,7 @@ public class JnuCrossURIHandler implements URIHandler {
     private SmartContractMapper smartContractMapper;
     private GatewayMapper gatewayMapper;
     private ChainNodeMapper chainNodeMapper;
+    private AddressingIpAndStateMapper addressingIpAndStateMapper;
 
 
     @Override
@@ -260,27 +266,49 @@ public class JnuCrossURIHandler implements URIHandler {
     private void handleGetAvailableIp(UserContext userContext, String uri, String method, String content, Callback callback) {
         transactionTemplate.execute(new TransactionCallback<Void>() {
             final UriDecoder uriDecoder = new UriDecoder(uri);
-            String domain;
-            String contractType;
+            String domain;//域名
+            Long transactionId;//交易id
+            String crossTransactionType;//事务类型ATOMIC_TRANSFER, CONTRACT_CALL, CROSS_TRANSFER
             {
                 try {
-                    contractType = "合约类型";
                     domain = uriDecoder.getQueryBykey("domain");
+                    transactionId = Long.parseLong(uriDecoder.getQueryBykey("transactionId"));
+                    crossTransactionType = uriDecoder.getQueryBykey("crossTransactionType");
                 } catch (Exception e) {
-                    logger.error("获取寻址信息失败:",e);
-                    callback.onResponse("获取寻址信息失败");
+                    logger.error("获取可用ip列表失败:",e);
+                    callback.onResponse("获取可用ip列表失败");
                 }
             }
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
-
-
-
+                    if (ObjectUtil.hasNull(domain,transactionId,crossTransactionType)){
+                        throw new Exception("handleGetAvailableIp req null");
+                    }
+                    //获取可用ip列表
+                    String url = "http://115.159.27.215:8080/api/dns";
+                    Map<String, Object> paramMap = MapUtil.newHashMap();
+                    paramMap.put("domain",domain);
+                    paramMap.put("type",crossTransactionType);
+                    paramMap.put("longitude",WecrossLocationConstant.LONGITUDE);
+                    paramMap.put("latitude",WecrossLocationConstant.LATITUDE);
+                    String resBody = HttpUtil.createGet(url).form(paramMap).execute().body();
+                    logger.info("获取可用ip地址结果:{}",resBody);
+                    List<getAvailableInfoJson> getAvailableInfoJsonList = JSONUtil.toList(resBody, getAvailableInfoJson.class);
+                    Set<String> ipResult = getAvailableInfoJsonList.stream().map(getAvailableInfoJson::getAddr).collect(Collectors.toSet());
+                    //记录可用ip信息
+                    ipResult.forEach(ip->{
+                        AddressingIpAndState addressingIpAndState = new AddressingIpAndState();
+                        addressingIpAndState.setTransactionId(transactionId);
+                        addressingIpAndState.setIp(ip);
+                        addressingIpAndState.setIsConnected(PingStateConstant.UN_CONNECTED);
+                        addressingIpAndStateMapper.insert(addressingIpAndState);
+                    });
+                    callback.onResponse(ResultUtil.success(ipResult));
                 }catch (Exception e){
                     status.setRollbackOnly();
-                    logger.error("获取交易列表失败:",e);
-                    callback.onResponse("获取交易列表失败");
+                    logger.error("获取可用ip列表失败:",e);
+                    callback.onResponse("获取可用ip列表失败");
                 }
                 return null;
             }
@@ -290,27 +318,39 @@ public class JnuCrossURIHandler implements URIHandler {
     private void handleDoPing(UserContext userContext, String uri, String method, String content, Callback callback) {
         transactionTemplate.execute(new TransactionCallback<Void>() {
             final UriDecoder uriDecoder = new UriDecoder(uri);
-            String domain;
-            String contractType;
+            String ip;//要ping的ip
+            Long transactionId;//交易id
             {
                 try {
-
+                    ip = uriDecoder.getQueryBykey("ip");
+                    transactionId = Long.parseLong(uriDecoder.getQueryBykey("transactionId"));
                 } catch (Exception e) {
-                    logger.error("ip连通异常:",e);
-                    callback.onResponse("ip连通异常");
+                    logger.error("ping接口异常:",e);
+                    callback.onResponse("ping接口异常");
                 }
             }
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
-
-
-
-
+                    //todo 开始ping
+                    InetAddress inetAddress = InetAddress.getByName(ip);
+                    boolean reachable = inetAddress.isReachable(5000);
+                    Integer connectState;//连接状态
+                    if (reachable){
+                        connectState = PingStateConstant.SUCCESS_CONNECT;
+                    }else {
+                        connectState = PingStateConstant.FAIL_CONNECT;
+                    }
+                    LambdaUpdateWrapper<AddressingIpAndState> updateWrapper = new LambdaUpdateWrapper<>();
+                    updateWrapper.eq(AddressingIpAndState::getTransactionId,transactionId);
+                    updateWrapper.eq(AddressingIpAndState::getIp,ip);
+                    updateWrapper.set(AddressingIpAndState::getIsConnected,connectState);
+                    addressingIpAndStateMapper.update(null,updateWrapper);
+                    callback.onResponse(ResultUtil.success());
                 }catch (Exception e){
                     status.setRollbackOnly();
-                    logger.error("ip连通异常:",e);
-                    callback.onResponse("ip连通异常");
+                    logger.error("ping接口异常:",e);
+                    callback.onResponse("ping接口异常");
                 }
                 return null;
             }
@@ -321,10 +361,10 @@ public class JnuCrossURIHandler implements URIHandler {
     private void handleGetAddressPageInfo(UserContext userContext, String uri, String method, String content, Callback callback) {
         transactionTemplate.execute(new TransactionCallback<Void>() {
             final UriDecoder uriDecoder = new UriDecoder(uri);
-            String transactionId;
+            String crossTransactionId;
             {
                 try {
-                    transactionId = uriDecoder.getQueryBykey("transactionId");
+                    crossTransactionId = uriDecoder.getQueryBykey("transactionId");
                 } catch (Exception e) {
                     logger.error("获取寻址信息失败:",e);
                     callback.onResponse("获取寻址信息失败");
@@ -333,13 +373,13 @@ public class JnuCrossURIHandler implements URIHandler {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
-                    if (StrUtil.isBlank(transactionId)){
+                    if (StrUtil.isBlank(crossTransactionId)){
                         throw new Exception("doInTransaction method transactionId null");
                     }
-                    CrossTransaction crossTransaction = crossTransactionMapper.selectById(transactionId);
+                    CrossTransaction crossTransaction = crossTransactionMapper.selectById(crossTransactionId);
                     Integer crossTransactionType = crossTransaction.getType();
                     List<Transaction> transactions = transactionMapper.selectList(Wrappers.<Transaction>lambdaQuery()
-                            .eq(Transaction::getTransactionIp, transactionId));
+                            .eq(Transaction::getCrossTransactionId, crossTransactionId));
                     List<GetAddressPageInfoRsp> result = new ArrayList<>(transactions.size());
                     transactions.forEach(transaction -> {
                         GetAddressPageInfoRsp rsp = new GetAddressPageInfoRsp();
@@ -357,6 +397,9 @@ public class JnuCrossURIHandler implements URIHandler {
                         rsp.setOrder(transaction.getExecutionOrder());
                         List<AvailableIpJson> availableIpJsons = JSONUtil.toList(parameter, AvailableIpJson.class);
                         rsp.setAvailableIps(Convert.toList(AvailableIpRsp.class,availableIpJsons));
+                        rsp.setDomain(chain.getDomain());
+                        rsp.setCrossTransactionType(crossTransaction.getType());
+                        rsp.setTransactionId(transaction.getId());
                         result.add(rsp);
                     });
                     callback.onResponse(ResultUtil.success(result));
@@ -437,8 +480,8 @@ public class JnuCrossURIHandler implements URIHandler {
             public Void doInTransaction(TransactionStatus status) {
                 try {
                     UniversalAccount ua = accountManager.getUniversalAccount(userContext);
-//                     TODO: 2023/8/21 调用林老师开启事务方法
-                    Adapter.startXATransaction(content,ua,new RestResponse<XAResponse>(),xaTransactionManager,weCrossHost,callback);
+//                  //调用开启事务方法
+                    Adapter.startXATransaction(content,ua,xaTransactionManager,weCrossHost);
                     callback.onResponse(ResultUtil.success());
                 }catch (Exception e){
                     status.setRollbackOnly();
@@ -455,6 +498,9 @@ public class JnuCrossURIHandler implements URIHandler {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
+                    UniversalAccount ua = accountManager.getUniversalAccount(userContext);
+                    //调用提交事务方法
+                    Adapter.commitTransaction(content,ua,xaTransactionManager);
                     callback.onResponse(ResultUtil.success());
                 }catch (Exception e){
                     status.setRollbackOnly();
@@ -471,6 +517,9 @@ public class JnuCrossURIHandler implements URIHandler {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
+                    UniversalAccount ua = accountManager.getUniversalAccount(userContext);
+                    //调用提交事务方法
+                    Adapter.rollbackTransaction(content,ua,xaTransactionManager);
                     callback.onResponse(ResultUtil.success());
                 }catch (Exception e){
                     status.setRollbackOnly();

@@ -48,6 +48,7 @@ public class URIHandlerDispatcher {
     private SmartContractMapper smartContractMapper;
     private GatewayMapper gatewayMapper;
     private ChainNodeMapper chainNodeMapper;
+    private AddressingIpAndStateMapper addressingIpAndStateMapper;
     //mapper
 
     public Map<URIMethod, URIHandler> getRequestURIMapper() {
@@ -148,6 +149,7 @@ public class URIHandlerDispatcher {
         jnuCrossURIHandler.setSmartContractMapper(smartContractMapper);
         jnuCrossURIHandler.setGatewayMapper(gatewayMapper);
         jnuCrossURIHandler.setChainNodeMapper(chainNodeMapper);
+        jnuCrossURIHandler.setAddressingIpAndStateMapper(addressingIpAndStateMapper);
         registerURIHandler(new URIMethod("POST", "/transaction/generateTransferTransaction"), jnuCrossURIHandler);
         registerURIHandler(new URIMethod("GET", "/transaction/getCrossTransaction"), jnuCrossURIHandler);
         registerURIHandler(new URIMethod("GET", "/transaction/getAddressPageInfo"), jnuCrossURIHandler);

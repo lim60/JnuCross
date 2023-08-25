@@ -95,6 +95,11 @@ public class TChainAccounts implements Serializable {
      */
     private String address;
 
+    /**
+     * 余额
+     */
+    private Integer balance;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

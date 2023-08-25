@@ -34,17 +34,17 @@ public class Chain implements Serializable {
     /**
      * 区块高度
      */
-    private Integer chainHeight;
+    private Integer height;
 
     /**
      * 状态：0-待验证；1-已上线
      */
-    private Integer chainState;
+    private Integer State;
 
     /**
      * 区块域名
      */
-    private String chainDomain;
+    private String domain;
 
     /**
      * 创建时间

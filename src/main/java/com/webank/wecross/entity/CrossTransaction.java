@@ -42,10 +42,6 @@ public class CrossTransaction implements Serializable {
      */
     private Long initiateAccount;
 
-    /**
-     * 参与账户ids：{0,1,...}
-     */
-    private String participateAccounts;
 
     /**
      * 所使用的合约ids：{0,1,...}

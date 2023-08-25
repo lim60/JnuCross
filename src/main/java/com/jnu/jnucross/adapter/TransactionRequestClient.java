@@ -24,8 +24,9 @@ public class TransactionRequestClient {
     private int seq;    // the execution sequence
     private String type; // call or sendTransaction
     private  String transaction_ip; //交易地址
+    private int chain_type;
 
-    /** format of option:
+    /** format of options:
       * options: {
       *  'XA_TRANSACTION_ID': this.transactionForm.transactionID,
       *  'XA_TRANSACTION_SEQ': Date.now()+2
@@ -35,6 +36,10 @@ public class TransactionRequestClient {
 
     public Map<String, Object> getOptions() {
         return options;
+    }
+
+    public Long getXATransactionSeq(){
+        return (Long) options.get("XA_TRANSACTION_SEQ");
     }
 
     public void setOptions(Map<String, Object> options) {
@@ -65,6 +70,9 @@ public class TransactionRequestClient {
     public String getType(){return type;}  // the type: contractInvocation or Transaction
     public void setType(String type){this.type = type;}
     public int getChain() {return chain_id;}
+    public int getChain_type() {
+        return chain_type;
+    }
 
     public int getInitiate_account_id() {
         return initiate_account_id;
@@ -87,7 +95,8 @@ public class TransactionRequestClient {
             logger.info("transactionID: "+transactionRequest.gettxID());
             TransactionInfo node
                     = new TransactionInfo(
-                    transactionRequest.gettxID(),
+                    //transactionRequest.gettxID(),
+                    transactionRequest.getXATransactionSeq(),
                     transactionRequest.getPaths(),
                     transactionRequest.getMethod(),
                     transactionRequest.getArgs(),
@@ -98,6 +107,7 @@ public class TransactionRequestClient {
             node.setOptions(transactionRequest.getOptions());
             node.setXaTransactionID(XATransactionID);
             node.setStatus(1);
+            node.setChain_type(transactionRequest.getChain_type());
             DatabaseUtil.updateTransaction(node,"insert");
             alltransactions.add(node);
         }

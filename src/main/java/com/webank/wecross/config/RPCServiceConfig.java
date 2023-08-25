@@ -61,6 +61,8 @@ public class RPCServiceConfig {
     GatewayMapper gatewayMapper;
     @Resource
     ChainNodeMapper chainNodeMapper;
+    @Resource
+    AddressingIpAndStateMapper addressingIpAndStateMapper;
     //mapper
 
 

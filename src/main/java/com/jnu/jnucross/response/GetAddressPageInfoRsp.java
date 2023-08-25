@@ -40,7 +40,20 @@ public class GetAddressPageInfoRsp {
      */
     private Integer order;
 
+    /**
+     * 链的域名
+     */
+    private String domain;
 
+    /**
+     * 事务类型
+     */
+    private Integer crossTransactionType;
+
+    /**
+     * 交易id
+     */
+    private Long transactionId;
 
 
 }
