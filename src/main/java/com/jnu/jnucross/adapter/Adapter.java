@@ -172,10 +172,10 @@ public class Adapter {
     /** obtain all raw transaction from the request of client *
      * We also construct the transaction graph according to the seq
      **/
-    public static List<TransactionInfo> obtainAllTransactions(XATransactionRequest Requests) throws ExecutionException, InterruptedException{
-        String XATransactionID =  Requests.getXaTransactionID();
+    public static List<TransactionInfo> obtainAllTransactions(RestRequestJnu<XATransactionRequest> Requests) throws ExecutionException, InterruptedException{
+        String XATransactionID =  Requests.getData().getXaTransactionID();
         List<TransactionInfo> allTransactions = TransactionRequestClient.obtainTransactionList(
-                Requests.getTransactionRequests(),XATransactionID);
+                Requests.getData().getTransactionRequests(),XATransactionID);
 
         TransactionGraph.constructTransactionGraph(allTransactions);
         List<TransactionInfo> bfsResult = TransactionGraph.bfsSearch(allTransactions.get(0));
@@ -297,16 +297,16 @@ public class Adapter {
 
     /* roll back the raw transactions that have been executed after a raw transaction failed */
     public static void rollbackPreviousTransactions(List<TransactionInfo> bfsResult, int index,
-                                                    XATransactionRequest xaRequest,
+                                                    RestRequestJnu<XATransactionRequest> xaRequest,
                                                     UniversalAccount ua,
                                                     XATransactionManager xaTransactionManager){
 
         try {
             logger.info("now try to rollback the executed transactions");
             xaTransactionManager.asyncRollbackXATransaction(
-                    xaRequest.getXaTransactionID(),
+                    xaRequest.getData().getXaTransactionID(),
                     ua,
-                    filterAndSortChainPaths(xaRequest.getPaths()),
+                    filterAndSortChainPaths(xaRequest.getData().getPaths()),
                     (response) -> {
                         if (logger.isDebugEnabled()) {
                             logger.debug(
@@ -370,7 +370,7 @@ public class Adapter {
     }
 
     public static void processTransactionError(TransactionInfo item, int index,
-                                                   XATransactionRequest xaRequest,
+                                                   RestRequestJnu<XATransactionRequest> xaRequest,
                                                    List<TransactionInfo> bfsResult,
                                                    XATransactionManager xaTransactionManager,
                                                    UniversalAccount ua)
@@ -388,13 +388,13 @@ public class Adapter {
         /* update the status of the cross chain transaction to rollbacked */
         ZonedDateTime XAendTime = ZonedDateTime.now();
         DatabaseUtil.updateXATransactionFinish(XATransactionStatus.rollbacked.ordinal(),
-                xaRequest.getXaTransactionID(),
+                xaRequest.getData().getXaTransactionID(),
                 XAendTime);
     }
 
     /** Execute each raw transaction recursively **/
     public static void executeAllTransactions(UniversalAccount ua, List<TransactionInfo> bfsResult,
-                                              int index, XATransactionRequest xaRequest,
+                                              int index, RestRequestJnu<XATransactionRequest> xaRequest,
                                               XATransactionManager xaTransactionManager, WeCrossHost host) {
 
         /** all transactions are executed,
@@ -404,7 +404,7 @@ public class Adapter {
             logger.info("All transactions executed.");
             ZonedDateTime endTime = ZonedDateTime.now();
             DatabaseUtil.updateXATransactionFinish(XATransactionStatus.success.ordinal(),
-                    xaRequest.getXaTransactionID(),
+                    xaRequest.getData().getXaTransactionID(),
                     endTime);
             return;
         }
@@ -546,23 +546,23 @@ public class Adapter {
 
 
         try {
-            XATransactionRequest Requests =
+            RestRequestJnu<XATransactionRequest> Requests =
                     objectMapper.readValue(
                             content,
-                            new TypeReference<XATransactionRequest>() {
+                            new TypeReference<RestRequestJnu<XATransactionRequest>>() {
                             });
 
             ua.getAccessControlFilter()
                     .checkPermissions(
-                            Requests.getPaths().toArray(new String[0]));
+                            Requests.getData().getPaths().toArray(new String[0]));
 
             List<TransactionInfo> bfsResult = obtainAllTransactions(Requests);
-            DatabaseUtil.updateXATransaction(XATransactionStatus.executing.ordinal(), Requests.getXaTransactionID());
-            int transactionType = Requests.getType();
+            DatabaseUtil.updateXATransaction(XATransactionStatus.executing.ordinal(), Requests.getData().getXaTransactionID());
+            int transactionType = Requests.getData().getType();
             xaTransactionManager.asyncStartXATransaction(
-                    Requests.getXaTransactionID(),
+                    Requests.getData().getXaTransactionID(),
                     ua,
-                    Requests.getPaths(),
+                    Requests.getData().getPaths(),
                     (response) -> {
                         //if (logger.isDebugEnabled())
                         {
@@ -580,7 +580,7 @@ public class Adapter {
                             executeAllTransactions(ua, bfsResult, 0,Requests,xaTransactionManager,host);
                         }
                         else{
-                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), Requests.getXaTransactionID());
+                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), Requests.getData().getXaTransactionID());
                         }
                     });
         }catch (WeCrossException e) {
@@ -609,20 +609,20 @@ public class Adapter {
                                          XATransactionManager xaTransactionManager){
         try {
             logger.info("now commitTransaction");
-            XATransactionRequest xaRequest =
+            RestRequestJnu<XATransactionRequest> xaRequest =
                     objectMapper.readValue(
                             content,
-                            new TypeReference<XATransactionRequest>() {
+                            new TypeReference<RestRequestJnu<XATransactionRequest>>() {
                             });
 
             ua.getAccessControlFilter()
                     .checkPermissions(
-                            xaRequest.getPaths().toArray(new String[0]));
+                            xaRequest.getData().getPaths().toArray(new String[0]));
 
             xaTransactionManager.asyncCommitXATransaction(
-                    xaRequest.getXaTransactionID(),
+                    xaRequest.getData().getXaTransactionID(),
                     ua,
-                    filterAndSortChainPaths(xaRequest.getPaths()),
+                    filterAndSortChainPaths(xaRequest.getData().getPaths()),
                     (response) -> {
                         if (logger.isDebugEnabled()) {
                             logger.debug(
@@ -632,10 +632,10 @@ public class Adapter {
                         //restResponse.setData(response);
                         //callback.onResponse(restResponse);
                         if (response.getStatus() ==0){
-                            DatabaseUtil.updateXATransaction(XATransactionStatus.success.ordinal(), xaRequest.getXaTransactionID());
+                            DatabaseUtil.updateXATransaction(XATransactionStatus.success.ordinal(), xaRequest.getData().getXaTransactionID());
                         }
                         else{
-                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(),xaRequest.getXaTransactionID());
+                            DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(),xaRequest.getData().getXaTransactionID());
                         }
                     });
         }catch (WeCrossException e) {
@@ -665,23 +665,23 @@ public class Adapter {
                                             ){
 
         try{
-            XATransactionRequest xaRequest =
+            RestRequestJnu<XATransactionRequest> xaRequest =
                     objectMapper.readValue(
                             content,
-                            new TypeReference<XATransactionRequest>() {
+                            new TypeReference<RestRequestJnu<XATransactionRequest>>() {
                             });
 
             ua.getAccessControlFilter()
                     .checkPermissions(
-                            xaRequest.getPaths().toArray(new String[0]));
+                            xaRequest.getData().getPaths().toArray(new String[0]));
 
             List<Integer> transactionIds;
-            transactionIds = DatabaseUtil.findTransactionFromXA(xaRequest.getXaTransactionID());
+            transactionIds = DatabaseUtil.findTransactionFromXA(xaRequest.getData().getXaTransactionID());
 
             xaTransactionManager.asyncRollbackXATransaction(
-                    xaRequest.getXaTransactionID(),
+                    xaRequest.getData().getXaTransactionID(),
                     ua,
-                    filterAndSortChainPaths(xaRequest.getPaths()),
+                    filterAndSortChainPaths(xaRequest.getData().getPaths()),
                     (response) -> {
                         if (logger.isDebugEnabled())
                         {
@@ -707,7 +707,7 @@ public class Adapter {
                             // update the status and endTime for XATransaction
                             ZonedDateTime endTime = ZonedDateTime.now();
                             DatabaseUtil.updateXATransactionFinish(XATransactionStatus.rollbacked.ordinal(),
-                                    xaRequest.getXaTransactionID(),
+                                    xaRequest.getData().getXaTransactionID(),
                                     endTime);
 
                         }
