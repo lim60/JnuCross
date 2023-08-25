@@ -30,6 +30,7 @@ public class TransactionInfo {
     private String ipAddr;
     private Map<String, Object> options = new HashMap<String, Object>();
     private int chain_type;
+    private String chain_name;
 
     public int getChain_type() {
         return chain_type;
@@ -39,6 +40,13 @@ public class TransactionInfo {
         this.chain_type = chain_type;
     }
 
+    public void setChain_name(String chain_name){
+        this.chain_name = chain_name;
+    }
+
+    public String getChain_name(){
+        return chain_name;
+    }
 
     public void setErrorMessage(String ErrorMessage) {
         this.ErrorMessage = ErrorMessage;

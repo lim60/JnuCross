@@ -161,6 +161,7 @@ dependencies {
     compile 'org.fisco-bcos:tcnative'
     compile 'org.apache.httpcomponents:httpclient:4.5.13'
     compile 'io.netty:netty-all'
+    compile group: 'cn.hutool', name: 'hutool-all', version: '5.8.20'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13.2'

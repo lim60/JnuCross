@@ -112,6 +112,7 @@ public class Adapter {
         }
     }
 
+
     /* may not be used */
     public static  class ListXATransactionsRequest {
         private int size;
@@ -172,7 +173,7 @@ public class Adapter {
     /** obtain all raw transaction from the request of client *
      * We also construct the transaction graph according to the seq
      **/
-    public static List<TransactionInfo> obtainAllTransactions(RestRequest<XATransactionRequest> Requests) throws ExecutionException, InterruptedException{
+    public static List<TransactionInfo> obtainAllTransactions(RestRequestJnu<XATransactionRequest> Requests) throws ExecutionException, InterruptedException{
         String XATransactionID =  Requests.getData().getXaTransactionID();
         List<TransactionInfo> allTransactions = TransactionRequestClient.obtainTransactionList(
                 Requests.getData().getTransactionRequests(),XATransactionID);
@@ -297,7 +298,7 @@ public class Adapter {
 
     /* roll back the raw transactions that have been executed after a raw transaction failed */
     public static void rollbackPreviousTransactions(List<TransactionInfo> bfsResult, int index,
-                                                    RestRequest<XATransactionRequest> xaRequest,
+                                                    RestRequestJnu<XATransactionRequest> xaRequest,
                                                     UniversalAccount ua,
                                                     XATransactionManager xaTransactionManager){
 
@@ -370,7 +371,7 @@ public class Adapter {
     }
 
     public static void processTransactionError(TransactionInfo item, int index,
-                                                   RestRequest<XATransactionRequest> xaRequest,
+                                                   RestRequestJnu<XATransactionRequest> xaRequest,
                                                    List<TransactionInfo> bfsResult,
                                                    XATransactionManager xaTransactionManager,
                                                    UniversalAccount ua)
@@ -392,10 +393,20 @@ public class Adapter {
                 XAendTime);
     }
 
+    public static void VerifyChain(String last_visited_chain, String now_visted_chain){
+        try {
+            Verifier.VerifyChain(now_visted_chain, last_visited_chain);
+        }
+        catch (Exception e){
+            logger.error("cannot verify chain");
+        }
+    }
+
     /** Execute each raw transaction recursively **/
     public static void executeAllTransactions(UniversalAccount ua, List<TransactionInfo> bfsResult,
-                                              int index, RestRequest<XATransactionRequest> xaRequest,
-                                              XATransactionManager xaTransactionManager, WeCrossHost host) {
+                                              int index, RestRequestJnu<XATransactionRequest> xaRequest,
+                                              XATransactionManager xaTransactionManager, WeCrossHost host,
+                                              String last_visited_chain) {
 
         /** all transactions are executed,
          update the status of the cross chain transaction to success
@@ -450,6 +461,13 @@ public class Adapter {
                     DatabaseUtil.updateTransaction(item, "status");
                     assert resourceObj != null;
                     /* send transaction */
+                    /*if (index != 0){
+                        if (!Objects.equals(item.getChain_name(), bfsResult.get(index - 1).getChain_name())){
+                            VerifyChain(item.getChain_name(),bfsResult.get(index - 1).getChain_name());
+                        }
+                    }*/
+                    last_visited_chain = txpaths.get(0);
+                    String finalLast_visited_chain = last_visited_chain;
                     resourceObj.asyncSendTransaction(transactionRequest, ua, (transactionException, transactionResponse) -> {
                         ZonedDateTime endTime = ZonedDateTime.now();
                         item.setEndTimestamp(endTime);
@@ -479,7 +497,8 @@ public class Adapter {
                                 DatabaseUtil.updateTransaction(item, "success");
                                 int nextIndex = index + 1;
                                 // Execute next transaction
-                                executeAllTransactions(ua, bfsResult, nextIndex, xaRequest, xaTransactionManager, host);
+                                executeAllTransactions(ua, bfsResult, nextIndex, xaRequest,
+                                        xaTransactionManager, host, finalLast_visited_chain);
                             }
                         }
                     });
@@ -489,6 +508,7 @@ public class Adapter {
                     item.setStatus(TransactionStatus.executing.ordinal());
                     DatabaseUtil.updateTransaction(item, "status");
                     assert resourceObj != null;
+                    String finalLast_visited_chain1 = last_visited_chain;
                     resourceObj.asyncCall(transactionRequest, ua, (transactionException, transactionResponse) -> {
                         ZonedDateTime endTime = ZonedDateTime.now();
                         item.setEndTimestamp(endTime);
@@ -521,7 +541,8 @@ public class Adapter {
                                                         nextIndex,
                                                         xaRequest,
                                                         xaTransactionManager,
-                                                        host);
+                                                        host,
+                                        finalLast_visited_chain1);
                             }
                         }
                     });
@@ -547,10 +568,10 @@ public class Adapter {
 
 
         try {
-            RestRequest<XATransactionRequest> Requests =
+            RestRequestJnu<XATransactionRequest> Requests =
                     objectMapper.readValue(
                             content,
-                            new TypeReference<RestRequest<XATransactionRequest>>() {
+                            new TypeReference<RestRequestJnu<XATransactionRequest>>() {
                             });
 
             ua.getAccessControlFilter()
@@ -558,6 +579,7 @@ public class Adapter {
                             Requests.getData().getPaths().toArray(new String[0]));
 
             List<TransactionInfo> bfsResult = obtainAllTransactions(Requests);
+            String last_visited_chain = null;
             DatabaseUtil.updateXATransaction(XATransactionStatus.executing.ordinal(), Requests.getData().getXaTransactionID());
             int transactionType = Requests.getData().getType();
             xaTransactionManager.asyncStartXATransaction(
@@ -578,7 +600,7 @@ public class Adapter {
                         } else */
                         if (response.getStatus() == 0)
                         {
-                            executeAllTransactions(ua, bfsResult, 0,Requests,xaTransactionManager,host);
+                            executeAllTransactions(ua, bfsResult, 0,Requests,xaTransactionManager,host,last_visited_chain);
                         }
                         else{
                             DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), Requests.getData().getXaTransactionID());

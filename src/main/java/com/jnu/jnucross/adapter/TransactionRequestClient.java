@@ -25,6 +25,7 @@ public class TransactionRequestClient {
     private String type; // call or sendTransaction
     private  String transaction_ip; //交易地址
     private int chain_type;
+    private String chain_name;
 
     /** format of option:
       * options: {
@@ -40,6 +41,14 @@ public class TransactionRequestClient {
 
     public void setOptions(Map<String, Object> options) {
         this.options = options;
+    }
+
+    public void setChain_name(String chain_name){
+        this.chain_name = chain_name;
+    }
+
+    public String getChain_name(){
+        return chain_name;
     }
 
     //end
@@ -103,6 +112,7 @@ public class TransactionRequestClient {
             node.setXaTransactionID(XATransactionID);
             node.setStatus(1);
             node.setChain_type(transactionRequest.getChain_type());
+            node.setChain_name(transactionRequest.getChain_name());
             DatabaseUtil.updateTransaction(node,"insert");
             alltransactions.add(node);
         }
