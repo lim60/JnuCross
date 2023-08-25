@@ -502,7 +502,6 @@ public class JnuCrossURIHandler implements URIHandler {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
-
                     UniversalAccount ua = accountManager.getUniversalAccount(userContext);
 //                  //调用开启事务方法
                     Adapter.startXATransaction(content,ua,xaTransactionManager,weCrossHost);
