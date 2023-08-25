@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Objects;
@@ -42,6 +43,7 @@ public class RPCServiceConfig {
     @Resource
     XATransactionManager xaTransactionManager;
     @Resource
+    @Lazy
     WeCrossHost weCrossHost;
 
     //mapper
@@ -88,6 +90,7 @@ public class RPCServiceConfig {
         uriHandlerDispatcher.setSmartContractMapper(smartContractMapper);
         uriHandlerDispatcher.setGatewayMapper(gatewayMapper);
         uriHandlerDispatcher.setChainNodeMapper(chainNodeMapper);
+        uriHandlerDispatcher.setAddressingIpAndStateMapper(addressingIpAndStateMapper);
         rpcBootstrap.setUriHandlerDispatcher(uriHandlerDispatcher);
 
         RPCService rpcService = new RPCService();

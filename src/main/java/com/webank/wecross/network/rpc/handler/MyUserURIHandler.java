@@ -38,6 +38,7 @@ public class MyUserURIHandler implements URIHandler {
 //                        callback.onResponse(ResultUtil.success(students));
                         // 如果出现异常，事务将会回滚
                         // 如果没有异常，事务将会提交
+                        callback.onResponse(ResultUtil.success("测试成功"));
                     } catch (Exception e) {
                         logger.error("事务出现异常：",e);
                         status.setRollbackOnly();

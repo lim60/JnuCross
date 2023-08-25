@@ -3,12 +3,9 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.jnu.jnucross.adapter.Adapter;
 import com.jnu.jnucross.constants.*;
 import com.jnu.jnucross.json.AvailableIpJson;
@@ -24,6 +21,7 @@ import com.jnu.jnucross.request.GenerateTransactionReq;
 import com.jnu.jnucross.response.GetCrossTransactionRSp;
 import com.jnu.jnucross.response.GetAddressPageInfoRsp;
 import com.jnu.jnucross.response.GetTransactionInfoRsp;
+import com.jnu.jnucross.util.PingUtil;
 import com.jnu.jnucross.util.ResultUtil;
 import com.webank.wecross.account.UniversalAccount;
 import com.webank.wecross.account.AccountManager;
@@ -33,18 +31,14 @@ import com.webank.wecross.host.WeCrossHost;
 import com.webank.wecross.mapper.*;
 import com.webank.wecross.network.UriDecoder;
 import com.webank.wecross.network.rpc.handler.URIHandler;
-import com.webank.wecross.restserver.RestResponse;
-import com.webank.wecross.routine.xa.XAResponse;
 import com.webank.wecross.routine.xa.XATransactionManager;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.geo.Distance;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.net.InetAddress;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -118,10 +112,10 @@ public class JnuCrossURIHandler implements URIHandler {
             //-----------------跨链转账-----------------
 
             //-----------------合约-----------------
-            //获取合约列表
-//            case "getSmartContract":
-//                handleGetSmartContract(userContext, uri, method, content, callback);
-//                break;
+            //获取合约信息
+            case "getSmartContractInfo":
+                handleGetSmartContractInfo(userContext, uri, method, content, callback);
+                break;
             //-----------------合约-----------------
         }
 
@@ -198,7 +192,7 @@ public class JnuCrossURIHandler implements URIHandler {
                     crossTransaction.setId(crossTransactionId);
                     crossTransaction.setChains(req.getChainIds());
                     crossTransaction.setType(CrossTransactionTypeConstant.CROSS_CHAIN_TRANSFER);
-                    crossTransaction.setState(TransactionStatesConstant.EXECUTING);
+                    crossTransaction.setState(CrossTransactionStatesConstant.EXECUTING);
                     crossTransaction.setInitiateAccount(req.getLaunchAccountId());
                     crossTransaction.setAddressingStrategy(AddressingStrategyConstant.DEFAULT_Strategy);
                     crossTransaction.setCreatorId(uaPrimaryId);
@@ -332,20 +326,49 @@ public class JnuCrossURIHandler implements URIHandler {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
-                    //todo 开始ping
-                    InetAddress inetAddress = InetAddress.getByName(ip);
-                    boolean reachable = inetAddress.isReachable(5000);
+                    List<String> split = StrUtil.split(ip, ":");
+                    String ipStr = split.get(0);
+                    String portStr = split.get(1);
+                    boolean reachable = PingUtil.ping(ipStr, Integer.parseInt(portStr), 2000);
                     Integer connectState;//连接状态
-                    if (reachable){
+                    if (reachable){//连通成功
                         connectState = PingStateConstant.SUCCESS_CONNECT;
-                    }else {
+                        //修改交易表
+                        LambdaUpdateWrapper<Transaction> updateWrapper = new LambdaUpdateWrapper<>();
+                        updateWrapper.eq(Transaction::getId,transactionId);
+                        updateWrapper.set(Transaction::getTransactionIp,ipStr);
+                        updateWrapper.set(Transaction::getIsAddressed,AddressStateConstant.SUCCESS_ADDRESS);
+                        transactionMapper.update(null,updateWrapper);
+                    }else {//连通失败
                         connectState = PingStateConstant.FAIL_CONNECT;
                     }
+                    //修改ip表状态
                     LambdaUpdateWrapper<AddressingIpAndState> updateWrapper = new LambdaUpdateWrapper<>();
                     updateWrapper.eq(AddressingIpAndState::getTransactionId,transactionId);
                     updateWrapper.eq(AddressingIpAndState::getIp,ip);
                     updateWrapper.set(AddressingIpAndState::getIsConnected,connectState);
                     addressingIpAndStateMapper.update(null,updateWrapper);
+
+                    boolean crossTransactionFailed = true;
+                    if (!reachable){//如果未ping通，需要判断是否全部都ping不通,如果全不通，则事务失败
+                        LambdaQueryWrapper<AddressingIpAndState> queryWrapper = new LambdaQueryWrapper<>();
+                        queryWrapper.eq(AddressingIpAndState::getTransactionId,transactionId);
+                        List<AddressingIpAndState> addressingIpAndStates = addressingIpAndStateMapper.selectList(queryWrapper);
+                        for (AddressingIpAndState addressingIpAndState : addressingIpAndStates) {
+                            if (ObjectUtil.notEqual(addressingIpAndState.getIsConnected(),PingStateConstant.FAIL_CONNECT)){
+                                crossTransactionFailed = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (crossTransactionFailed){
+                        //事务执行失败
+                        Transaction transaction = transactionMapper.selectById(transactionId);
+                        String crossTransactionId = transaction.getCrossTransactionId();
+                        crossTransactionMapper.update(null,Wrappers.<CrossTransaction>lambdaUpdate()
+                                .eq(CrossTransaction::getId,crossTransactionId)
+                                .set(CrossTransaction::getState,CrossTransactionStatesConstant.STOP));
+                    }
                     callback.onResponse(ResultUtil.success());
                 }catch (Exception e){
                     status.setRollbackOnly();
@@ -479,6 +502,7 @@ public class JnuCrossURIHandler implements URIHandler {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
+
                     UniversalAccount ua = accountManager.getUniversalAccount(userContext);
 //                  //调用开启事务方法
                     Adapter.startXATransaction(content,ua,xaTransactionManager,weCrossHost);
@@ -513,6 +537,26 @@ public class JnuCrossURIHandler implements URIHandler {
     }
 
     private void handleRollbackTransaction(UserContext userContext, String uri, String method, String content, Callback callback) {
+        transactionTemplate.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                try {
+                    UniversalAccount ua = accountManager.getUniversalAccount(userContext);
+                    //调用提交事务方法
+                    Adapter.rollbackTransaction(content,ua,xaTransactionManager);
+                    callback.onResponse(ResultUtil.success());
+                }catch (Exception e){
+                    status.setRollbackOnly();
+                    logger.error("回滚事务失败:",e);
+                    callback.onResponse("回滚事务失败");
+                }
+                return null;
+            }
+        });
+    }
+
+
+    private void handleGetSmartContractInfo(UserContext userContext, String uri, String method, String content, Callback callback) {
         transactionTemplate.execute(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(TransactionStatus status) {
