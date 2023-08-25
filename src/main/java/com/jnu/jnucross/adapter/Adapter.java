@@ -581,6 +581,7 @@ public class Adapter {
                         }
                         else{
                             DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(), Requests.getData().getXaTransactionID());
+                            rollbackTransaction(content,ua,xaTransactionManager);
                         }
                     });
         }catch (WeCrossException e) {
@@ -636,6 +637,7 @@ public class Adapter {
                         }
                         else{
                             DatabaseUtil.updateXATransaction(XATransactionStatus.fail.ordinal(),xaRequest.getData().getXaTransactionID());
+                            rollbackTransaction(content,ua,xaTransactionManager);
                         }
                     });
         }catch (WeCrossException e) {
