@@ -14,6 +14,7 @@ import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -91,13 +92,13 @@ public class EthereumUtils {
     }
 
     // 部署合约接口，需要先生成合约的java文件，然后私用合约Java类的deploy方法调用
-    public static void deployContract(Contract contractClass){
+    public static void deployContract(){
         EthereumWrapper ethereumWrapper = EthereumWrapper.build();
         Contract contract = null;
         try {
             BigInteger gasPrice = ethereumWrapper.web3j.ethGasPrice().send().getGasPrice();
             System.out.println(gasPrice);
-            ContractGasProvider gasProvider = new DefaultGasProvider();
+            ContractGasProvider gasProvider = new StaticGasProvider(BigInteger.TEN, BigInteger.valueOf(8_000_000L));
             BigInteger chainID = ethereumWrapper.web3j.ethChainId().send().getChainId();
             TransactionManager transactionManager = new RawTransactionManager(ethereumWrapper.web3j, ethereumWrapper.credentials, chainID.longValue());
             contract = SimpleStorage.deploy(ethereumWrapper.web3j,transactionManager,gasProvider).send();
@@ -106,8 +107,6 @@ public class EthereumUtils {
             e.printStackTrace();
         }
     }
-
-
 
     public static List<String> getAddressAndPublicKey(String hexPrivateKeyString){
         List<String> result = new ArrayList<String>();

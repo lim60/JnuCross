@@ -122,35 +122,35 @@ public final class Numeric {
         return toHexString(input, 0, input.length, false);
     }
 
-//    public static String toHexStringWithPrefixZeroPadded(BigInteger value, int size) {
-//        return toHexStringZeroPadded(value, size, true);
-//    }
-//
-//    public static String toHexStringNoPrefixZeroPadded(BigInteger value, int size) {
-//        return toHexStringZeroPadded(value, size, false);
-//    }
+    public static String toHexStringWithPrefixZeroPadded(BigInteger value, int size) {
+        return toHexStringZeroPadded(value, size, true);
+    }
 
-//    private static String toHexStringZeroPadded(BigInteger value, int size, boolean withPrefix) {
-//        String result = toHexStringNoPrefix(value);
-//
-//        int length = result.length();
-//        if (length > size) {
-//            throw new UnsupportedOperationException(
-//                    "Value " + result + "is larger then length " + size);
-//        } else if (value.signum() < 0) {
-//            throw new UnsupportedOperationException("Value cannot be negative");
-//        }
-//
-//        if (length < size) {
-//            result = Strings.zeros(size - length) + result;
-//        }
-//
-//        if (withPrefix) {
-//            return HEX_PREFIX + result;
-//        } else {
-//            return result;
-//        }
-//    }
+    public static String toHexStringNoPrefixZeroPadded(BigInteger value, int size) {
+        return toHexStringZeroPadded(value, size, false);
+    }
+
+    private static String toHexStringZeroPadded(BigInteger value, int size, boolean withPrefix) {
+        String result = toHexStringNoPrefix(value);
+
+        int length = result.length();
+        if (length > size) {
+            throw new UnsupportedOperationException(
+                    "Value " + result + "is larger then length " + size);
+        } else if (value.signum() < 0) {
+            throw new UnsupportedOperationException("Value cannot be negative");
+        }
+
+        if (length < size) {
+            result = zeros(size - length) + result;
+        }
+
+        if (withPrefix) {
+            return HEX_PREFIX + result;
+        } else {
+            return result;
+        }
+    }
 
     public static byte[] toBytesPadded(BigInteger value, int length) {
         byte[] result = new byte[length];
@@ -226,5 +226,13 @@ public final class Numeric {
         return value.signum() == 0
                 || value.scale() <= 0
                 || value.stripTrailingZeros().scale() <= 0;
+    }
+
+    public static String zeros(int n) {
+        return repeat('0', n);
+    }
+
+    public static String repeat(char value, int n) {
+        return new String(new char[n]).replace("\0", String.valueOf(value));
     }
 }

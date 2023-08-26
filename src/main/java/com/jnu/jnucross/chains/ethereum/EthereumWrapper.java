@@ -1,17 +1,32 @@
 package com.jnu.jnucross.chains.ethereum;
 
 import com.jnu.jnucross.chains.*;
+import com.jnu.jnucross.chains.Transaction;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.FunctionReturnDecoder;
+import org.web3j.abi.TypeDecoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.AbiTypes;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
-import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.*;
+import org.web3j.protocol.exceptions.TransactionException;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.RawTransactionManager;
+import org.web3j.tx.TransactionManager;
+import org.web3j.tx.response.PollingTransactionReceiptProcessor;
+import org.web3j.tx.response.TransactionReceiptProcessor;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.jnu.jnucross.chains.ethereum.EthereumUtils.coverToTransaction;
-import static com.jnu.jnucross.chains.ethereum.EthereumUtils.covertToBlock;
+import static com.jnu.jnucross.chains.ethereum.EthereumUtils.*;
 
 /**
  * @author SDKany
@@ -21,11 +36,11 @@ import static com.jnu.jnucross.chains.ethereum.EthereumUtils.covertToBlock;
  * @Description
  */
 public class EthereumWrapper extends ChainWrapper {
-    String geth_url; // = "http://10.154.24.12:8545";
-    Web3j web3j;// = Web3j.build(new HttpService(geth_url));
-    Credentials credentials;//  = null;
+    public String geth_url; // = "http://10.154.24.12:8545";
+    public Web3j web3j;// = Web3j.build(new HttpService(geth_url));
+    public Credentials credentials;//  = null;
 
-    public EthereumWrapper(){
+    protected EthereumWrapper(){
         super();
     }
 
@@ -91,6 +106,8 @@ public class EthereumWrapper extends ChainWrapper {
 
     public static void main(String[] args) {
         EthereumWrapper chainWrapper = EthereumWrapper.build();
+
+        System.out.println(Numeric.toHexStringWithPrefix(chainWrapper.credentials.getEcKeyPair().getPrivateKey()));
 
         System.out.println("Balance = " + chainWrapper.getBalance());
 
@@ -169,10 +186,186 @@ public class EthereumWrapper extends ChainWrapper {
         try {
             org.web3j.protocol.core.methods.response.Transaction ethTransaction = web3j.ethGetTransactionByHash(transactionHash).send().getTransaction().get();
             return coverToTransaction(ethTransaction);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Transaction();
     }
 
+    // amount为本区块链中的最小单位WEI，1 Ether=10^18 Wei
+    public String transferTo(String toAddress, BigInteger amount, boolean wait){
+        TransactionManager transactionManager = new RawTransactionManager(this.web3j, this.credentials, 111);
+        try {
+            BigInteger gasPrice = this.web3j.ethGasPrice().send().getGasPrice();
+            System.out.println("*** gasPrice = " + gasPrice);
+            EthSendTransaction ethSendTransaction = transactionManager.sendTransaction(gasPrice.multiply(BigInteger.TEN), BigInteger.valueOf(8_000_000L), toAddress, "", amount);
+            if (wait){
+                TransactionReceipt transactionReceipt = this.waitForPolling(ethSendTransaction.getTransactionHash());
+                return transactionReceipt.getTransactionHash();
+            }
+            return ethSendTransaction.getTransactionHash();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public TransactionReceipt waitForPolling(String txHash){
+        TransactionReceiptProcessor transactionReceiptProcessor = new PollingTransactionReceiptProcessor(web3j, TransactionManager.DEFAULT_POLLING_FREQUENCY, TransactionManager.DEFAULT_POLLING_ATTEMPTS_PER_TX_HASH);
+        TransactionReceipt transactionReceipt = null;
+        try {
+            transactionReceipt = transactionReceiptProcessor.waitForTransactionReceipt(txHash);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransactionException e) {
+            e.printStackTrace();
+        }
+        System.out.println(transactionReceipt);
+        return transactionReceipt;
+    }
+
+    public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception {
+        AbiDefinition[] abiDefinitions = objectMapper.readValue(abi, AbiDefinition[].class);
+        AbiDefinition abiDefinition = null;
+        for (int i = 0; i < abiDefinitions.length; i++){
+            abiDefinition = abiDefinitions[i];
+            if(abiDefinition.getName().equals(method)){
+                break;
+            }
+        }
+        if (abiDefinition == null){
+            throw new Exception("no such method in this contract! method = " + method);
+        }
+
+        List<AbiDefinition.NamedType> inputs = abiDefinition.getInputs();
+        List<AbiDefinition.NamedType> outputs = abiDefinition.getOutputs();
+
+        List<Type> inputParas = new ArrayList<>();
+        List<TypeReference<?>> outputParas = new ArrayList<>();
+        for (int i = 0; i < inputs.size(); i++) {
+            //System.out.println("---- inputs i = " + i);
+            AbiDefinition.NamedType namedType = inputs.get(i);
+            //System.out.println("    namedType = " + namedType);
+            String arg = args.get(i);
+            //System.out.println("    args_i = " + arg);
+            inputParas.add(TypeDecoder.decode(arg, AbiTypes.getType(namedType.getType())));
+        }
+        for (int i = 0; i < outputs.size(); i++) {
+            AbiDefinition.NamedType namedType = outputs.get(i);
+            outputParas.add(TypeReference.makeTypeReference(namedType.getType()));
+        }
+
+        Function function = new Function(
+                method,
+                inputParas,
+                outputParas);
+        String encodeFunction = FunctionEncoder.encode(function);
+        BigInteger gasPrice = this.web3j.ethGasPrice().send().getGasPrice();
+//        org.web3j.protocol.core.methods.request.Transaction transaction = org.web3j.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
+//                this.credentials.getAddress(),
+//                null,
+//                gasPrice.multiply(BigInteger.TEN),
+//                BigInteger.valueOf(8_000_000L),
+//                contractAddress,
+//                amount,
+//                encodeFunction);
+        //EthSendTransaction ethCall;
+        try {
+//            ethCall = web3j.ethSendTransaction(transaction).sendAsync().get();
+//            System.out.println("ethCall = " + ethCall);
+//            String txHash = ethCall.getTransactionHash();
+//            System.out.println("hash = " + txHash);
+
+            BigInteger nonce = web3j.ethGetTransactionCount(
+                    credentials.getAddress(), DefaultBlockParameterName.LATEST).send().getTransactionCount();
+            RawTransaction rawTransaction = null;
+            if(payable){
+                rawTransaction = RawTransaction.createTransaction(nonce, gasPrice.multiply(BigInteger.TEN), BigInteger.valueOf(8_000_000L), contractAddress, amount, encodeFunction);
+            }else{
+                rawTransaction = RawTransaction.createTransaction(nonce, gasPrice.multiply(BigInteger.TEN), BigInteger.valueOf(8_000_000L), contractAddress, encodeFunction);
+            }
+            byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, 111, credentials);
+            String hexValue = Numeric.toHexString(signedMessage);
+            EthSendTransaction response = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
+            List<Type> result = FunctionReturnDecoder.decode(response.getRawResponse(), function.getOutputParameters());
+            System.out.println("!!!!! in SimpleStorage2");
+            for (int i = 0; i < result.size(); i ++){
+                System.out.println(result.get(i));
+            }
+            System.out.println("!!!!! in SimpleStorage2");
+            if (wait){
+                TransactionReceipt transactionReceipt = waitForPolling(response.getTransactionHash());
+            }
+            FunctionResult functionResult = new FunctionResult();
+            functionResult.transactionHash = response.getTransactionHash();
+            functionResult.result = result;
+            return functionResult;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception {
+        AbiDefinition[] abiDefinitions = objectMapper.readValue(abi, AbiDefinition[].class);
+        AbiDefinition abiDefinition = null;
+        for (int i = 0; i < abiDefinitions.length; i++){
+            abiDefinition = abiDefinitions[i];
+            if(abiDefinition.getName().equals(method)){
+                break;
+            }
+        }
+        if (abiDefinition == null){
+            throw new Exception("no such method in this contract! method = " + method);
+        }
+
+        List<AbiDefinition.NamedType> inputs = abiDefinition.getInputs();
+        List<AbiDefinition.NamedType> outputs = abiDefinition.getOutputs();
+
+        List<Type> inputParas = new ArrayList<>();
+        List<TypeReference<?>> outputParas = new ArrayList<>();
+        for (int i = 0; i < inputs.size(); i++) {
+            AbiDefinition.NamedType namedType = inputs.get(i);
+            inputParas.add(TypeDecoder.decode(args.get(i), AbiTypes.getType(namedType.getType())));
+        }
+        for (int i = 0; i < outputs.size(); i++) {
+            AbiDefinition.NamedType namedType = outputs.get(i);
+            outputParas.add(TypeReference.makeTypeReference(namedType.getType()));
+        }
+
+//        System.out.println("******");
+//        for (int i = 0; i < outputParas.size(); i++){
+//            System.out.println("i: " + outputParas.get(i) + " - " + outputs.get(i).getType());
+//        }
+
+        Function function = new Function(
+                method,
+                inputParas,
+                outputParas);
+        String encodeFunction = FunctionEncoder.encode(function);
+        //
+        org.web3j.protocol.core.methods.request.Transaction transaction = org.web3j.protocol.core.methods.request.Transaction.createEthCallTransaction(this.credentials.getAddress(), contractAddress, encodeFunction);
+        EthCall ethCall;
+        try {
+            ethCall = web3j.ethCall(transaction, DefaultBlockParameterName.LATEST).sendAsync().get();
+            System.out.println("ethCall.getValue() = " + ethCall.getValue());
+            List<Type> result = FunctionReturnDecoder.decode(ethCall.getValue(), function.getOutputParameters());
+
+            FunctionResult functionResult = new FunctionResult();
+
+            functionResult.result = result;
+
+            return functionResult;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        TransactionManager transactionManager = new RawTransactionManager(this.web3j, this.credentials, 111);
+//        String result = transactionManager.sendCall(contractAddress, encodeFunction, DefaultBlockParameter.valueOf("latest"));
+//        System.out.println("result = " + result);
+//        System.out.println("List = " + FunctionReturnDecoder.decode(result, function.getOutputParameters()));
+        return null;
+    }
 }
