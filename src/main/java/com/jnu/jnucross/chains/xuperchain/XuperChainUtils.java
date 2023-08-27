@@ -3,13 +3,15 @@ package com.jnu.jnucross.chains.xuperchain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
-import com.jnu.jnucross.chains.xuperchain.xuper.api.Account;
-import com.jnu.jnucross.chains.xuperchain.xuper.crypto.xchain.sign.ECKeyPair;
-import com.jnu.jnucross.chains.xuperchain.xuper.pb.XchainOuterClass;
+import com.baidu.xuper.api.Account;
+import com.baidu.xuper.crypto.xchain.sign.ECKeyPair;
+import com.baidu.xuper.pb.XchainOuterClass;
 import org.bouncycastle.math.ec.ECPoint;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author SDKany
@@ -20,6 +22,10 @@ import java.util.List;
  */
 public class XuperChainUtils {
     static ObjectMapper objectMapper = new ObjectMapper();
+
+    public static Random random = new SecureRandom();
+
+    public static String numbers = "0123456789";
 
     public static Block covertToBlock(XchainOuterClass.InternalBlock xuperBlock){
         Block block = new Block();
@@ -98,5 +104,14 @@ public class XuperChainUtils {
     public static String creatPrivateKey(){
         ECKeyPair ecKeyPair = ECKeyPair.create();
         return Numeric.toHexStringWithPrefix(ecKeyPair.privateKey);
+    }
+
+    public static String creatContractAccount(){
+        StringBuffer sb = new StringBuffer("XC");
+        for (int i = 0; i < 16; i++){
+            sb.append(numbers.charAt(random.nextInt(10)));
+        }
+        sb.append("@xuper");
+        return sb.toString();
     }
 }

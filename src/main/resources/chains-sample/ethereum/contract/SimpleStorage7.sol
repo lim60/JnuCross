@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract SimpleStorage {
+contract SimpleStorage7 {
     struct StoreEntity{
         uint storgeId;
         string data;
@@ -14,14 +14,11 @@ contract SimpleStorage {
     uint numstores;
     mapping (uint => StoreEntity) storeEntities;
 
-    event valueStore(uint numstores, StoreEntity storeEntity);
-
     function set(uint x, string memory dataInput) public returns(uint, uint, string memory){
         uint index = numstores++;
         storeEntities[index].storgeId = x;
         storeEntities[index].data = dataInput;
 
-        emit valueStore(index, storeEntities[index]);
         return (index, storeEntities[index].storgeId, storeEntities[index].data);
     }
 

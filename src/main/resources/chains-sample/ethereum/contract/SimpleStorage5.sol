@@ -7,18 +7,21 @@ contract SimpleStorage {
         string data;
     }
 
+    constructor(){
+        numstores=0;
+    }
 
     uint numstores;
     mapping (uint => StoreEntity) storeEntities;
 
-    event valueStore(uint numstores, uint storgeId, string data);
+    event valueStore(uint numstores, StoreEntity storeEntity);
 
     function set(uint x, string memory dataInput) public returns(uint, uint, string memory){
         uint index = numstores++;
         storeEntities[index].storgeId = x;
         storeEntities[index].data = dataInput;
 
-        emit valueStore(index, storeEntities[index].storgeId, storeEntities[index].data);
+        emit valueStore(index, storeEntities[index]);
         return (index, storeEntities[index].storgeId, storeEntities[index].data);
     }
 

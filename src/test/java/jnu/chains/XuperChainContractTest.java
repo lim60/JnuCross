@@ -1,15 +1,20 @@
-package wecross.stub.demo;
+package jnu.chains;
 
+import com.jnu.jnucross.chains.Numeric;
 import com.baidu.xuper.api.Account;
 import com.baidu.xuper.api.Transaction;
 import com.baidu.xuper.api.XuperClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
+import com.baidu.xuper.crypto.xchain.sign.ECKeyPair;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author SDKany
@@ -20,19 +25,21 @@ import java.util.*;
  */
 public class XuperChainContractTest {
     public static XuperClient client = new XuperClient("10.154.24.12:37101");
-    static String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"x\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"retVal\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
-    static String bin = "608060405234801561001057600080fd5b50600560005560bf806100246000396000f30060806040526004361060485763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166360fe47b18114604d5780636d4ce63c146064575b600080fd5b348015605857600080fd5b5060626004356088565b005b348015606f57600080fd5b506076608d565b60408051918252519081900360200190f35b600055565b600054905600a165627a7a72305820419b352168794764ac1d5d6d3460eaffedc13c00bcbb4d2ff772148d2f0670fc0029";
-    static String contractName = "SimpleStorage2";
-    static Account account = Account.getAccountFromFile("./account2", "");
+    static String abi = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"storedData\",\"type\":\"uint256\"}],\"name\":\"value\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"retVal\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+    static String bin = "6080604052600560005534801561001557600080fd5b506101a6806100256000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806360fe47b11461003b5780636d4ce63c1461006b575b600080fd5b61005560048036038101906100509190610119565b610089565b6040516100629190610155565b60405180910390f35b6100736100d5565b6040516100809190610155565b60405180910390f35b6000816000819055507fc5a46ee641f0e0790ea3ed69ad8bed13888878711d6797fba0ad6834d3f809f16000546040516100c39190610155565b60405180910390a16000549050919050565b60008054905090565b600080fd5b6000819050919050565b6100f6816100e3565b811461010157600080fd5b50565b600081359050610113816100ed565b92915050565b60006020828403121561012f5761012e6100de565b5b600061013d84828501610104565b91505092915050565b61014f816100e3565b82525050565b600060208201905061016a6000830184610146565b9291505056fea26469706673582212209adcf49c10e34e40f98bb3869cb1a8699b4acb0ef40693326fbbdc55b11de19364736f6c63430008120033";
+    static String contractName = "SimpleStorage";
+    static Account account;
     static Map<String, String> args = new HashMap<>();
     static{
+        ECKeyPair ecKeyPair = ECKeyPair.create(new BigInteger("79833914188285032734510047008692369036830969561638683117894543716557611565261"));
+        account = Account.create(ecKeyPair);
         account.setContractAccount("XC1234567890123455@xuper");
     }
     @Test
     public void EVMContractTest(){
-        deploy();
+        //deploy();
         //invoke();
-        //invoke2();
+        invoke2();
     }
 
     public static void deploy(){
