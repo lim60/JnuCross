@@ -148,6 +148,15 @@ public class EthereumWrapper extends ChainWrapper {
         }
     }
 
+    public BigInteger getBalance(String address){
+        try {
+            return web3j.ethGetBalance(address, DefaultBlockParameter.valueOf("latest")).send().getBalance();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return BigInteger.valueOf(0);
+        }
+    }
+
     @Override
     public long getBlockNumber() {
         try {

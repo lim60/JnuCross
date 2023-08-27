@@ -1,5 +1,8 @@
 package com.jnu.jnucross.chains.xuperchain;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.baidu.xuper.crypto.gm.hash.Hash;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
@@ -118,6 +121,15 @@ public class XuperChainWrapper extends ChainWrapper {
         }
     }
 
+    public BigInteger getBalance(String address){
+        try {
+            return client.getBalance(address,false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BigInteger.valueOf(0);
+        }
+    }
+
     @Override
     public long getBlockNumber() {
         return client.getHeight();
@@ -163,17 +175,28 @@ public class XuperChainWrapper extends ChainWrapper {
 
     // query不会发生交易，只请求合约上的函数
     public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception{
+        com.baidu.xuper.api.Transaction t = client.queryEVMContract(account, contractName, method, parseABI(abi, method, args));
+//        System.out.println("-------------");
+//        System.out.println(t.getRawTx());
+//        System.out.println("-------------");
+
+        FunctionResult functionResult = new FunctionResult();
+        functionResult.transactionHash = null;
+        String resultString = t.getContractResponse().getBodyStr();
+        //System.out.println("resultString = " + resultString);
+        functionResult.result = parseStr(resultString);
+        return functionResult;
+    }
+
+    public static Map parseABI(String abi, String method, List<String> args) throws JsonProcessingException {
         Map<String, String> argsMap = new HashMap<>();
         AbiDefinition[] abiDefinitions = XuperChainUtils.objectMapper.readValue(abi, AbiDefinition[].class);
         AbiDefinition abiDefinition = null;
-        System.out.println(abiDefinitions.length);
         for (int i = 0; i < abiDefinitions.length; i++){
             abiDefinition = abiDefinitions[i];
             if (abiDefinition.getName() == null){
                 continue;
             }
-            System.out.println("---- in abiDefinition");
-            System.out.println(abiDefinition.getName());
             if(abiDefinition.getName().equals(method)){
                 break;
             }
@@ -182,55 +205,30 @@ public class XuperChainWrapper extends ChainWrapper {
         for (int i = 0; i < inputs.size(); i++) {
             argsMap.put(inputs.get(i).getName(), args.get(i));
         }
+        return argsMap;
+    }
 
-        System.out.println("argsMap = " + argsMap);
-
-        com.baidu.xuper.api.Transaction t = client.queryEVMContract(account, contractName, method, argsMap);
-        System.out.println("-------------");
-        System.out.println(t.getRawTx());
-        System.out.println("-------------");
-
-        FunctionResult functionResult = new FunctionResult();
-        functionResult.transactionHash = null;
+    public static List parseStr(String str){
         List<String> result = new ArrayList<>();
-        result.add(t.getContractResponse().getBodyStr());
-        //result.add(Numeric.toHexString(t.getContractResponse().getBody()));
-        t.getContractResponse().getBody();
-        functionResult.result = result;
-        return functionResult;
+        ArrayList jsonObject = JSON.parseObject(str, ArrayList.class);
+        for (Object a: jsonObject) {
+            //System.out.println(a);
+            HashMap h = JSON.parseObject(a.toString(), HashMap.class);
+            for (Object key: h.keySet()){
+                //System.out.println(h.get(key));
+                result.add(h.get(key).toString());
+            }
+        }
+        return result;
     }
 
     // invoke会产生交易
     public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws JsonProcessingException {
-        Map<String, String> argsMap = new HashMap<>();
-        AbiDefinition[] abiDefinitions = XuperChainUtils.objectMapper.readValue(abi, AbiDefinition[].class);
-        AbiDefinition abiDefinition = null;
-        System.out.println(abiDefinitions.length);
-        for (int i = 0; i < abiDefinitions.length; i++){
-            abiDefinition = abiDefinitions[i];
-            if (abiDefinition.getName() == null){
-                continue;
-            }
-            System.out.println("---- in abiDefinition");
-            System.out.println(abiDefinition.getName());
-            if(abiDefinition.getName().equals(method)){
-                break;
-            }
-        }
-        List<AbiDefinition.NamedType> inputs = abiDefinition.getInputs();
-        for (int i = 0; i < inputs.size(); i++) {
-            argsMap.put(inputs.get(i).getName(), args.get(i));
-        }
-        System.out.println("argsMap = " + argsMap);
-
-        com.baidu.xuper.api.Transaction t = client.invokeEVMContract(account, contractName, method, argsMap, amount);
-
-        System.out.println("xuperchain Transaction T = " + t);
+        com.baidu.xuper.api.Transaction t = client.invokeEVMContract(account, contractName, method, parseABI(abi, method, args), amount);
 
         FunctionResult functionResult = new FunctionResult();
         functionResult.transactionHash = t.getTxid();
-        functionResult.result = new ArrayList<>();
-        functionResult.result.add(t.getContractResponse().getBodyStr());
+        functionResult.result = parseStr(t.getContractResponse().getBodyStr());
         return functionResult;
     }
 }

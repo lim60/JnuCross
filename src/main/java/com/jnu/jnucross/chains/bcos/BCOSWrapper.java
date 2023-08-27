@@ -39,7 +39,6 @@ public class BCOSWrapper extends ChainWrapper {
     public BcosSDK sdk;
     public Client client;
 
-
     public BCOSWrapper(){
         super();
     }

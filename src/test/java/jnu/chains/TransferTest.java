@@ -155,17 +155,19 @@ public class TransferTest {
 //        System.out.println(deployResult);
         // xuperchain 完成合约部署
 
-//        List<String> args = new ArrayList<>();
-//        args.add("123");
-//        args.add("Hello123");
-//        FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "set", args, false, null, false);
-//        System.out.println("----" + functionResult.result.get(0));
-//        System.out.println("----" + functionResult.transactionHash);
-
+        // call 方法
         List<String> args = new ArrayList<>();
-        args.add("0");
-        FunctionResult functionResult = xuperChainWrapper.call(abi, contractName, null, "get", args);
-        System.out.println("****" + functionResult.result);
-        System.out.println("****" + functionResult.transactionHash);
+        args.add("345");
+        args.add("Hello345");
+        FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "set", args, false, null, false);
+        System.out.println("----" + functionResult.result);
+        System.out.println("----" + functionResult.transactionHash);
+
+        // send 方法
+//        List<String> args = new ArrayList<>();
+//        args.add("1");
+//        FunctionResult functionResult = xuperChainWrapper.call(abi, contractName, null, "get", args);
+//        System.out.println("****" + functionResult.result);
+//        System.out.println("****" + functionResult.transactionHash);
     }
 }

@@ -98,17 +98,25 @@ public class CITAWrapper extends ChainWrapper {
 
     }
 
-
-
     @Override
     public BigInteger getBalance(){
         try {
-            return client.appGetBalance(credentials.getAddress(), DefaultBlockParameter.valueOf("lasest")).send().getBalance();
+            return client.appGetBalance(credentials.getAddress(), DefaultBlockParameter.valueOf("latest")).send().getBalance();
         } catch (Exception e) {
             e.printStackTrace();
             return BigInteger.valueOf(0);
         }
     }
+
+    public BigInteger getBalance(String address){
+        try {
+            return client.appGetBalance(address, DefaultBlockParameter.valueOf("latest")).send().getBalance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BigInteger.valueOf(0);
+        }
+    }
+
 
     @Override
     public long getBlockNumber() {
