@@ -231,6 +231,9 @@ public class EthereumWrapper extends ChainWrapper {
         AbiDefinition abiDefinition = null;
         for (int i = 0; i < abiDefinitions.length; i++){
             abiDefinition = abiDefinitions[i];
+            if(abiDefinition.getName() == null){
+                continue;
+            }
             if(abiDefinition.getName().equals(method)){
                 break;
             }
@@ -242,14 +245,23 @@ public class EthereumWrapper extends ChainWrapper {
         List<AbiDefinition.NamedType> inputs = abiDefinition.getInputs();
         List<AbiDefinition.NamedType> outputs = abiDefinition.getOutputs();
 
+        System.out.println("abiDefinition = " + abiDefinition.getOutputs());
+        System.out.println("abiDefinition = " + abiDefinition.getName());
+        System.out.println("abiDefinition = " + abiDefinition.getInputs());
+        System.out.println("abiDefinition = " + abiDefinition.getStateMutability());
+
+
+
+
         List<Type> inputParas = new ArrayList<>();
         List<TypeReference<?>> outputParas = new ArrayList<>();
         for (int i = 0; i < inputs.size(); i++) {
-            //System.out.println("---- inputs i = " + i);
+            System.out.println("---- inputs i = " + i);
             AbiDefinition.NamedType namedType = inputs.get(i);
-            //System.out.println("    namedType = " + namedType);
+            System.out.println("    namedType.getName() = " + namedType.getName());
+            System.out.println("    namedType.getType() = " + namedType.getType());
             String arg = args.get(i);
-            //System.out.println("    args_i = " + arg);
+            System.out.println("    args_i = " + arg);
             inputParas.add(TypeDecoder.decode(arg, AbiTypes.getType(namedType.getType())));
         }
         for (int i = 0; i < outputs.size(); i++) {
@@ -289,18 +301,20 @@ public class EthereumWrapper extends ChainWrapper {
             byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, 111, credentials);
             String hexValue = Numeric.toHexString(signedMessage);
             EthSendTransaction response = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
-            List<Type> result = FunctionReturnDecoder.decode(response.getRawResponse(), function.getOutputParameters());
-            System.out.println("!!!!! in SimpleStorage2");
-            for (int i = 0; i < result.size(); i ++){
-                System.out.println(result.get(i));
-            }
-            System.out.println("!!!!! in SimpleStorage2");
+            List<Type> result = null;
             if (wait){
+                result = new ArrayList<>();
                 TransactionReceipt transactionReceipt = waitForPolling(response.getTransactionHash());
+                List<Log> logs = transactionReceipt.getLogs();
+                if ((logs != null) && (!logs.isEmpty())){
+                    result = FunctionReturnDecoder.decode(logs.get(0).getData(), function.getOutputParameters());
+                }
             }
             FunctionResult functionResult = new FunctionResult();
             functionResult.transactionHash = response.getTransactionHash();
             functionResult.result = result;
+            System.out.println(functionResult.result);
+            System.out.println(result);
             return functionResult;
         } catch (Exception e) {
             e.printStackTrace();
