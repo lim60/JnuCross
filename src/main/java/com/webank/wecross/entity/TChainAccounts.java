@@ -71,7 +71,10 @@ public class TChainAccounts implements Serializable {
     private String sec;
 
     /**
-     * 
+     * 链对应的stub类型。在stub源码中用"@stub(链类型"。目前新加的类型名包括
+     * (1) CITAStub
+     * (2) EthereumStub
+     * (3) XuperChainStub
      */
     private String type;
 
