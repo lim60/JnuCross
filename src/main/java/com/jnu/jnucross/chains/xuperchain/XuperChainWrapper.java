@@ -30,9 +30,9 @@ import static com.jnu.jnucross.chains.xuperchain.XuperChainUtils.*;
  * @Description
  */
 public class XuperChainWrapper extends ChainWrapper {
-    String xuperChain_url; // = "http://10.154.24.12:8545";
-    XuperClient client;// = Web3j.build(new HttpService(geth_url));
-    Account account;//  = null;
+    public String xuperChain_url; // = "http://10.154.24.12:8545";
+    public XuperClient client;// = Web3j.build(new HttpService(geth_url));
+    public Account account;//  = null;
 
     public XuperChainWrapper(){
         super();
@@ -56,9 +56,9 @@ public class XuperChainWrapper extends ChainWrapper {
         XuperChainWrapper xuperChainWrapper = new XuperChainWrapper();
         xuperChainWrapper.xuperChain_url = "10.154.24.12:37101";
         xuperChainWrapper.client = new XuperClient(xuperChainWrapper.xuperChain_url);
-        ECKeyPair ecKeyPair = ECKeyPair.create(new BigInteger("79833914188285032734510047008692369036830969561638683117894543716557611565261"));
+        ECKeyPair ecKeyPair = ECKeyPair.create(new BigInteger("111497060296999106528800133634901141644446751975433315540300236500052690483486"));
         xuperChainWrapper.account = Account.create(ecKeyPair);
-        String contractAccount = "XC1234567890123455@xuper";//creatContractAccount();
+        String contractAccount = "XC1234567890123456@xuper";//creatContractAccount();
         xuperChainWrapper.account.setContractAccount(contractAccount);
         return xuperChainWrapper;
     }
@@ -80,32 +80,34 @@ public class XuperChainWrapper extends ChainWrapper {
         account = Account.create(ecKeyPair);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         XuperChainWrapper chainWrapper = XuperChainWrapper.build();
-
+//
         System.out.println("Balance = " + chainWrapper.getBalance());
 
+        System.out.println(chainWrapper.account.getAKAddress());
+
+
+//
         System.out.println("BlockNumber = " + chainWrapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
         System.out.println("The 1st block is = " + chainWrapper.getBlockByNumber(2)); // 通过块高获取块
+//        System.out.println("----------------------------------");
+//        // 通过hash获取块
+//        System.out.println("The block with hash 2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61 is = " + chainWrapper.getBlockByHash("2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61"));
+//        System.out.println("----------------------------------");
+////        // 获取transaction by hash
+//        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("5939f2423d45b7512d9af6ac9f56553b21d5d03f0057da407f1133dbdc4a8c86"));
         System.out.println("----------------------------------");
-        // 通过hash获取块
-        System.out.println("The block with hash 2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61 is = " + chainWrapper.getBlockByHash("2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61"));
-        System.out.println("----------------------------------");
-//        // 获取transaction by hash
-        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("5939f2423d45b7512d9af6ac9f56553b21d5d03f0057da407f1133dbdc4a8c86"));
-        System.out.println("----------------------------------");
-
+//
         String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"x\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"retVal\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
         String bin = "608060405234801561001057600080fd5b50600560005560bf806100246000396000f30060806040526004361060485763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166360fe47b18114604d5780636d4ce63c146064575b600080fd5b348015605857600080fd5b5060626004356088565b005b348015606f57600080fd5b506076608d565b60408051918252519081900360200190f35b600055565b600054905600a165627a7a72305820419b352168794764ac1d5d6d3460eaffedc13c00bcbb4d2ff772148d2f0670fc0029";
         String contractName = "SimpleStorage2";
 
         Map<String, String> args2 = new HashMap<>();
 
-        chainWrapper.account.setContractAccount("XC1234567890123455@xuper");
-
-//        com.jnu.jnucross.chains.xuperchain.xuper.api.Transaction t = chainWrapper.client.deployEVMContract(chainWrapper.account, bin.getBytes(), abi.getBytes(), contractName, args2);
-//        System.out.println("txID:" + t.getTxid());
+        com.baidu.xuper.api.Transaction t = chainWrapper.client.deployEVMContract(chainWrapper.account, bin.getBytes(), abi.getBytes(), contractName, args2);
+        System.out.println("txID:" + t.getTxid());
 
         System.exit(0);
 
@@ -114,7 +116,7 @@ public class XuperChainWrapper extends ChainWrapper {
     @Override
     public BigInteger getBalance(){
         try {
-            return client.getBalance(account.getAddress(),false);
+            return client.getBalance(account.getAKAddress(),false);
         } catch (Exception e) {
             e.printStackTrace();
             return BigInteger.valueOf(0);

@@ -184,6 +184,8 @@ dependencies {
     implementation 'org.web3j:codegen:4.9.8'
     // cita
     implementation 'com.citahub.cita:core:20.2.0'
+    implementation 'org.reflections:reflections:0.9.11'
+
     // fabric
     implementation ('org.hyperledger.fabric-sdk-java:fabric-sdk-java:2.2.21') {
         exclude group: 'io.netty'
