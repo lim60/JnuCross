@@ -113,10 +113,10 @@ public class CITAWrapper extends ChainWrapper {
         //RawTransaction rawTransaction = new RawTransaction();
         //client.stop();
 
-        String toAddress = "0xc7a05c3a60a0548c8a0733e641f551c85d60b511";
+        String toAddress = "0x75cb7db6195afda0325e21319f6b3fdaee600a44";
         System.out.println("Balance = " + chainWrapper.getBalance());
         System.out.println("Balance1 = " + chainWrapper.getBalance(toAddress));
-        chainWrapper.transferTo(toAddress, BigInteger.valueOf(10002L), true);
+        chainWrapper.transferTo(toAddress, BigInteger.valueOf(10000000000000L), true);
         System.out.println("Balance = " + chainWrapper.getBalance());
         System.out.println("Balance1 = " + chainWrapper.getBalance(toAddress));
 
@@ -251,6 +251,7 @@ public class CITAWrapper extends ChainWrapper {
         return result.getSendTransactionResult().getHash();
     }
 
+    @Override
     public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception {
         Function function = convertFunction(abi, method, args.toArray(new String[0]));
         String encodeFunction = FunctionEncoder.encode(function);
@@ -302,44 +303,8 @@ public class CITAWrapper extends ChainWrapper {
         return null;
     }
 
-//    public FunctionResult send2(String abi, String contractName, String contractAddress, String method, Object[] args, boolean payable, BigInteger amount, boolean wait) throws Exception {
-//        try {
-//            int version = getVersion();
-//            BigInteger chainId = getChainId();
-//            long currentHeight = getBlockNumber();
-//            long validUntilBlock = currentHeight + 80;
-//            String nonce = getNonce();
-//            long quota = 1000000;
-//
-//            Account account = new Account(Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPrivateKey()), client);
-//            Object object = account.callContract(contractAddress, method,
-//                    nonce, quota, version,
-//            chainId, "0", args);
-//            System.out.println(object);
-//
-////
-////            List<Type> list = null;
-////            if (wait){
-////                list = new ArrayList<>();
-////                TransactionReceipt transactionReceipt = waitForPolling(result.getHash());
-////                List<Log> logs = transactionReceipt.getLogs();
-////                if ((logs != null) && (!logs.isEmpty())){
-////                    list = FunctionReturnDecoder.decode(logs.get(0).getData(), function.getOutputParameters());
-////                }
-////            }
-////            FunctionResult functionResult = new FunctionResult();
-////            functionResult.transactionHash = result.getHash();
-////            functionResult.result = list;
-////            System.out.println(functionResult.result);
-////            System.out.println(result);
-//            return null;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
-    public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws IOException {
+    @Override
+    public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception {
         Function function = convertFunction(abi, method, args.toArray(new String[0]));
         String encodeFunction = FunctionEncoder.encode(function);
         Call call = new Call(credentials.getAddress(), contractAddress, encodeFunction);

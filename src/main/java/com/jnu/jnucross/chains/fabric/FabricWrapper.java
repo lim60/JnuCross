@@ -110,6 +110,16 @@ public class FabricWrapper extends ChainWrapper {
     }
 
     @Override
+    public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception {
+        return null;
+    }
+
+    @Override
+    public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception {
+        return null;
+    }
+
+    @Override
     public long getBlockNumber() {
 //        try {
 //            return web3j.ethBlockNumber().send().getBlockNumber().longValue();

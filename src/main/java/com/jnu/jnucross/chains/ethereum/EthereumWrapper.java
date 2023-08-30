@@ -235,6 +235,7 @@ public class EthereumWrapper extends ChainWrapper {
         return transactionReceipt;
     }
 
+    @Override
     public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception {
         AbiDefinition[] abiDefinitions = objectMapper.readValue(abi, AbiDefinition[].class);
         AbiDefinition abiDefinition = null;
@@ -258,9 +259,6 @@ public class EthereumWrapper extends ChainWrapper {
         System.out.println("abiDefinition = " + abiDefinition.getName());
         System.out.println("abiDefinition = " + abiDefinition.getInputs());
         System.out.println("abiDefinition = " + abiDefinition.getStateMutability());
-
-
-
 
         List<Type> inputParas = new ArrayList<>();
         List<TypeReference<?>> outputParas = new ArrayList<>();

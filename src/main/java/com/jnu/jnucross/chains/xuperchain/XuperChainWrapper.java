@@ -176,6 +176,7 @@ public class XuperChainWrapper extends ChainWrapper {
     }
 
     // query不会发生交易，只请求合约上的函数
+    @Override
     public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception{
         com.baidu.xuper.api.Transaction t = client.queryEVMContract(account, contractName, method, parseABI(abi, method, args));
 //        System.out.println("-------------");
@@ -225,6 +226,7 @@ public class XuperChainWrapper extends ChainWrapper {
     }
 
     // invoke会产生交易
+    @Override
     public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws JsonProcessingException {
         com.baidu.xuper.api.Transaction t = client.invokeEVMContract(account, contractName, method, parseABI(abi, method, args), amount);
 

@@ -4,7 +4,9 @@ import com.citahub.cita.crypto.Credentials;
 import com.citahub.cita.protocol.CITAj;
 import com.citahub.cita.protocol.http.HttpService;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * @author SDKany
@@ -30,9 +32,10 @@ public abstract class ChainWrapper {
 
     public abstract void setAccount(BigInteger privateKey);
 
-//    public abstract void call();
-//
-//    public abstract void send();
+//    public abstract void deploy();
 
-    // TODO: call 查询， send 发送，
+    public abstract FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception;
+
+    public abstract FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception;
+
 }

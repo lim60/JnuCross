@@ -1,28 +1,25 @@
 package com.jnu.jnucross.chains.bcos;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
 import org.fisco.bcos.sdk.BcosSDK;
 import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.ClientImpl;
-import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.fisco.bcos.sdk.client.protocol.response.BlockNumber;
-import org.fisco.bcos.sdk.config.Config;
-import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.config.model.NetworkConfig;
 import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
+import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.jnu.jnucross.chains.bcos.BCOSUtils.coverToBlock;
 import static com.jnu.jnucross.chains.bcos.BCOSUtils.coverToTransaction;
@@ -125,6 +122,7 @@ public class BCOSWrapper extends ChainWrapper {
     }
 
 
+    @Override
     public Block getBlockByNumber(long blockNumber) {
         BcosBlock.Block bcosBlock = client.getBlockByNumber(BigInteger.valueOf(blockNumber), true).getResult();
         if (bcosBlock == null)
@@ -132,6 +130,7 @@ public class BCOSWrapper extends ChainWrapper {
         return coverToBlock(bcosBlock);
     }
 
+    @Override
     public Block getBlockByHash(String blockHash) {
         BcosBlock.Block bcosBlock = client.getBlockByHash(blockHash, true).getBlock();
         if (bcosBlock == null)
@@ -139,11 +138,13 @@ public class BCOSWrapper extends ChainWrapper {
         return coverToBlock(bcosBlock);
     }
 
+    @Override
     public long getBlockNumber() {
         BlockNumber blockNumber = client.getBlockNumber();
         return blockNumber.getBlockNumber().longValue();
     }
 
+    @Override
     public Transaction getTransaction(String transactionHash) {
         TransactionReceipt bcosTransactionReceipt =
                 client.getTransactionReceipt(transactionHash).getResult();
@@ -151,5 +152,26 @@ public class BCOSWrapper extends ChainWrapper {
             return new Transaction();
         return coverToTransaction(bcosTransactionReceipt);
     }
+
+    // 返回合约账户
+    public Map<String, String> deploy(String bin, String abi, String contractName, List<Object> args) throws Exception {
+        AssembleTransactionProcessor transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(client, client.getCryptoSuite().getCryptoKeyPair(), contractName, abi, bin);
+        TransactionResponse response = transactionProcessor.deployByContractLoader(contractName, args);
+        Map<String, String> result = new HashMap<>();
+        result.put("contractAccount", response.getContractAddress());
+        result.put("txHash", response.getTransactionReceipt().getTransactionHash());
+        return result;
+    }
+
+    @Override
+    public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception {
+        return null;
+    }
+
+    @Override
+    public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception {
+        return null;
+    }
+
 
 }
