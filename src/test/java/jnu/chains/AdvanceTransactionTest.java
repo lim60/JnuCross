@@ -36,7 +36,7 @@ public class AdvanceTransactionTest {
 
     static {
         service = CITAj.build(new HttpService("http://10.154.24.5:1337"));
-        credentials = Credentials.create("0x2e40857e98f1da9300b4991eca62231ebb7e0f4a13fabbd2fc9a1f19bff53825");
+        credentials = Credentials.create("0xd22bc2c10f45a48a80d2f7b7b8312d05be8866d6ba3880518316af186024b744");
         senderPrivateKey = Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPrivateKey());
         version = TestUtil.getVersion(service);
         chainId = TestUtil.getChainId(service);

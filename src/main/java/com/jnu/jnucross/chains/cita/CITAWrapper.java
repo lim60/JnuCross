@@ -49,12 +49,16 @@ public class CITAWrapper extends ChainWrapper {
         super();
     }
 
+    // "address": "0x288e32f040e37c964d3bf7b417106e4269c3e27f",
+    //  "private": "0xce02da6f0f2135ad9c0f07e270273c93999c7e246bfd0297938727ee09d2604f",
+    //  "public": "0x167249595463631ec0a0d678bcbafb442519070438eb252baef265d590df6f88d9e8fad26fb05bf92e64944b1f1be8d3099de21582abdcdd24036f251bb413a7"
+
     public static CITAWrapper build() {
         CITAWrapper citaWrapper = new CITAWrapper();
-        citaWrapper.cita_url = "http://81.71.46.41:1337";//"http://10.154.24.5:1337";
+        citaWrapper.cita_url = "http://10.154.24.5:1337"; //"http://81.71.46.41:1337";//
         citaWrapper.client = CITAj.build(new HttpService(citaWrapper.cita_url));
         try {
-            citaWrapper.credentials = Credentials.create("0x2e40857e98f1da9300b4991eca62231ebb7e0f4a13fabbd2fc9a1f19bff53825");
+            citaWrapper.credentials = Credentials.create("0xd22bc2c10f45a48a80d2f7b7b8312d05be8866d6ba3880518316af186024b744"); // 0x2e40857e98f1da9300b4991eca62231ebb7e0f4a13fabbd2fc9a1f19bff53825
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,26 +97,28 @@ public class CITAWrapper extends ChainWrapper {
 
         System.out.println("Balance = " + chainWrapper.getBalance());
 
+        System.out.println("Address = " + chainWrapper.credentials.getAddress());
+
         System.out.println("BlockNumber = " + chainWrapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
-        System.out.println("The 105509 block is = " + chainWrapper.getBlockByNumber(105509)); // 通过块高获取块
+        System.out.println("The 10 block is = " + chainWrapper.getBlockByNumber(10)); // 通过块高获取块
         System.out.println("----------------------------------");
 //        // 通过hash获取块
-        System.out.println("The block with hash 0x1d927c4fe970cc51468f95e52a7690d8d251fbebf5a59df529ee264ea876bed3 is = " + chainWrapper.getBlockByHash("0x1d927c4fe970cc51468f95e52a7690d8d251fbebf5a59df529ee264ea876bed3"));
+//        System.out.println("The block with hash 0x535b6629769783578c49c118d474710b392d997db767311792c4b8f93d7a53cb is = " + chainWrapper.getBlockByHash("0x535b6629769783578c49c118d474710b392d997db767311792c4b8f93d7a53cb"));
         System.out.println("----------------------------------");
 ////        // 获取transaction by hash
-        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("0xbf6b70703c95892bf42d3b1ef8cdc7538089d68eb54defb74fc08ccc8df8820f"));
-        System.out.println("----------------------------------");
+//        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("0xbf6b70703c95892bf42d3b1ef8cdc7538089d68eb54defb74fc08ccc8df8820f"));
+//        System.out.println("----------------------------------");
 
         //RawTransaction rawTransaction = new RawTransaction();
         //client.stop();
 
-//        String toAddress = "0xc7a05c3a60a0548c8a0733e641f551c85d60b511";
-//        System.out.println("Balance = " + chainWrapper.getBalance());
-//        System.out.println("Balance1 = " + chainWrapper.getBalance(toAddress));
-//        chainWrapper.transferTo(toAddress, BigInteger.valueOf(10002L), true);
-//        System.out.println("Balance = " + chainWrapper.getBalance());
-//        System.out.println("Balance1 = " + chainWrapper.getBalance(toAddress));
+        String toAddress = "0xc7a05c3a60a0548c8a0733e641f551c85d60b511";
+        System.out.println("Balance = " + chainWrapper.getBalance());
+        System.out.println("Balance1 = " + chainWrapper.getBalance(toAddress));
+        chainWrapper.transferTo(toAddress, BigInteger.valueOf(10002L), true);
+        System.out.println("Balance = " + chainWrapper.getBalance());
+        System.out.println("Balance1 = " + chainWrapper.getBalance(toAddress));
 
         System.exit(0);
 
@@ -204,6 +210,7 @@ public class CITAWrapper extends ChainWrapper {
 
         if (wait){
             TransactionReceipt receipt = waitForPolling(appSendTransaction.getSendTransactionResult().getHash());
+            System.out.println("receipt.getErrorMessage() = " + receipt.getErrorMessage());
         }
         return appSendTransaction.getSendTransactionResult().getHash();
     }
@@ -222,6 +229,7 @@ public class CITAWrapper extends ChainWrapper {
         return transactionReceipt;
     }
 
+    // 如果wait的话，返回合约的地址，否则返回transaction的hash
     public String deploy(String bin, String abi, boolean wait) throws IOException {
         int version = getVersion();
         BigInteger chainId = getChainId();
@@ -238,7 +246,7 @@ public class CITAWrapper extends ChainWrapper {
             TransactionReceipt a = waitForPolling(result.getSendTransactionResult().getHash());
             System.out.println("ContractAddress = " + a.getContractAddress());
             System.out.println("txHash = " + a.getTransactionHash());
-
+            return a.getContractAddress();
         }
         return result.getSendTransactionResult().getHash();
     }
@@ -294,42 +302,42 @@ public class CITAWrapper extends ChainWrapper {
         return null;
     }
 
-    public FunctionResult send2(String abi, String contractName, String contractAddress, String method, Object[] args, boolean payable, BigInteger amount, boolean wait) throws Exception {
-        try {
-            int version = getVersion();
-            BigInteger chainId = getChainId();
-            long currentHeight = getBlockNumber();
-            long validUntilBlock = currentHeight + 80;
-            String nonce = getNonce();
-            long quota = 1000000;
-
-            Account account = new Account(Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPrivateKey()), client);
-            Object object = account.callContract(contractAddress, method,
-                    nonce, quota, version,
-            chainId, "0", args);
-            System.out.println(object);
-
+//    public FunctionResult send2(String abi, String contractName, String contractAddress, String method, Object[] args, boolean payable, BigInteger amount, boolean wait) throws Exception {
+//        try {
+//            int version = getVersion();
+//            BigInteger chainId = getChainId();
+//            long currentHeight = getBlockNumber();
+//            long validUntilBlock = currentHeight + 80;
+//            String nonce = getNonce();
+//            long quota = 1000000;
 //
-//            List<Type> list = null;
-//            if (wait){
-//                list = new ArrayList<>();
-//                TransactionReceipt transactionReceipt = waitForPolling(result.getHash());
-//                List<Log> logs = transactionReceipt.getLogs();
-//                if ((logs != null) && (!logs.isEmpty())){
-//                    list = FunctionReturnDecoder.decode(logs.get(0).getData(), function.getOutputParameters());
-//                }
-//            }
-//            FunctionResult functionResult = new FunctionResult();
-//            functionResult.transactionHash = result.getHash();
-//            functionResult.result = list;
-//            System.out.println(functionResult.result);
-//            System.out.println(result);
-            return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//            Account account = new Account(Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPrivateKey()), client);
+//            Object object = account.callContract(contractAddress, method,
+//                    nonce, quota, version,
+//            chainId, "0", args);
+//            System.out.println(object);
+//
+////
+////            List<Type> list = null;
+////            if (wait){
+////                list = new ArrayList<>();
+////                TransactionReceipt transactionReceipt = waitForPolling(result.getHash());
+////                List<Log> logs = transactionReceipt.getLogs();
+////                if ((logs != null) && (!logs.isEmpty())){
+////                    list = FunctionReturnDecoder.decode(logs.get(0).getData(), function.getOutputParameters());
+////                }
+////            }
+////            FunctionResult functionResult = new FunctionResult();
+////            functionResult.transactionHash = result.getHash();
+////            functionResult.result = list;
+////            System.out.println(functionResult.result);
+////            System.out.println(result);
+//            return null;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws IOException {
         Function function = convertFunction(abi, method, args.toArray(new String[0]));
