@@ -11,15 +11,13 @@ import org.fisco.bcos.sdk.crypto.keystore.KeyTool;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.manager.AssembleTransactionProcessor;
 import org.fisco.bcos.sdk.transaction.manager.TransactionProcessorFactory;
+import org.fisco.bcos.sdk.transaction.model.dto.CallResponse;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.jnu.jnucross.chains.bcos.BCOSUtils.coverToBlock;
 import static com.jnu.jnucross.chains.bcos.BCOSUtils.coverToTransaction;
@@ -165,12 +163,33 @@ public class BCOSWrapper extends ChainWrapper {
 
     @Override
     public FunctionResult call(String abi, String contractName, String contractAddress, String method, List<String> args) throws Exception {
-        return null;
+        List<Object> params = new ArrayList<>();
+        params.addAll(args);
+        AssembleTransactionProcessor transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(client, client.getCryptoSuite().getCryptoKeyPair(), contractName, abi, "");
+        CallResponse callResponse = transactionProcessor.sendCallByContractLoader(contractName, contractAddress, method, params);
+
+        FunctionResult functionResult = new FunctionResult();
+        functionResult.transactionHash = null;
+        functionResult.result = callResponse.getReturnObject();
+
+        return functionResult;
     }
 
     @Override
     public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception {
-        return null;
+        AssembleTransactionProcessor transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(client, client.getCryptoSuite().getCryptoKeyPair(), contractName, abi, "");
+        List<Object> params = new ArrayList<>();
+        params.addAll(args);
+        TransactionResponse transactionResponse = transactionProcessor.sendTransactionAndGetResponseByContractLoader(contractName, contractAddress, method, params);
+        System.out.println(transactionResponse);
+
+        System.out.println(transactionResponse.getReturnObject());
+
+        FunctionResult functionResult = new FunctionResult();
+        functionResult.transactionHash = transactionResponse.getTransactionReceipt().getTransactionHash();
+        functionResult.result = transactionResponse.getReturnObject();
+
+        return functionResult;
     }
 
 
