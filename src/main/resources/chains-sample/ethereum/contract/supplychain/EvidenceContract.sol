@@ -44,8 +44,7 @@ contract EvidenceContract {
     合约构造函数
     初始化维护证据的法院参与方地址. ["地址"]
     */
-    // constructor(string[] memory participatingSigners){
-    //     initSigners = participatingSigners;
+    // constructor(){
     // }
 
 

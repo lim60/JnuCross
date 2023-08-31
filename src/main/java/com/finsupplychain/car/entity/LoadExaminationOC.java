@@ -1,5 +1,11 @@
-package com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity;
+package com.finsupplychain.car.entity;
 
+/**
+ * @author jessy-js
+ * @ClassName LoadExaminationOC
+ * @Version V1.0
+ * @Description
+ */
 public class LoadExaminationOC {
     private String orderState;
     private String taxState;

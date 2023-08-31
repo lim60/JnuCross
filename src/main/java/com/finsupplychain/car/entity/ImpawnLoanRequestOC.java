@@ -1,7 +1,13 @@
-package com.jnu.jnucross.chains.ethereum.finsupplychain.car.entity;
+package com.finsupplychain.car.entity;
 
 import java.math.BigInteger;
 
+/**
+ * @author jessy-js
+ * @ClassName ImpawnLoanRequestOC
+ * @Version V1.0
+ * @Description
+ */
 public class ImpawnLoanRequestOC {
 
     private BigInteger orderIndexOnChain;//用于关联<--->中海龙业务链的进口订单

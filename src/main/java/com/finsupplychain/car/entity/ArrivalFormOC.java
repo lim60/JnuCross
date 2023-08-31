@@ -1,5 +1,11 @@
-package com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity;
+package com.finsupplychain.car.entity;
 
+/**
+ * @author jessy-js
+ * @ClassName ArrivalFormOC
+ * @Version V1.0
+ * @Description
+ */
 public class ArrivalFormOC {
     private String createTime;
     private String onPortState;

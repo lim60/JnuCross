@@ -1,28 +1,33 @@
-package com.jnu.jnucross.chains.xuperchain.finsupplychain.car.test;
+package com.finsupplychain.car.test;
 
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.common.CustomDeclareState;
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.contractwrapper.CustomDeclareWrapper;
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.contractwrapper.EvidenceWrapper;
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.contractwrapper.ImportOrderWrapper;
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity.ArrivalFormOC;
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity.CustomFormOC;
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity.ImportOrderOC;
-import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity.InboundFormOC;
+import com.finsupplychain.car.common.CustomDeclareState;
+import com.finsupplychain.car.contractwrapper.xuperchain.CustomDeclareXCWrapper;
+import com.finsupplychain.car.contractwrapper.xuperchain.ImportOrderXCWrapper;
+import com.finsupplychain.car.entity.ArrivalFormOC;
+import com.finsupplychain.car.entity.CustomFormOC;
+import com.finsupplychain.car.entity.ImportOrderOC;
+import com.finsupplychain.car.entity.InboundFormOC;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.List;
 
+/**
+ * @author jessy-js
+ * @ClassName ContractWrapperTest
+ * @Version V1.0
+ * @Description
+ */
 public class ContractWrapperTest {
 
 
     @Test
     public void testCustomDeclareWrapper() throws Exception {
 
-        /*CustomDeclareWrapper wrapper = new CustomDeclareWrapper();
-        wrapper.deploy();*/
+        CustomDeclareXCWrapper wrapper = new CustomDeclareXCWrapper();
 
-        /*CustomFormOC customFormOC = new CustomFormOC();
+//        wrapper.deploy();
+
+        CustomFormOC customFormOC = new CustomFormOC();
         customFormOC.setOrderId("100000000001");
         customFormOC.setCustomNo("01");
         customFormOC.setCustomCode("123");
@@ -36,13 +41,13 @@ public class ContractWrapperTest {
 
         wrapper.updateOCCustomFormState(result, CustomDeclareState.UPDATED);
 
-        wrapper.queryOCCustomForm(result);
+        wrapper.queryOCCustomForm(BigInteger.valueOf(0));
 
-        wrapper.queryOCCustomFormState(result);*/
+        wrapper.queryOCCustomFormState(result);
 
 
         /*----------------ImportOrderWrapper------------------------*/
-        ImportOrderWrapper importOrderWrapper = new ImportOrderWrapper();
+        /*ImportOrderXCWrapper importOrderWrapper = new ImportOrderXCWrapper();
         ImportOrderOC importOrderOC = new ImportOrderOC();
 
         importOrderOC.setOrderId("0000001");
@@ -97,7 +102,7 @@ public class ContractWrapperTest {
 
         importOrderWrapper.updateInboundStateWhenLoaded(BigInteger.valueOf(0));
 
-        importOrderWrapper.updateInboundStateWhenRefunded(BigInteger.valueOf(0));
+        importOrderWrapper.updateInboundStateWhenRefunded(BigInteger.valueOf(0));*/
 
 
         /*EvidenceWrapper*/

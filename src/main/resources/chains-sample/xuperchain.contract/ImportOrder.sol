@@ -45,7 +45,7 @@ contract ImportOrderContract {
         InboundEntity inboundEntity; //根据租户id找inboundEntity
     }
 
-    event ValueOrderEntity(uint orderIndex, string orderDigest);
+    // event ValueOrderEntity(uint orderIndex, string orderDigest);
 
 
 
@@ -58,7 +58,7 @@ contract ImportOrderContract {
         string customFormDigest;
     }
 
-    event ValueCustomFormEntity(string createTime, string customNo, string customFormDigest);
+    // event ValueCustomFormEntity(string createTime, string customNo, string customFormDigest);
 
     //到港订单
     struct ArriveEntity{
@@ -68,7 +68,7 @@ contract ImportOrderContract {
         string arriveEntityDigest;
     }
 
-    event ValueArriveEntity(string createTime, string onPortState, string onPortDate, string arriveEntityDigest);
+    // event ValueArriveEntity(string createTime, string onPortState, string onPortDate, string arriveEntityDigest);
 
     //入库订单
     //TODO 添加入库时间、入库状态、入库类型
@@ -80,7 +80,7 @@ contract ImportOrderContract {
         ImportState importState;    //记录入库UWB状态 【Storage_Status 库位状态】
     }
 
-    event ValueInboundEntity(string createTime, string inboundState, string inboundType, string inboundEntityDigest);
+    // event ValueInboundEntity(string createTime, string inboundState, string inboundType, string inboundEntityDigest);
 
 
     uint numOrdereEtity;
@@ -129,7 +129,7 @@ contract ImportOrderContract {
         Entity[onchainOrderIndex].orderDigest = orderDigest;
         Entity[onchainOrderIndex].orderState = State.Created;
 
-        emit ValueOrderEntity(onchainOrderIndex, Entity[onchainOrderIndex].orderDigest);
+        // emit ValueOrderEntity(onchainOrderIndex, Entity[onchainOrderIndex].orderDigest);
         return (onchainOrderIndex, Entity[onchainOrderIndex].orderDigest);
 
     }
@@ -208,9 +208,9 @@ contract ImportOrderContract {
         CustomForm memory tmp = CustomForm(createTime, customNo, customCode, checkState, customFormDigest);
         updateOrderState(index, State.TaxCollected);
         order.customForm = tmp;
-        emit ValueCustomFormEntity(tmp.createTime,
-            tmp.customNo,
-            tmp.customFormDigest);
+        // emit ValueCustomFormEntity(tmp.createTime,
+        //                         tmp.customNo,
+        //                         tmp.customFormDigest);
         return (tmp.createTime, tmp.customNo, tmp.customFormDigest);
     }
 
@@ -242,10 +242,10 @@ contract ImportOrderContract {
         updateOrderState(index, State.onPort);
         order.arriveEntity = tmp;
 
-        emit ValueArriveEntity(tmp.createTime,
-            tmp.onPortState,
-            tmp.onPortDate,
-            tmp.arriveEntityDigest);
+        // emit ValueArriveEntity(tmp.createTime,
+        //                   tmp.onPortState,
+        //                   tmp.onPortDate,
+        //                   tmp.arriveEntityDigest);
 
         return (tmp.createTime,
         tmp.onPortState,
@@ -278,7 +278,7 @@ contract ImportOrderContract {
         order.inboundEntity=tmp;
         updateInboundState(index, ImportState.Imported);
 
-        emit ValueInboundEntity(createTime, inboundState, inboundType, inboundEntityDigest);
+        // emit ValueInboundEntity(createTime, inboundState, inboundType, inboundEntityDigest);
         return (createTime, inboundState, inboundType, inboundEntityDigest);
     }
 

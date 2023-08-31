@@ -1,7 +1,13 @@
-package com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity;
+package com.finsupplychain.car.entity;
 
 import java.math.BigInteger;
 
+/**
+ * @author jessy-js
+ * @ClassName CustomFormOC
+ * @Version V1.0
+ * @Description
+ */
 public class CustomFormOC {
 
     private String orderId;

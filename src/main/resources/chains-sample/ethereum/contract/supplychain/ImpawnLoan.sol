@@ -80,9 +80,6 @@ contract ImpawnLoan {
 
     //账户地址对应的余额
     mapping (address => uint256) public balanceOf;
-    constructor(){
-
-    }
 
     /*
     新建质押贷款申请，由客户调用
@@ -284,7 +281,7 @@ contract ImpawnLoan {
 
         updateImpawnLoanState(loanIndex, State.Refunded);
 
-        // emit ImpawnNotice(loanIndex, "Refunded");
+         emit ImpawnNotice(loanIndex, "Refunded");
         return (loanIndex, "Refunded");
     }
 

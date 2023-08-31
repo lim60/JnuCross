@@ -15,7 +15,7 @@ contract CustomDeclare {
         Port_Inspected, Released, Closed, Document_Released //口岸检查、已放行、报关单已结关、单证放行
     }
 
-    event ValueIndex(uint formIndex);
+    // event ValueIndex(uint formIndex);
 
     //报关单
     struct CustomForm{
@@ -27,17 +27,10 @@ contract CustomDeclare {
         string createTime;
         string certificateDigest;//完税证明回执
     }
-    //完税证明
-    struct TaxCertificate{
-        string receiptDigest; //发票 from 进口订单
-        string importCertificateDigest; //进口证明书 from 报关单
-        CustomForm customform;
-    }
 
     mapping (uint => CustomForm) customForms;
     uint numForm;
 
-    mapping (uint => TaxCertificate) taxCertificates;
     uint numCertificate;
 
     constructor(){
@@ -59,7 +52,7 @@ contract CustomDeclare {
 
         customForms[formIndex] = CustomForm(orderId, customNo, customCode, s, formDigest, createTime, certificateDigest);
 
-        emit ValueIndex(formIndex);
+        // emit ValueIndex(formIndex);
         return formIndex;
     }
 
@@ -186,15 +179,5 @@ contract CustomDeclare {
         return returnState;
     }
 
-    // //上传完税证明和发票
-    // function saveTaxCertificate(uint formIndex, string memory receiptDigest, string memory importCertificateDigest) public returns(bool){
-    //     CustomForm storage customForm = customForms[formIndex];
-    //     uint certificateIndex = numCertificate++;
-    //     if (customForm.checkState == State.Certificated){
-    //         taxCertificates[certificateIndex] = TaxCertificate(receiptDigest, importCertificateDigest, customForm);
-    //         return true;
-    //     }
-    //     else return false;
-    // }
 
 }

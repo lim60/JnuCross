@@ -1,7 +1,14 @@
-package com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity;
+package com.finsupplychain.car.entity;
 
 import java.math.BigInteger;
 
+
+/**
+ * @author jessy-js
+ * @ClassName EvidenceOC
+ * @Version V1.0
+ * @Description
+ */
 public class EvidenceOC {
 
     BigInteger orderIndex; //关联order's on-chain ID

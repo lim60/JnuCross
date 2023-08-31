@@ -1,5 +1,11 @@
-package com.jnu.jnucross.chains.xuperchain.finsupplychain.car.common;
+package com.finsupplychain.car.common;
 
+/**
+ * @author jessy-js
+ * @ClassName CustomDeclareWrapper
+ * @Version V1.0
+ * @Description
+ */
 public class CustomDeclareState {
     public static final String CREATED = "CF_N";
     public static final String UPDATED = "CF_U";

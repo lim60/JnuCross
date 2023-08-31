@@ -32,8 +32,8 @@ public class CITATest {
         String abi = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"storedData\",\"type\":\"uint256\"}],\"name\":\"value\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"retVal\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
 //////        // cita 合约部署
-//        String txHash = citaWrapper.deploy(bin,abi,true);
-//        System.out.println("txHash or contractAddress = " + txHash);
+        /*String txHash = citaWrapper.deploy(bin,abi,true);
+        System.out.println("txHash or contractAddress = " + txHash);*/
 
         String contractAddress = "0xfd229428e811bef38812890b40e845f077c75a19";
 //
@@ -75,8 +75,8 @@ public class CITATest {
 
         // cita call合约调用
 
-        List<String> args2 = new ArrayList<String>();
-        FunctionResult functionResult2 = citaWrapper.call(abi, "SimpleStorage",contractAddress, "get", args2);
+//        List<String> args2 = new ArrayList<String>();
+//        FunctionResult functionResult2 = citaWrapper.call(abi, "SimpleStorage",contractAddress, "get", args2);
 
     }
 }
