@@ -204,9 +204,27 @@ contract ImpawnLoan {
     /*
     查询贷款申请状态
     */
-    function queryImpawnLoanState(uint loanIndex) public view returns(State){
+    function queryImpawnLoanState(uint loanIndex) public view returns(string memory){
         ImpawnLoanRequest storage loan = loans[loanIndex];
-        return loan.loanState;
+
+        string memory reState;
+
+        if(loan.loanState == State.Created){
+            reState = "Created";
+        }else if(loan.loanState == State.Agreed){
+            reState = "Agreed";
+        }else if(loan.loanState == State.Disagreed){
+            reState = "Disagreed";
+        }else if(loan.loanState == State.Signed){
+            reState = "Signed";
+        }else if(loan.loanState == State.Loaned){
+            reState = "Loaned";
+        }else if(loan.loanState == State.Refunded){
+            reState = "Refunded";
+        }else if(loan.loanState == State.Unsigned){
+            reState = "Unsigned";
+        }
+        return reState;
     }
 
     /*
@@ -239,7 +257,7 @@ contract ImpawnLoan {
 
         updateImpawnLoanState(loanIndex, State.Loaned);
 
-        // emit ImpawnNotice(loanIndex, "Loaned");
+        emit ImpawnNotice(loanIndex, "Loaned");
         return (loanIndex, "Loaned");
     }
 
@@ -276,7 +294,7 @@ contract ImpawnLoan {
         loan.unsignImpawnContractDigest = unsignEvidenceDigest;
         updateImpawnLoanState(loanIndex, State.Unsigned);
 
-        // emit ImpawnNotice(loanIndex, "Unsigned");
+        emit ImpawnNotice(loanIndex, "Unsigned");
         return (loanIndex, "Unsigned");
     }
 }

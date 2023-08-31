@@ -2,6 +2,7 @@ package com.jnu.jnucross.chains.xuperchain.finsupplychain.car.test;
 
 import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.common.CustomDeclareState;
 import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.contractwrapper.CustomDeclareWrapper;
+import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.contractwrapper.EvidenceWrapper;
 import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.contractwrapper.ImportOrderWrapper;
 import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity.ArrivalFormOC;
 import com.jnu.jnucross.chains.xuperchain.finsupplychain.car.entity.CustomFormOC;
@@ -17,9 +18,11 @@ public class ContractWrapperTest {
 
     @Test
     public void testCustomDeclareWrapper() throws Exception {
-       /* CustomDeclareWrapper wrapper = new CustomDeclareWrapper();
 
-        CustomFormOC customFormOC = new CustomFormOC();
+        /*CustomDeclareWrapper wrapper = new CustomDeclareWrapper();
+        wrapper.deploy();*/
+
+        /*CustomFormOC customFormOC = new CustomFormOC();
         customFormOC.setOrderId("100000000001");
         customFormOC.setCustomNo("01");
         customFormOC.setCustomCode("123");
@@ -95,6 +98,11 @@ public class ContractWrapperTest {
         importOrderWrapper.updateInboundStateWhenLoaded(BigInteger.valueOf(0));
 
         importOrderWrapper.updateInboundStateWhenRefunded(BigInteger.valueOf(0));
+
+
+        /*EvidenceWrapper*/
+        /*EvidenceWrapper evidenceWrapper = new EvidenceWrapper();
+        evidenceWrapper.deploy();*/
 
     }
 
