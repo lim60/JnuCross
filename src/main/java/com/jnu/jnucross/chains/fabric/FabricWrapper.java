@@ -24,11 +24,11 @@ import java.util.concurrent.TimeoutException;
  */
 public class FabricWrapper extends ChainWrapper {
     // TODO: 修改
-    String geth_url; // = "http://10.154.24.12:8545";
+    String url; // = "http://10.154.24.12:8545";
     static ObjectMapper objectMapper = new ObjectMapper();
 
     public FabricWrapper(){
-        geth_url = "http://10.154.24.12:8545";
+        url = "http://10.154.24.12:8545";
         
     }
 

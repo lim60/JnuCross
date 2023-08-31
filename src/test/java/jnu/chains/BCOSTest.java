@@ -35,8 +35,8 @@ public class BCOSTest {
 
         // send 方法
         List<String> args = new ArrayList<>();
-        args.add("444");
-        args.add("Hello444");
+        args.add("555");
+        args.add("Hello555");
         FunctionResult functionResult = bcosWrapper.send(abi, contractName, contractAddress, "set", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
