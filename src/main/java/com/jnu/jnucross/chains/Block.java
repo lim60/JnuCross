@@ -10,7 +10,7 @@ public class Block {
     private BlockHeader blockHeader;
     private List<String> transactionsHashes = new LinkedList<>();
 
-    private BlockHeader getBlockHeader() {
+    public BlockHeader getBlockHeader() {
         return blockHeader;
     }
 

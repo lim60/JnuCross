@@ -16,7 +16,7 @@ public class Transaction {
     // 合约调用相关
     private String contractName;
     private String methodName;
-    private Map<String, String> args;
+    private Map<String, Object> args;
     private int status;
     private String message;
 
@@ -89,11 +89,11 @@ public class Transaction {
         this.methodName = methodName;
     }
 
-    public Map<String, String> getArgs() {
+    public Map<String, Object> getArgs() {
         return args;
     }
 
-    public void setArgs(Map<String, String> args) {
+    public void setArgs(Map<String, Object> args) {
         this.args = args;
     }
 
@@ -120,7 +120,7 @@ public class Transaction {
                 ", to='" + to + '\'' +
                 ", chainType=" + chainType +
                 ", hash='" + hash + '\'' +
-                ", rawBytes=" + Arrays.toString(rawBytes) +
+                //", rawBytes=" + Arrays.toString(rawBytes) +
                 ", blockNumber=" + blockNumber +
                 ", contractName='" + contractName + '\'' +
                 ", methodName='" + methodName + '\'' +
