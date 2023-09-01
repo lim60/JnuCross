@@ -49,16 +49,7 @@ public class EvidenceXCWrapper {
 
     }
 
-    /*
-    依据业务所处不同阶段，可由中海龙、客户、银行调用该函数
-    * @param onChainIndex 证据索引
-    * @param newState 新加入的证据状态，前端传入参数CustomCertificated，TaxCollected等
-    * @param evidenceDigest 新加入的证据摘要
 
-
-    * @return FunctionResult，其中，result包括 evidenceIndex 更新后的证据索引
-    新增证据，包括 报关核验、完税、进口、到港、入库、放款、合同签订、还款、出库
-    */
     public FunctionResult updateOCEvidence(BigInteger onChainIndex, String newState,  String evidenceDigest) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(onChainIndex));
@@ -79,14 +70,7 @@ public class EvidenceXCWrapper {
         return functionResult;
     }
 
-    /*
-   法院实体对关联evidenceIndex的当前证据添加签名
-   @param onChainIndex 证据链上唯一索引
-   @param pubKey 法院链上账户公钥
-   @param signature 由法院用上述公钥对应的私钥签名生成
 
-   @return FunctionResult，其中，result包括pubKey和signature
-   */
     public FunctionResult addSignatureOC(BigInteger onChainIndex, String pubKey, String signature) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(onChainIndex));

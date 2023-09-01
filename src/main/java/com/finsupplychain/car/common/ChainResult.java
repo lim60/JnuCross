@@ -6,7 +6,7 @@ import java.util.List;
 public class ChainResult {
 
     private List conResult;
-    private Transaction traResult;
+    private Transaction txResult;
 
 
     public List getConResult() {
@@ -17,11 +17,11 @@ public class ChainResult {
         this.conResult = conResult;
     }
 
-    public Transaction getTraResult() {
-        return traResult;
+    public Transaction getTxResult() {
+        return txResult;
     }
 
-    public void setTraResult(Transaction traResult) {
-        this.traResult = traResult;
+    public void setTxResult(Transaction txResult) {
+        this.txResult = txResult;
     }
 }
