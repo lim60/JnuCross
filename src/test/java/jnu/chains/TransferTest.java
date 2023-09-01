@@ -15,7 +15,9 @@ import org.web3j.abi.TypeEncoder;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.crypto.CipherException;
 import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.exceptions.TransactionException;
 import org.web3j.tx.Contract;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
@@ -38,7 +40,7 @@ import java.util.*;
 public class TransferTest {
 
     @Test
-    public void EthTransferTest() throws IOException, InterruptedException {
+    public void EthTransferTest() throws IOException, InterruptedException, TransactionException, CipherException {
         EthereumWrapper ethereumWrapper = EthereumWrapper.build();
         System.out.println("***Balance = " + ethereumWrapper.getBalance());
         String toAddress = "0x18bcd3c687d51539afd1240f639b6084d52b68c8";

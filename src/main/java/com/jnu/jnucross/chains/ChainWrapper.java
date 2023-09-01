@@ -16,15 +16,15 @@ import java.util.List;
  * @Description 用于封装5条链
  */
 public abstract class ChainWrapper {
-    public abstract Block getBlockByNumber(long blockNumber);
+    public abstract Block getBlockByNumber(long blockNumber) throws IOException;
 
-    public abstract Block getBlockByHash(String blockHash);
+    public abstract Block getBlockByHash(String blockHash) throws IOException;
 
-    public abstract long getBlockNumber();
+    public abstract long getBlockNumber() throws IOException;
 
-    public abstract Transaction getTransaction(String transactionHash);
+    public abstract Transaction getTransaction(String transactionHash) throws IOException;
 
-    public abstract BigInteger getBalance();
+    public abstract BigInteger getBalance() throws IOException;
 
     public abstract void setChain(String url);
 
