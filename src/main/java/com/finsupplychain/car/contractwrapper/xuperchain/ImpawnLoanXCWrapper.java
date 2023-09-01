@@ -6,6 +6,7 @@ import com.jnu.jnucross.chains.FunctionResult;
 import com.jnu.jnucross.chains.xuperchain.XuperChainWrapper;
 import com.finsupplychain.car.entity.ImpawnLoanRequestOC;
 import com.finsupplychain.car.entity.LoadExaminationOC;
+import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -22,16 +23,25 @@ import java.util.Map;
 public class ImpawnLoanXCWrapper {
     private static String abi = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"orderIndex\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"bankAddr\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"requestedValue\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"clientAddr\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"clientDigest\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"clientAccount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"bankDigest\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"bankAccount\",\"type\":\"string\"}],\"name\":\"createImpawnLoanRequest\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"loanIndex\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"orderState\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"taxState\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"importCertificate\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposal\",\"type\":\"string\"}],\"name\":\"ifImpawnLoan\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"loanIndex\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"statement\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"clientAccount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"bankAccount\",\"type\":\"string\"}],\"name\":\"makeImpawnLoan\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"loanIndex\",\"type\":\"uint256\"}],\"name\":\"queryImpawnLoanState\",\"outputs\":[{\"internalType\":\"enum ImpawnLoan.State\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"loanIndex\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"statement\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"clientAccount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"bankAccount\",\"type\":\"string\"}],\"name\":\"refundImpawnLoan\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"loanIndex\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"contractSignedDigest\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"creditAgreementDigest\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noticeDigest\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"receiptDigest\",\"type\":\"string\"}],\"name\":\"signContractForImpawnLoan\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"loanIndex\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"unsignEvidenceDigest\",\"type\":\"string\"}],\"name\":\"unsignImpawnLoan\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
     private static String bin = "608060405234801561001057600080fd5b50611a5a806100206000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c8063aa1a83b71161005b578063aa1a83b714610150578063b222e29514610180578063b2237fa3146101b0578063cb890c5a146101e357610088565b8063677a555e1461008d57806370a08231146100be5780638b20f1bf146100ee57806391c377801461011f575b600080fd5b6100a760048036038101906100a29190610f22565b610214565b6040516100b592919061106b565b60405180910390f35b6100d860048036038101906100d391906110f9565b61042b565b6040516100e59190611126565b60405180910390f35b61010860048036038101906101039190610f22565b610443565b60405161011692919061106b565b60405180910390f35b61013960048036038101906101349190611141565b6107d0565b60405161014792919061106b565b60405180910390f35b61016a60048036038101906101659190611141565b610890565b604051610177919061122c565b60405180910390f35b61019a6004803603810190610195919061124e565b610a3c565b6040516101a791906112f2565b60405180910390f35b6101ca60048036038101906101c5919061130d565b610a6e565b6040516101da9493929190611442565b60405180910390f35b6101fd60048036038101906101f89190611495565b610ccf565b60405161020b92919061106b565b60405180910390f35b60006060600060016000888152602001908152602001600020905060008160030160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905060008260020160019054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690506000600360008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050866040516020016102d5919061152d565b60405160208183030381529060405280519060200120816001016040516020016102ff919061163c565b604051602081830303815290604052805190602001201461032357610322611653565b5b6000600260008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020905088604051602001610377919061152d565b60405160208183030381529060405280519060200120816001016040516020016103a1919061163c565b60405160208183030381529060405280519060200120146103c5576103c4611653565b5b8985600e0190816103d69190611819565b506103e28b6005610d4a565b8a6040518060400160405280600881526020017f526566756e64656400000000000000000000000000000000000000000000000081525096509650505050505094509492505050565b60046020528060005260406000206000915090505481565b60006060600060016000888152602001908152602001600020905060008160030160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905060008260020160019054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050600360068111156104c4576104c361127b565b5b8360020160009054906101000a900460ff1660068111156104e8576104e761127b565b5b146104f6576104f5611653565b5b6000600260008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060405180604001604052908160008201805461055290611573565b80601f016020809104026020016040519081016040528092919081815260200182805461057e90611573565b80156105cb5780601f106105a0576101008083540402835291602001916105cb565b820191906000526020600020905b8154815290600101906020018083116105ae57829003601f168201915b505050505081526020016001820180546105e490611573565b80601f016020809104026020016040519081016040528092919081815260200182805461061090611573565b801561065d5780601f106106325761010080835404028352916020019161065d565b820191906000526020600020905b81548152906001019060200180831161064057829003601f168201915b505050505081525050905087604051602001610679919061152d565b6040516020818303038152906040528051906020012081602001516040516020016106a4919061152d565b60405160208183030381529060405280519060200120146106c8576106c7611653565b5b6000600360008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508760405160200161071c919061152d565b6040516020818303038152906040528051906020012081600101604051602001610746919061163c565b604051602081830303815290604052805190602001201461076a57610769611653565b5b8985600d01908161077b9190611819565b506107878b6004610d4a565b8a6040518060400160405280600681526020017f4c6f616e6564000000000000000000000000000000000000000000000000000081525096509650505050505094509492505050565b600060606000600160008981526020019081526020016000209050868160080160000190816107ff9190611819565b50858160080160010190816108149190611819565b50848160080160020190816108299190611819565b508381600801600301908161083e9190611819565b5061084a886003610d4a565b876040518060400160405280600681526020017f5369676e6564000000000000000000000000000000000000000000000000000081525092509250509550959350505050565b60606000600160008881526020019081526020016000209050858160040160000190816108bd9190611819565b50848160040160010190816108d29190611819565b50838160040160020190816108e79190611819565b50828160040160030190816108fc9190611819565b50606060405160200161090e90611937565b6040516020818303038152906040528051906020012084604051602001610935919061152d565b60405160208183030381529060405280519060200120036109985761095b886001610d4a565b6040518060400160405280600681526020017f41677265656400000000000000000000000000000000000000000000000000008152509050610a2e565b6040516020016109a790611998565b60405160208183030381529060405280519060200120846040516020016109ce919061152d565b6040516020818303038152906040528051906020012003610a2d576109f4886002610d4a565b6040518060400160405280600981526020017f446973616772656564000000000000000000000000000000000000000000000081525090505b5b809250505095945050505050565b6000806001600084815260200190815260200160002090508060020160009054906101000a900460ff16915050919050565b6000806060806000806000815480929190610a88906119dc565b9190505590508c60016000838152602001908152602001600020600001819055508b6001600083815260200190815260200160002060030160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055508a600160008381526020019081526020016000206001018190555060006001600083815260200190815260200160002060020160006101000a81548160ff02191690836006811115610b5357610b5261127b565b5b0217905550896001600083815260200190815260200160002060020160016101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060405180604001604052808a815260200189815250600260008c73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000820151816000019081610c169190611819565b506020820151816001019081610c2c9190611819565b50905050604051806040016040528088815260200187815250600360008e73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000820151816000019081610c999190611819565b506020820151816001019081610caf9190611819565b50905050808a8a8a94509450945094505098509850985098945050505050565b6000606060006001600086815260200190815260200160002090508381600c019081610cfb9190611819565b50610d07856006610d4a565b846040518060400160405280600881526020017f556e7369676e656400000000000000000000000000000000000000000000000081525092509250509250929050565b6000600160008481526020019081526020016000209050818160020160006101000a81548160ff02191690836006811115610d8857610d8761127b565b5b0217905550505050565b6000604051905090565b600080fd5b600080fd5b6000819050919050565b610db981610da6565b8114610dc457600080fd5b50565b600081359050610dd681610db0565b92915050565b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b610e2f82610de6565b810181811067ffffffffffffffff82111715610e4e57610e4d610df7565b5b80604052505050565b6000610e61610d92565b9050610e6d8282610e26565b919050565b600067ffffffffffffffff821115610e8d57610e8c610df7565b5b610e9682610de6565b9050602081019050919050565b82818337600083830152505050565b6000610ec5610ec084610e72565b610e57565b905082815260208101848484011115610ee157610ee0610de1565b5b610eec848285610ea3565b509392505050565b600082601f830112610f0957610f08610ddc565b5b8135610f19848260208601610eb2565b91505092915050565b60008060008060808587031215610f3c57610f3b610d9c565b5b6000610f4a87828801610dc7565b945050602085013567ffffffffffffffff811115610f6b57610f6a610da1565b5b610f7787828801610ef4565b935050604085013567ffffffffffffffff811115610f9857610f97610da1565b5b610fa487828801610ef4565b925050606085013567ffffffffffffffff811115610fc557610fc4610da1565b5b610fd187828801610ef4565b91505092959194509250565b610fe681610da6565b82525050565b600081519050919050565b600082825260208201905092915050565b60005b8381101561102657808201518184015260208101905061100b565b60008484015250505050565b600061103d82610fec565b6110478185610ff7565b9350611057818560208601611008565b61106081610de6565b840191505092915050565b60006040820190506110806000830185610fdd565b81810360208301526110928184611032565b90509392505050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006110c68261109b565b9050919050565b6110d6816110bb565b81146110e157600080fd5b50565b6000813590506110f3816110cd565b92915050565b60006020828403121561110f5761110e610d9c565b5b600061111d848285016110e4565b91505092915050565b600060208201905061113b6000830184610fdd565b92915050565b600080600080600060a0868803121561115d5761115c610d9c565b5b600061116b88828901610dc7565b955050602086013567ffffffffffffffff81111561118c5761118b610da1565b5b61119888828901610ef4565b945050604086013567ffffffffffffffff8111156111b9576111b8610da1565b5b6111c588828901610ef4565b935050606086013567ffffffffffffffff8111156111e6576111e5610da1565b5b6111f288828901610ef4565b925050608086013567ffffffffffffffff81111561121357611212610da1565b5b61121f88828901610ef4565b9150509295509295909350565b600060208201905081810360008301526112468184611032565b905092915050565b60006020828403121561126457611263610d9c565b5b600061127284828501610dc7565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b600781106112bb576112ba61127b565b5b50565b60008190506112cc826112aa565b919050565b60006112dc826112be565b9050919050565b6112ec816112d1565b82525050565b600060208201905061130760008301846112e3565b92915050565b600080600080600080600080610100898b03121561132e5761132d610d9c565b5b600061133c8b828c01610dc7565b985050602061134d8b828c016110e4565b975050604061135e8b828c01610dc7565b965050606061136f8b828c016110e4565b955050608089013567ffffffffffffffff8111156113905761138f610da1565b5b61139c8b828c01610ef4565b94505060a089013567ffffffffffffffff8111156113bd576113bc610da1565b5b6113c98b828c01610ef4565b93505060c089013567ffffffffffffffff8111156113ea576113e9610da1565b5b6113f68b828c01610ef4565b92505060e089013567ffffffffffffffff81111561141757611416610da1565b5b6114238b828c01610ef4565b9150509295985092959890939650565b61143c816110bb565b82525050565b60006080820190506114576000830187610fdd565b6114646020830186611433565b81810360408301526114768185611032565b9050818103606083015261148a8184611032565b905095945050505050565b600080604083850312156114ac576114ab610d9c565b5b60006114ba85828601610dc7565b925050602083013567ffffffffffffffff8111156114db576114da610da1565b5b6114e785828601610ef4565b9150509250929050565b600081905092915050565b600061150782610fec565b61151181856114f1565b9350611521818560208601611008565b80840191505092915050565b600061153982846114fc565b915081905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061158b57607f821691505b60208210810361159e5761159d611544565b5b50919050565b60008190508160005260206000209050919050565b600081546115c681611573565b6115d081866114f1565b945060018216600081146115eb576001811461160057611633565b60ff1983168652811515820286019350611633565b611609856115a4565b60005b8381101561162b5781548189015260018201915060208101905061160c565b838801955050505b50505092915050565b600061164882846115b9565b915081905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052600160045260246000fd5b60006020601f8301049050919050565b600082821b905092915050565b6000600883026116cf7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82611692565b6116d98683611692565b95508019841693508086168417925050509392505050565b6000819050919050565b600061171661171161170c84610da6565b6116f1565b610da6565b9050919050565b6000819050919050565b611730836116fb565b61174461173c8261171d565b84845461169f565b825550505050565b600090565b61175961174c565b611764818484611727565b505050565b5b818110156117885761177d600082611751565b60018101905061176a565b5050565b601f8211156117cd5761179e816115a4565b6117a784611682565b810160208510156117b6578190505b6117ca6117c285611682565b830182611769565b50505b505050565b600082821c905092915050565b60006117f0600019846008026117d2565b1980831691505092915050565b600061180983836117df565b9150826002028217905092915050565b61182282610fec565b67ffffffffffffffff81111561183b5761183a610df7565b5b6118458254611573565b61185082828561178c565b600060209050601f8311600181146118835760008415611871578287015190505b61187b85826117fd565b8655506118e3565b601f198416611891866115a4565b60005b828110156118b957848901518255600182019150602085019450602081019050611894565b868310156118d657848901516118d2601f8916826117df565b8355505b6001600288020188555050505b505050505050565b7f7965730000000000000000000000000000000000000000000000000000000000600082015250565b60006119216003836114f1565b915061192c826118eb565b600382019050919050565b600061194282611914565b9150819050919050565b7f6e6f000000000000000000000000000000000000000000000000000000000000600082015250565b60006119826002836114f1565b915061198d8261194c565b600282019050919050565b60006119a382611975565b9150819050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b60006119e782610da6565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8203611a1957611a186119ad565b5b60018201905091905056fea2646970667358221220c2dba1fe02dbfa34f302752afe8824286be1536fa840b5d414af46a54e148fd264736f6c63430008120033";
-    private static String contractName = "ImpawnLoan";
+    private static String contractName = "ImpawnLoan2";
     private static XuperChainWrapper xuperChainWrapper = XuperChainWrapper.build();
+    /*{contractAccount=XC1234567890123456@xuper, txHash=82360a0721bc3352b281c3e5a76ada31de15cafd5835ab1bc9db63a59f2078f0}*/
 
-
-    public static void deploy(){
+    public void deploy(){
         Map<String, String> deployResult = xuperChainWrapper.deploy(bin, abi, contractName, new HashMap<String, String>());
         System.out.println(deployResult);
     }
 
-    public static List createImpawnLoanRequestOC(ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
+    /*
+    保存质押贷款申请
+    @param impawnLoanRequestOC， 包括orderIndexOnChain 客户的链上进口订单索引， 申请贷款的银行链上账户地址
+    requestedValue 贷款金额，clientAddr 客户的链上账户地址，clientDigest 客户三证信息摘要
+    clientAccount 客户链下银行账户，bankDigest 银行三证信息摘要，，bankAccount 银行链下银行账户
+
+    @return FunctionResult，其中
+    result包括[ 贷款申请单索引，客户的链上账户地址，客户三证信息摘要，客户链下银行账户]
+    * */
+    public FunctionResult createImpawnLoanRequestOC(ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(impawnLoanRequestOC.getOrderIndexOnChain()));
         args.add(AddressTrans.xChainToEvmAddress(impawnLoanRequestOC.getBankAddr()).getAddr());
@@ -45,10 +55,20 @@ public class ImpawnLoanXCWrapper {
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "createImpawnLoanRequest", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
     }
 
-    public static List examineImpawnLoanOC(BigInteger loadIndexOC, LoadExaminationOC loadExaminationOC) throws JsonProcessingException {
+    /*
+       金融机构审批客户资质
+       @param LoadExaminationOC， 包括 orderState订单状态，
+       taxState完税证明状态，
+       importCertificate进口证明书摘要，
+       proposal 金融机构审查意见，'yes' or 'no'
+
+       @return FunctionResult，其中
+       result包括1个值，金融机构审查通过"Agreed"， 或者 审查不通过"Disagreed"
+       * */
+    public FunctionResult examineImpawnLoanOC(BigInteger loadIndexOC, LoadExaminationOC loadExaminationOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(loadIndexOC));
         args.add(loadExaminationOC.getOrderState());
@@ -58,11 +78,22 @@ public class ImpawnLoanXCWrapper {
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "ifImpawnLoan", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
 
     }
 
-    public static List signImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
+    /*
+    * 金融机构审查资质后，签订融资合同书，触发贷款申请状态为Signed
+    @param ImpawnLoanRequestOC，包括contractSignedDigest仓单质押合同，
+    creditAgreementDigest仓单质押授信监管三方协议，
+    noticeDigest出质通知书，
+    receiptDigest出质通知书回执
+    *
+    *
+    @return FunctionResult，其中
+    result包括[贷款请求链上索引，状态"Signed"]
+    * */
+    public FunctionResult signImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(loadIndexOC));
         args.add(impawnLoanRequestOC.getContractSignedDigest());
@@ -72,19 +103,23 @@ public class ImpawnLoanXCWrapper {
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "signContractForImpawnLoan", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
     }
 
 
-    public static List queryImpawnLoanStateOC(BigInteger loadIndexOC) throws JsonProcessingException {
+    public FunctionResult queryImpawnLoanStateOC(BigInteger loadIndexOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(loadIndexOC));
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "queryImpawnLoanState", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
     }
-    public static List makeImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
+
+    /*
+    金融机构放款，金融机构调用该合约，转账给指定客户端
+    */
+    public FunctionResult makeImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(loadIndexOC));
         args.add(impawnLoanRequestOC.getBankToClientStat());
@@ -93,11 +128,14 @@ public class ImpawnLoanXCWrapper {
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "makeImpawnLoan", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
 
     }
 
-    public static List refundImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
+    /*
+    客户还款，由客户调用，转账给贷款银行
+    */
+    public FunctionResult refundImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(loadIndexOC));
         args.add(impawnLoanRequestOC.getClientToBankStat());
@@ -106,21 +144,20 @@ public class ImpawnLoanXCWrapper {
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "refundImpawnLoan", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
 
     }
 
-    public static List unsignImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
+    /*解除贷款合同*/
+    public FunctionResult unsignImpawnLoanOC(BigInteger loadIndexOC, ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(loadIndexOC));
         args.add(impawnLoanRequestOC.getUnsignImpawnContractDigest());
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "unsignImpawnLoan", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
 
     }
-
-
 
     }

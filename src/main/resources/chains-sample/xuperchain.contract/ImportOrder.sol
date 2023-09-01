@@ -103,7 +103,7 @@ contract ImportOrderContract {
     @param businessGroupId 业务组id
     @param tenantId 租户id, 用于关联入库订单信息
     @param orderDigest 订单摘要
-    @return 进口订单索引
+    @return 进口订单索引和已存证订单摘要
     */
     function createOrder(string memory orderId,
         string memory createTime,

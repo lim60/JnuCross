@@ -49,7 +49,6 @@ contract EvidenceContract {
 
 
     /*
-    中海龙调用该函数
     * @param orderIndex 订单在链上的唯一索引，用于关联订单实体
     * @param evidenceDigest 首次创建，"进口订单"的证据
     * @return evidenceIndex 证据索引

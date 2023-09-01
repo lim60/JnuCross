@@ -32,7 +32,7 @@ public class CustomDeclareXCWrapper {
         System.out.println(deployResult);
     }
 
-    public static BigInteger uploadCustomFormTC(CustomFormOC customForm) throws JsonProcessingException {
+    public FunctionResult uploadCustomFormTC(CustomFormOC customForm) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(customForm.getOrderId());
         args.add(customForm.getCustomNo());
@@ -46,34 +46,35 @@ public class CustomDeclareXCWrapper {
         customForm.setFormIndexOnChain(new BigInteger(returnIndex));
         System.out.println("----" + functionResult.result.get(0));
         System.out.println("----" + functionResult.transactionHash);
-        return new BigInteger(returnIndex);
+        System.out.println("----" + new BigInteger(returnIndex));
+        return functionResult;
     }
 
-    public static boolean updateOCCustomFormState(BigInteger onChainIndex, String newState) throws JsonProcessingException {
+    public FunctionResult updateOCCustomFormState(BigInteger onChainIndex, String newState) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(onChainIndex));
         args.add(newState);
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "updateCustomFormState", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return true;
+        return functionResult;
     }
 
-    public static List queryOCCustomForm(BigInteger onChainIndex) throws JsonProcessingException {
+    public FunctionResult queryOCCustomForm(BigInteger onChainIndex) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(onChainIndex));
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "queryCustomForm", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
     }
 
-    public static List  queryOCCustomFormState(BigInteger onChainIndex) throws JsonProcessingException {
+    public FunctionResult queryOCCustomFormState(BigInteger onChainIndex) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(onChainIndex));
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "queryCustomState", args, false, null, false);
         System.out.println("----" + functionResult.result);
         System.out.println("----" + functionResult.transactionHash);
-        return functionResult.result;
+        return functionResult;
     }
 }

@@ -90,18 +90,12 @@ contract ImpawnLoan {
     @param bankAddr 申请贷款的银行链上账户地址
     @param requestedValue 贷款金额
     @param clientAddr 客户的链上账户地址
-    客户三证信息
-    @param clientLicenseDigest
-    @param clientOrgCodeDigest
-    @param clientAgentCerDigest
 
-    银行三证信息
-    @param bankLicenseDigest
-    @param bankOrgCodeDigest
-    @param bankAgentCerDigest
-    @param bankIdentity 银行名称
-
-    @return loanIndex 贷款申请单索引
+    @param clientDigest 客户三证信息摘要
+    @param clientAccount 客户链下银行账户
+    @param bankDigest 银行三证信息摘要
+    @param bankAccount 银行链下银行账户
+    @return loanIndex 贷款申请单索引，客户的链上账户地址，客户三证信息摘要，客户链下银行账户
     */
     function createImpawnLoanRequest(uint orderIndex, address bankAddr, uint256 requestedValue,
         address clientAddr, string memory clientDigest, string memory clientAccount,
