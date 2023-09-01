@@ -54,7 +54,7 @@ public class XuperChainWrapper extends ChainWrapper {
 
     public static XuperChainWrapper build(){
         XuperChainWrapper xuperChainWrapper = new XuperChainWrapper();
-        xuperChainWrapper.xuperChain_url = "10.154.24.12:37101";
+        xuperChainWrapper.xuperChain_url = "81.71.46.41:37101";
         xuperChainWrapper.client = new XuperClient(xuperChainWrapper.xuperChain_url);
         ECKeyPair ecKeyPair = ECKeyPair.create(new BigInteger("111497060296999106528800133634901141644446751975433315540300236500052690483486"));
         xuperChainWrapper.account = Account.create(ecKeyPair);

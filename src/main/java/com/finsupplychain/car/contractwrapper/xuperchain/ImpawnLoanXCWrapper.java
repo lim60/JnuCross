@@ -32,15 +32,7 @@ public class ImpawnLoanXCWrapper {
         System.out.println(deployResult);
     }
 
-    /*
-    保存质押贷款申请
-    @param impawnLoanRequestOC， 包括orderIndexOnChain 客户的链上进口订单索引， 申请贷款的银行链上账户地址
-    requestedValue 贷款金额，clientAddr 客户的链上账户地址，clientDigest 客户三证信息摘要
-    clientAccount 客户链下银行账户，bankDigest 银行三证信息摘要，，bankAccount 银行链下银行账户
 
-    @return FunctionResult，其中
-    result包括[ 贷款申请单索引，客户的链上账户地址，客户三证信息摘要，客户链下银行账户]
-    * */
     public FunctionResult createImpawnLoanRequestOC(ImpawnLoanRequestOC impawnLoanRequestOC) throws JsonProcessingException {
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(impawnLoanRequestOC.getOrderIndexOnChain()));

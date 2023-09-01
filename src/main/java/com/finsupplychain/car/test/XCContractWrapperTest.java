@@ -1,13 +1,6 @@
 package com.finsupplychain.car.test;
 
-import com.finsupplychain.car.common.CustomDeclareState;
-import com.finsupplychain.car.contractwrapper.xuperchain.CustomDeclareXCWrapper;
-import com.finsupplychain.car.contractwrapper.xuperchain.EvidenceXCWrapper;
-import com.finsupplychain.car.contractwrapper.xuperchain.ImpawnLoanXCWrapper;
-import com.finsupplychain.car.controller.ChainDataController;
-import com.finsupplychain.car.entity.CustomFormOC;
-import com.finsupplychain.car.entity.ImpawnLoanRequestOC;
-import com.finsupplychain.car.entity.LoadExaminationOC;
+import com.finsupplychain.car.controller.XCChainDataController;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -25,77 +18,64 @@ public class XCContractWrapperTest {
     public void testCustomDeclareWrapper() throws Exception {
 
         /*----------------CustomDeclareXCWrapper------------------------*/
-        ChainDataController controller = new ChainDataController();
-
-        controller.customChainUpload("100000000001", "01", "123", "CF_N",
-                "0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c", "230829",
-                "0xcfb58ad6ecf0df16c7ae9da4dc7e04e988801c4202a4d89dccbea128d9c6307c");
-//        System.out.println("create result: " + result.);
-
-        controller.customChainStateUpdate(BigInteger.valueOf(0), CustomDeclareState.UPDATED);
-
-        controller.customChainQuery(BigInteger.valueOf(0));
-
-        controller.customChainStateQuery(BigInteger.valueOf(0));
+        XCChainDataController controller = new XCChainDataController();
+//
+//        controller.customChainUpload("100000000001", "01", "123", "CF_N",
+//                "0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c", "230829",
+//                "0xcfb58ad6ecf0df16c7ae9da4dc7e04e988801c4202a4d89dccbea128d9c6307c");
+//
+//        controller.customChainStateUpdate(BigInteger.valueOf(0), CustomDeclareState.UPDATED);
+//
+//        controller.customChainQuery(BigInteger.valueOf(0));
+//
+//        controller.customChainStateQuery(BigInteger.valueOf(0));
 
 
         /*----------------ImportOrderXCWrapper------------------------*/
-        /*ImportOrderXCWrapper importOrderWrapper = new ImportOrderXCWrapper();
-        ImportOrderOC importOrderOC = new ImportOrderOC();
-
-        importOrderOC.setOrderId("0000001");
-        importOrderOC.setCreateTime("230829");
-        importOrderOC.setImportType("1");
-        importOrderOC.setContractId("0000000000a");
-        importOrderOC.setClientName("zhonghailong");
-        importOrderOC.setLoadingPort("广州港");
-        importOrderOC.setDestinationPort("南沙港");
-        importOrderOC.setBusinessGroupId("02");
-        importOrderOC.setTenantId("01");
-        importOrderOC.setOrderDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
-
-        importOrderWrapper.createOrderOC(importOrderOC);
-
-        importOrderWrapper.queryOrderOC(BigInteger.valueOf(0));
-
-        importOrderWrapper.queryOrderStateOC(BigInteger.valueOf(0));
-
-        CustomFormOC customFormOC = new CustomFormOC();
-        customFormOC.setCreateTime("230829");
-        customFormOC.setCustomNo("01");
-        customFormOC.setCustomCode("123");
-        customFormOC.setCheckState("CF_N");
-        customFormOC.setCertificateDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
-
-        importOrderWrapper.createOrderCustomFormOC(BigInteger.valueOf(0), customFormOC);
-
-        importOrderWrapper.queryOrderCustomFormOC(BigInteger.valueOf(0));
 
 
-        ArrivalFormOC arrivalFormOnChain = new ArrivalFormOC();
-        arrivalFormOnChain.setCreateTime("230831");
-        arrivalFormOnChain.setOnPortState("已到港");
-        arrivalFormOnChain.setOnPortDate("240101");
-        arrivalFormOnChain.setArriveEntityDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
 
-        importOrderWrapper.createOrderArrivalOC(BigInteger.valueOf(0), arrivalFormOnChain);
 
-        importOrderWrapper.queryOrderArrivalOC(BigInteger.valueOf(0));
+//        controller.bussChainImportOrderUpload("0000001","230829","1",
+//                "0000000000a","zhonghailong","广州港","南沙港",
+//                "02", "01", "0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
 
-        InboundFormOC inboundFormOnChain = new InboundFormOC();
-        inboundFormOnChain.setCreateTime("230231");
-        inboundFormOnChain.setInboundType("入库类型");
-        inboundFormOnChain.setInboundState("01");
-        inboundFormOnChain.setInboundEntityDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
-        importOrderWrapper.createOrderInboundOC(BigInteger.valueOf(0), inboundFormOnChain);
 
-        importOrderWrapper.queryOrderInboundOC(BigInteger.valueOf(0));
-
-        importOrderWrapper.queryInboundStateOC(BigInteger.valueOf(0));
-
-        importOrderWrapper.updateInboundStateWhenLoaded(BigInteger.valueOf(0));
-
-        importOrderWrapper.updateInboundStateWhenRefunded(BigInteger.valueOf(0));*/
+//        controller.bussChainImportOrderQuery(BigInteger.valueOf(0));
+//
+//          controller.bussChainImportOrderStateQuery(BigInteger.valueOf(0));
+//
+//        controller.bussChainCustomeFormUpload(BigInteger.valueOf(0), "230829",
+//        "01", "123", "CF_N", "0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c"
+//        );
+//
+        controller.bussChainCustomeFormQuery(BigInteger.valueOf(0));
+//
+//
+//        ArrivalFormOC arrivalFormOnChain = new ArrivalFormOC();
+//        arrivalFormOnChain.setCreateTime("230831");
+//        arrivalFormOnChain.setOnPortState("已到港");
+//        arrivalFormOnChain.setOnPortDate("240101");
+//        arrivalFormOnChain.setArriveEntityDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
+//
+//        importOrderWrapper.createOrderArrivalOC(BigInteger.valueOf(0), arrivalFormOnChain);
+//
+//        importOrderWrapper.queryOrderArrivalOC(BigInteger.valueOf(0));
+//
+//        InboundFormOC inboundFormOnChain = new InboundFormOC();
+//        inboundFormOnChain.setCreateTime("230231");
+//        inboundFormOnChain.setInboundType("入库类型");
+//        inboundFormOnChain.setInboundState("01");
+//        inboundFormOnChain.setInboundEntityDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
+//        importOrderWrapper.createOrderInboundOC(BigInteger.valueOf(0), inboundFormOnChain);
+//
+//        importOrderWrapper.queryOrderInboundOC(BigInteger.valueOf(0));
+//
+//        importOrderWrapper.queryInboundStateOC(BigInteger.valueOf(0));
+//
+//        importOrderWrapper.updateInboundStateWhenLoaded(BigInteger.valueOf(0));
+//
+//        importOrderWrapper.updateInboundStateWhenRefunded(BigInteger.valueOf(0));
 
 
         /*----------------EvidenceXCWrapper------------------------*/
