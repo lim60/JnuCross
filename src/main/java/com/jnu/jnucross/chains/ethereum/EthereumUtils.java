@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jnu.jnucross.chains.*;
 import com.jnu.jnucross.chains.ethereum.generated.SimpleStorage;
 import org.web3j.codegen.SolidityFunctionWrapperGenerator;
+import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
@@ -16,6 +17,7 @@ import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -92,7 +94,7 @@ public class EthereumUtils {
     }
 
     // 部署合约接口，需要先生成合约的java文件，然后私用合约Java类的deploy方法调用
-    public static void deployContract(){
+    public static void deployContract() throws CipherException, IOException {
         EthereumWrapper ethereumWrapper = EthereumWrapper.build();
         Contract contract = null;
         try {
@@ -116,14 +118,32 @@ public class EthereumUtils {
         return result;
     }
 
+    public static List<String> getAddressAndPublicKey(BigInteger privateKey){
+        List<String> result = new ArrayList<String>();
+        Credentials credentials = Credentials.create(ECKeyPair.create(privateKey));
+        result.add(credentials.getAddress());
+        result.add(Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPublicKey()));
+        return result;
+    }
+
     public static String getAddress(String hexPrivateKeyString){
         Credentials credentials = Credentials.create(hexPrivateKeyString);
+        return credentials.getAddress();
+    }
+
+    public static String getAddress(BigInteger privateKey){
+        Credentials credentials = Credentials.create(ECKeyPair.create(privateKey));
         return credentials.getAddress();
     }
 
     // 返回0x开头的公钥Hex String
     public static String getPublicKey(String hexPrivateKeyString){
         Credentials credentials = Credentials.create(hexPrivateKeyString);
+        return Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPublicKey());
+    }
+
+    public static String getPublicKey(BigInteger privateKey){
+        Credentials credentials = Credentials.create(ECKeyPair.create(privateKey));
         return Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPublicKey());
     }
 

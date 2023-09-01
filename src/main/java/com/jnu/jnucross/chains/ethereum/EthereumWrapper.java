@@ -98,11 +98,11 @@ public class EthereumWrapper extends ChainWrapper {
 
         System.out.println("from address = " + chainWrapper.credentials.getAddress());
         System.out.println("Balance1 before = " + chainWrapper.getBalance(chainWrapper.credentials.getAddress()));
-        String toAddress = "0x6ef422e32d17207d14c4dd1cb7cccb7450c67842";
+        String toAddress = getAddress(new BigInteger("38193597071435092073330816640302480135932035477809105103919058804900169766293"));
 
         System.out.println("Balance2 before = " + chainWrapper.getBalance(toAddress));
 
-        String txHash = chainWrapper.transferTo(toAddress, BigInteger.valueOf(1), true);
+        String txHash = chainWrapper.transferTo(toAddress, BigInteger.valueOf(1000000000), true);
 
         System.out.println("Balance1 after  = " + chainWrapper.getBalance(chainWrapper.credentials.getAddress()));
         System.out.println("Balance2 after = " + chainWrapper.getBalance(toAddress));
