@@ -117,21 +117,11 @@ public class XuperChainWrapper extends ChainWrapper {
 
     @Override
     public BigInteger getBalance(){
-        try {
-            return client.getBalance(account.getAKAddress(),false);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return BigInteger.valueOf(0);
-        }
+        return client.getBalance(account.getAKAddress(),false);
     }
 
     public BigInteger getBalance(String address){
-        try {
-            return client.getBalance(address,false);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return BigInteger.valueOf(0);
-        }
+        return client.getBalance(address,false);
     }
 
     @Override
