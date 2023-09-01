@@ -343,7 +343,7 @@ public class HTLCScheduler {
 
                                 if (logger.isDebugEnabled()) {
                                     logger.debug(
-                                            "verifiedTransaction for self transfer contract: {}, hash: {}",
+                                            "verifiedTransaction for self transfer xuperchain.xuperchain.contract: {}, hash: {}",
                                             verifiedTransaction0,
                                             hash);
                                 }
@@ -427,7 +427,7 @@ public class HTLCScheduler {
 
                                                         if (logger.isDebugEnabled()) {
                                                             logger.debug(
-                                                                    "verifiedTransaction for counterparty transfer contract: {}, hash: {}",
+                                                                    "verifiedTransaction for counterparty transfer xuperchain.xuperchain.contract: {}, hash: {}",
                                                                     verifiedTransaction1,
                                                                     hash);
                                                         }

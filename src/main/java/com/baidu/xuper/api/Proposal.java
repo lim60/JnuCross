@@ -109,7 +109,7 @@ public class Proposal {
                     .setMethodName(methodName)
                     .setContractName(contractName)
                     .putAllArgs(args);
-            // transfer to contract
+            // transfer to xuperchain.xuperchain.contract
             if (Objects.equals(this.to, contractName)) {
                 invokeRequestBuilder.setAmount(this.amount.toString());
             }

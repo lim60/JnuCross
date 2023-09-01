@@ -51,7 +51,7 @@ public class XuperChainContractTest {
     }
 
     public static void invoke(){
-        // storagepay is a payable method. Amount param can be NULL if there is no need to transfer to the contract.
+        // storagepay is a payable method. Amount param can be NULL if there is no need to transfer to the xuperchain.xuperchain.contract.
         args.put("x", "1234");
         System.out.println(args);
         Transaction t1 = client.invokeEVMContract(account, contractName, "set", args, null);

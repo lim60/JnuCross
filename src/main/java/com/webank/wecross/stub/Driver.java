@@ -25,7 +25,7 @@ public interface Driver {
     List<ResourceInfo> getResources(Connection connection);
 
     /**
-     * Async Call the interface of contract or chaincode Just fake async for compatibility, you need
+     * Async Call the interface of xuperchain.xuperchain.contract or chaincode Just fake async for compatibility, you need
      * to override this function
      *
      * @param context
@@ -43,7 +43,7 @@ public interface Driver {
             Driver.Callback callback);
 
     /**
-     * Async transaction the interface of contract or chaincode Just fake async for compatibility,
+     * Async transaction the interface of xuperchain.xuperchain.contract or chaincode Just fake async for compatibility,
      * you need to override this function
      *
      * @param request the transaction request

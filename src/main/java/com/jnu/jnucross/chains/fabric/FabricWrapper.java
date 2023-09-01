@@ -48,17 +48,17 @@ public class FabricWrapper extends ChainWrapper {
 //        // Create a gateway connection
 //        try (Gateway gateway = builder.connect()) {
 //
-//            // Obtain a smart contract deployed on the network.
+//            // Obtain a smart xuperchain.xuperchain.contract deployed on the network.
 //            Network network = gateway.getNetwork("mychannel");
-//            Contract contract = network.getContract("fabcar");
+//            Contract xuperchain.xuperchain.contract = network.getContract("fabcar");
 //
 //            // Submit transactions that store state to the ledger.
-//            byte[] createCarResult = contract.createTransaction("createCar")
+//            byte[] createCarResult = xuperchain.xuperchain.contract.createTransaction("createCar")
 //                    .submit("CAR10", "VW", "Polo", "Grey", "Mary");
 //            System.out.println(new String(createCarResult, StandardCharsets.UTF_8));
 //
 //            // Evaluate transactions that query state from the ledger.
-//            byte[] queryAllCarsResult = contract.evaluateTransaction("queryAllCars");
+//            byte[] queryAllCarsResult = xuperchain.xuperchain.contract.evaluateTransaction("queryAllCars");
 //            System.out.println(new String(queryAllCarsResult, StandardCharsets.UTF_8));
 //
 //        } catch (ContractException | TimeoutException | InterruptedException e) {

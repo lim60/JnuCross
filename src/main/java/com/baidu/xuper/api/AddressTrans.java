@@ -26,11 +26,11 @@ public class AddressTrans {
     /**
      * 合约名字地址类型
      */
-    private static final String CONTRACT_NAME_TYPE = "contract-name";
+    private static final String CONTRACT_NAME_TYPE = "xuperchain.xuperchain.contract-name";
     /**
      * 合约账户地址类型
      */
-    private static final String CONTRACT_ACCOUNT_TYPE = "contract-account";
+    private static final String CONTRACT_ACCOUNT_TYPE = "xuperchain.xuperchain.contract-account";
 
     private String addr;
     private String addrType;
@@ -50,7 +50,7 @@ public class AddressTrans {
 
     /**
      * xChain address transfer to evm address:
-     * xChain address can be xChain contract account, AK address, xChain contract name.
+     * xChain address can be xChain xuperchain.xuperchain.contract account, AK address, xChain xuperchain.xuperchain.contract name.
      *
      * @param xChainAddr
      * @return AddrInfo
@@ -73,7 +73,7 @@ public class AddressTrans {
 
     /**
      * evm address transfer to xChain address:
-     * evmAddr can be evm contract account, AK address, xChain contract name.
+     * evmAddr can be evm xuperchain.xuperchain.contract account, AK address, xChain xuperchain.xuperchain.contract name.
      *
      * @param evmAddr
      * @return AddrInfo
@@ -126,7 +126,7 @@ public class AddressTrans {
     }
 
     /**
-     * transfer xChain contract account to evm address
+     * transfer xChain xuperchain.xuperchain.contract account to evm address
      *
      * @param xChainAddr
      * @return
@@ -139,7 +139,7 @@ public class AddressTrans {
     }
 
     /**
-     * transfer xChain contract name to evm address
+     * transfer xChain xuperchain.xuperchain.contract name to evm address
      *
      * @param contractName
      * @return String
@@ -176,7 +176,7 @@ public class AddressTrans {
     }
 
     /**
-     * transfer evm address to xChain contract account
+     * transfer evm address to xChain xuperchain.xuperchain.contract account
      *
      * @param evmAddr
      * @return String
@@ -194,7 +194,7 @@ public class AddressTrans {
     }
 
     /**
-     * transfer evm address to xChain contract name
+     * transfer evm address to xChain xuperchain.xuperchain.contract name
      *
      * @param evmAddr
      * @return String
@@ -214,7 +214,7 @@ public class AddressTrans {
     }
 
     /**
-     * determine whether it is a contract account
+     * determine whether it is a xuperchain.xuperchain.contract account
      *
      * @param addr xChain地址
      * @return boolean
@@ -247,7 +247,7 @@ public class AddressTrans {
     }
 
     /**
-     * determine whether it is a contract name
+     * determine whether it is a xuperchain.xuperchain.contract name
      *
      * @param contractName xchain合约名
      * @return boolean

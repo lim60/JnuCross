@@ -69,9 +69,9 @@ public class AdvanceTransactionTest {
         }
     }
 
-    // Deploy contract, return transaction hash
+    // Deploy xuperchain.xuperchain.contract, return transaction hash
     private String deployContract(boolean isEd25519AndBlake2b) throws Exception {
-        // contract.bin
+        // xuperchain.xuperchain.contract.bin
         String contractCode = "606060405260008055341561001357600080f"
                 + "d5b60fc806100216000396000f30060606040526004361060"
                 + "525763ffffffff7c010000000000000000000000000000000"
@@ -175,18 +175,18 @@ public class AdvanceTransactionTest {
         long oldBlock = startBlock;
         long currentBlock = startBlock;
 
-        // deploy contract
+        // deploy xuperchain.xuperchain.contract
         String deployContractTxHash = deployContract(isEd25519AndBlake2b);
-        System.out.println("wait to deploy contract , txHash: "
+        System.out.println("wait to deploy xuperchain.xuperchain.contract , txHash: "
                 + deployContractTxHash);
 
-        // wait for contract deployment.
+        // wait for xuperchain.xuperchain.contract deployment.
         // don't wait for 3 more blocks
         // because block height increase might stop or even decrease in some case.
-        System.out.println("Wait for contract deployment. ");
+        System.out.println("Wait for xuperchain.xuperchain.contract deployment. ");
         Thread.sleep(10000);
 
-        // get contract address from receipt
+        // get xuperchain.xuperchain.contract address from receipt
         int countForContractDeployment = 0;
         while (true) {
             TransactionReceipt receipt = service
@@ -198,15 +198,15 @@ public class AdvanceTransactionTest {
                     System.out.println("Contract is deployed successfully.");
                     break;
                 } else {
-                    System.out.println("Failed to deploy smart contract. Error: "
+                    System.out.println("Failed to deploy smart xuperchain.xuperchain.contract. Error: "
                             + receipt.getErrorMessage());
                     //System.exit(1);
                 }
             } else {
-                System.out.println("Waiting for contract deployment....");
+                System.out.println("Waiting for xuperchain.xuperchain.contract deployment....");
                 Thread.sleep(3000);
                 if (countForContractDeployment++ > 3) {
-                    System.out.println("Timeout, failed to deploy contract.");
+                    System.out.println("Timeout, failed to deploy xuperchain.xuperchain.contract.");
                     //System.exit(1);
                 }
             }
@@ -214,7 +214,7 @@ public class AdvanceTransactionTest {
 
         String resetTxHash = funcResetCall(this.contractAddress, isEd25519AndBlake2b);
 
-        //call smart contract function and wait for receipt.
+        //call smart xuperchain.xuperchain.contract function and wait for receipt.
         int countForResetFunctionCall = 0;
         while (true) {
             TransactionReceipt receipt = service
@@ -256,7 +256,7 @@ public class AdvanceTransactionTest {
                                 j++;
                             }
                         } catch (Exception e) {
-                            System.out.println("Failed to call contract function.");
+                            System.out.println("Failed to call xuperchain.xuperchain.contract function.");
                             e.printStackTrace();
                             //System.exit(1);
                         }

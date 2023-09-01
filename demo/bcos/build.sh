@@ -92,7 +92,7 @@ build_console() {
     # Copy demo HelloWeCross
     cp HelloWeCross.sol console/contracts/solidity/
 
-    # Deploy contract
+    # Deploy xuperchain.xuperchain.contract
     LOG_INFO "Deploy contract ..."
     cp -n console/conf/applicationContext-sample.xml console/conf/applicationContext.xml
     cp nodes/127.0.0.1/sdk/* console/conf/

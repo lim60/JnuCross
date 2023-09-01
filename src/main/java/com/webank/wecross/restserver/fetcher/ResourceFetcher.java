@@ -123,7 +123,7 @@ public class ResourceFetcher {
         }
 
         ResourceResponse resourceResponse = new ResourceResponse();
-        resourceResponse.setTotal(resources.size() - 1); // Exclude proxy contract
+        resourceResponse.setTotal(resources.size() - 1); // Exclude proxy xuperchain.xuperchain.contract
         resourceResponse.setResourceDetails(details.toArray(new ResourceDetail[] {}));
 
         return resourceResponse;

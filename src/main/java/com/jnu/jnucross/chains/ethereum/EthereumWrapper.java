@@ -125,12 +125,15 @@ public class EthereumWrapper extends ChainWrapper {
         //RawTransaction rawTransaction = new RawTransaction();
         //client.stop();
         // 生成合约java代码
-        //generateClass("src/main/resources/chains-sample/ethereum/contract/SimpleStorage.abi", "src/main/resources/chains-sample/ethereum/contract/SimpleStorage.bin", "src/main/java/com/jnu/jnucross/chains/ethereum/generated");
+        //generateClass("src/main/resources/chains-sample/ethereum/xuperchain.xuperchain.contract/SimpleStorage.abi", "src/main/resources/chains-sample/ethereum/xuperchain.xuperchain.contract/SimpleStorage.bin", "src/main/java/com/jnu/jnucross/chains/ethereum/generated");
+//        generateClass("src/main/resources/chains-sample/ethereum/contract/supplychain/ImportOrderContract.abi", "src/main/resources/chains-sample/ethereum/contract/supplychain/ImportOrderContract.bin", "src/main/java/com/jnu/jnucross/chains/ethereum/generated");
+//        generateClass("src/main/resources/chains-sample/ethereum/contract/supplychain/ImpawnLoan.abi", "src/main/resources/chains-sample/ethereum/contract/supplychain/ImpawnLoan.bin", "src/main/java/com/jnu/jnucross/chains/ethereum/generated");
+        generateClass("src/main/resources/chains-sample/ethereum/contract/supplychain/CustomDeclare.abi", "src/main/resources/chains-sample/ethereum/contract/supplychain/CustomDeclare.bin", "src/main/java/com/jnu/jnucross/chains/ethereum/generated");
 
 
-        //System.out.println(contract.getContractAddress());
+        //System.out.println(xuperchain.xuperchain.contract.getContractAddress());
 
-//        contract = SimpleStorage.load("0xE3720A6D1dA0b27aCd735aA5Bc121d7AbD55Ff68",chainWapper.web3j,chainWapper.credentials,
+//        xuperchain.xuperchain.contract = SimpleStorage.load("0xE3720A6D1dA0b27aCd735aA5Bc121d7AbD55Ff68",chainWapper.web3j,chainWapper.credentials,
 //                GAS_PRICE,GAS_LIMIT);
 
         System.exit(0);
@@ -249,7 +252,7 @@ public class EthereumWrapper extends ChainWrapper {
             }
         }
         if (abiDefinition == null){
-            throw new Exception("no such method in this contract! method = " + method);
+            throw new Exception("no such method in this xuperchain.xuperchain.contract! method = " + method);
         }
 
         List<AbiDefinition.NamedType> inputs = abiDefinition.getInputs();
@@ -339,7 +342,7 @@ public class EthereumWrapper extends ChainWrapper {
             }
         }
         if (abiDefinition == null){
-            throw new Exception("no such method in this contract! method = " + method);
+            throw new Exception("no such method in this xuperchain.xuperchain.contract! method = " + method);
         }
 
         List<AbiDefinition.NamedType> inputs = abiDefinition.getInputs();

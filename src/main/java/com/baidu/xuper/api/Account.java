@@ -179,7 +179,7 @@ public class Account {
     }
 
     /**
-     * remove contract account from this account.
+     * remove xuperchain.xuperchain.contract account from this account.
      */
     public void RemoveContractAccount() {
         this.contractAccount = "";

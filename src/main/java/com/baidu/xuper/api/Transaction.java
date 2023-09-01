@@ -40,7 +40,7 @@ public class Transaction {
         if (rpcResponse.getResponse().getResponseCount() != 0) {
             this.contractResponse = new ContractResponse(rpcResponse.getResponse().getResponses(rpcResponse.getResponse().getResponseCount() - 1));
             if (this.contractResponse.getStatus() >= 400) {
-                throw new RuntimeException("contract error status:"
+                throw new RuntimeException("xuperchain.xuperchain.contract error status:"
                         + this.contractResponse.getStatus()
                         + " message:" + this.contractResponse.getMessage());
             }
@@ -52,7 +52,7 @@ public class Transaction {
         if (invokeResponse.getResponseCount() != 0) {
             this.contractResponse = new ContractResponse(invokeResponse.getResponses(invokeResponse.getResponseCount() - 1));
             if (this.contractResponse.getStatus() >= 400) {
-                throw new Exception("contract error status:"
+                throw new Exception("xuperchain.xuperchain.contract error status:"
                         + this.contractResponse.getStatus()
                         + " message:" + this.contractResponse.getMessage());
             }
@@ -110,7 +110,7 @@ public class Transaction {
             makeUtxos(proposal, utxos, initiator, txBuilder, gasUsed);
         }
 
-        // add utxos generated from contract
+        // add utxos generated from xuperchain.xuperchain.contract
         txBuilder.addAllTxInputs(invokeResponse.getUtxoInputsList());
         txBuilder.addAllTxOutputs(invokeResponse.getUtxoOutputsList());
 

@@ -5,7 +5,7 @@ cd ${dirpath}
 type=''
 deploy='true'
 chain=''
-contract=''
+xuperchain.xuperchain.contract=''
 SECURIY_FILE='./.wecross.security'
 
 help() {
@@ -189,7 +189,7 @@ main() {
   local type="$1"
   local chain="$2"
   local deploy="$3"
-  local contract="$4"
+  local xuperchain.xuperchain.contract="$4"
 
   [ -z "$type" ] && help
   [ -z "$chain" ] && help
@@ -198,35 +198,35 @@ main() {
 
   create_jvm_security
 
-  LOG_INFO " deploy_system_contract, type: ${type}, chain: ${chain}, deploy: ${deploy}, contract: ${contract}"
+  LOG_INFO " deploy_system_contract, type: ${type}, chain: ${chain}, deploy: ${deploy}, contract: ${xuperchain.xuperchain.contract}"
 
   case $type in
   "BCOS2.0" | "BCOS3_ECDSA_EVM" | "GM_BCOS2.0" | "BCOS3_GM_EVM")
-    if [[ "${contract}" == "proxy" ]]; then
+    if [[ "${xuperchain.xuperchain.contract}" == "proxy" ]]; then
       bcos_proxy_contract "${chain}" "${deploy}" "${type}"
-    elif [[ "${contract}" == "hub" ]]; then
+    elif [[ "${xuperchain.xuperchain.contract}" == "hub" ]]; then
       bcos_hub_contract "${chain}" "${deploy}" "${type}"
     fi
     ;;
   "Fabric1.4")
-    if [[ "${deploy}" == "true" ]] && [[ "${contract}" == "proxy" ]]; then
+    if [[ "${deploy}" == "true" ]] && [[ "${xuperchain.xuperchain.contract}" == "proxy" ]]; then
       deploy_fabric_proxy_contract "${chain}"
-    elif [[ "${deploy}" == "true" ]] && [[ "${contract}" == "hub" ]]; then
+    elif [[ "${deploy}" == "true" ]] && [[ "${xuperchain.xuperchain.contract}" == "hub" ]]; then
       deploy_fabric_hub_contract "${chain}"
-    elif [[ "${deploy}" == "false" ]] && [[ "${contract}" == "proxy" ]]; then
+    elif [[ "${deploy}" == "false" ]] && [[ "${xuperchain.xuperchain.contract}" == "proxy" ]]; then
       update_fabric_proxy_contract "${chain}"
-    elif [[ "${deploy}" == "false" ]] && [[ "${contract}" == "hub" ]]; then
+    elif [[ "${deploy}" == "false" ]] && [[ "${xuperchain.xuperchain.contract}" == "hub" ]]; then
       update_fabric_hub_contract "${chain}"
     fi
     ;;
   "Fabric2.0")
-    if [[ "${deploy}" == "true" ]] && [[ "${contract}" == "proxy" ]]; then
+    if [[ "${deploy}" == "true" ]] && [[ "${xuperchain.xuperchain.contract}" == "proxy" ]]; then
       deploy_fabric2_proxy_contract "${chain}"
-    elif [[ "${deploy}" == "true" ]] && [[ "${contract}" == "hub" ]]; then
+    elif [[ "${deploy}" == "true" ]] && [[ "${xuperchain.xuperchain.contract}" == "hub" ]]; then
       deploy_fabric2_hub_contract "${chain}"
-    elif [[ "${deploy}" == "false" ]] && [[ "${contract}" == "proxy" ]]; then
+    elif [[ "${deploy}" == "false" ]] && [[ "${xuperchain.xuperchain.contract}" == "proxy" ]]; then
       update_fabric2_proxy_contract "${chain}"
-    elif [[ "${deploy}" == "false" ]] && [[ "${contract}" == "hub" ]]; then
+    elif [[ "${deploy}" == "false" ]] && [[ "${xuperchain.xuperchain.contract}" == "hub" ]]; then
       update_fabric2_hub_contract "${chain}"
     fi
     ;;
@@ -241,8 +241,8 @@ while getopts "c:ut:hHP" option; do
   c) chain=$OPTARG ;;
   u) deploy='false' ;;
   t) type=$OPTARG ;;
-  H) contract='hub' ;;
-  P) contract='proxy' ;;
+  H) xuperchain.xuperchain.contract='hub' ;;
+  P) xuperchain.xuperchain.contract='proxy' ;;
   *) help ;;
   esac
 done
@@ -259,4 +259,4 @@ done
   LOG_ERROR "Unrecognized contract type"
   exit
 }
-main "${type}" "${chain}" "${deploy}" "${contract}"
+main "${type}" "${chain}" "${deploy}" "${xuperchain.xuperchain.contract}"

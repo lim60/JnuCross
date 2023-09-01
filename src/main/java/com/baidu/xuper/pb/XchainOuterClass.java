@@ -803,7 +803,7 @@ public final class XchainOuterClass {
     DISK(2),
     /**
      * <pre>
-     * the fee used in kernel contract
+     * the fee used in kernel xuperchain.xuperchain.contract
      * </pre>
      *
      * <code>XFEE = 3;</code>
@@ -826,7 +826,7 @@ public final class XchainOuterClass {
     public static final int DISK_VALUE = 2;
     /**
      * <pre>
-     * the fee used in kernel contract
+     * the fee used in kernel xuperchain.xuperchain.contract
      * </pre>
      *
      * <code>XFEE = 3;</code>
@@ -19560,7 +19560,7 @@ public final class XchainOuterClass {
 
     /**
      * <pre>
-     * Transaction description or system contract
+     * Transaction description or system xuperchain.xuperchain.contract
      * </pre>
      *
      * <code>bytes desc = 6;</code>
@@ -20378,7 +20378,7 @@ public final class XchainOuterClass {
     private com.google.protobuf.ByteString desc_;
     /**
      * <pre>
-     * Transaction description or system contract
+     * Transaction description or system xuperchain.xuperchain.contract
      * </pre>
      *
      * <code>bytes desc = 6;</code>
@@ -22656,7 +22656,7 @@ public final class XchainOuterClass {
       private com.google.protobuf.ByteString desc_ = com.google.protobuf.ByteString.EMPTY;
       /**
        * <pre>
-       * Transaction description or system contract
+       * Transaction description or system xuperchain.xuperchain.contract
        * </pre>
        *
        * <code>bytes desc = 6;</code>
@@ -22668,7 +22668,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * Transaction description or system contract
+       * Transaction description or system xuperchain.xuperchain.contract
        * </pre>
        *
        * <code>bytes desc = 6;</code>
@@ -22686,7 +22686,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * Transaction description or system contract
+       * Transaction description or system xuperchain.xuperchain.contract
        * </pre>
        *
        * <code>bytes desc = 6;</code>
@@ -25958,7 +25958,7 @@ public final class XchainOuterClass {
 
     /**
      * <pre>
-     * reset forbidden contract configuration
+     * reset forbidden xuperchain.xuperchain.contract configuration
      * </pre>
      *
      * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -25967,7 +25967,7 @@ public final class XchainOuterClass {
     boolean hasForbiddenContract();
     /**
      * <pre>
-     * reset forbidden contract configuration
+     * reset forbidden xuperchain.xuperchain.contract configuration
      * </pre>
      *
      * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -25976,7 +25976,7 @@ public final class XchainOuterClass {
     com.baidu.xuper.pb.XchainOuterClass.InvokeRequest getForbiddenContract();
     /**
      * <pre>
-     * reset forbidden contract configuration
+     * reset forbidden xuperchain.xuperchain.contract configuration
      * </pre>
      *
      * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -26410,7 +26410,7 @@ public final class XchainOuterClass {
     private com.baidu.xuper.pb.XchainOuterClass.InvokeRequest forbiddenContract_;
     /**
      * <pre>
-     * reset forbidden contract configuration
+     * reset forbidden xuperchain.xuperchain.contract configuration
      * </pre>
      *
      * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -26422,7 +26422,7 @@ public final class XchainOuterClass {
     }
     /**
      * <pre>
-     * reset forbidden contract configuration
+     * reset forbidden xuperchain.xuperchain.contract configuration
      * </pre>
      *
      * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -26434,7 +26434,7 @@ public final class XchainOuterClass {
     }
     /**
      * <pre>
-     * reset forbidden contract configuration
+     * reset forbidden xuperchain.xuperchain.contract configuration
      * </pre>
      *
      * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27795,7 +27795,7 @@ public final class XchainOuterClass {
           com.baidu.xuper.pb.XchainOuterClass.InvokeRequest, com.baidu.xuper.pb.XchainOuterClass.InvokeRequest.Builder, com.baidu.xuper.pb.XchainOuterClass.InvokeRequestOrBuilder> forbiddenContractBuilder_;
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27806,7 +27806,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27821,7 +27821,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27841,7 +27841,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27859,7 +27859,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27881,7 +27881,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27899,7 +27899,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27911,7 +27911,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -27926,7 +27926,7 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * reset forbidden contract configuration
+       * reset forbidden xuperchain.xuperchain.contract configuration
        * </pre>
        *
        * <code>.pb.InvokeRequest forbidden_contract = 8;</code>
@@ -69533,8 +69533,8 @@ public final class XchainOuterClass {
 
     /**
      * <pre>
-     * amount is the amount transfer to the contract
-     * attention: In one transaction, transfer to only one contract is allowed
+     * amount is the amount transfer to the xuperchain.xuperchain.contract
+     * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
      * </pre>
      *
      * <code>string amount = 6;</code>
@@ -69543,8 +69543,8 @@ public final class XchainOuterClass {
     java.lang.String getAmount();
     /**
      * <pre>
-     * amount is the amount transfer to the contract
-     * attention: In one transaction, transfer to only one contract is allowed
+     * amount is the amount transfer to the xuperchain.xuperchain.contract
+     * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
      * </pre>
      *
      * <code>string amount = 6;</code>
@@ -69940,8 +69940,8 @@ public final class XchainOuterClass {
     private volatile java.lang.Object amount_;
     /**
      * <pre>
-     * amount is the amount transfer to the contract
-     * attention: In one transaction, transfer to only one contract is allowed
+     * amount is the amount transfer to the xuperchain.xuperchain.contract
+     * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
      * </pre>
      *
      * <code>string amount = 6;</code>
@@ -69962,8 +69962,8 @@ public final class XchainOuterClass {
     }
     /**
      * <pre>
-     * amount is the amount transfer to the contract
-     * attention: In one transaction, transfer to only one contract is allowed
+     * amount is the amount transfer to the xuperchain.xuperchain.contract
+     * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
      * </pre>
      *
      * <code>string amount = 6;</code>
@@ -71046,8 +71046,8 @@ public final class XchainOuterClass {
       private java.lang.Object amount_ = "";
       /**
        * <pre>
-       * amount is the amount transfer to the contract
-       * attention: In one transaction, transfer to only one contract is allowed
+       * amount is the amount transfer to the xuperchain.xuperchain.contract
+       * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
        * </pre>
        *
        * <code>string amount = 6;</code>
@@ -71067,8 +71067,8 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * amount is the amount transfer to the contract
-       * attention: In one transaction, transfer to only one contract is allowed
+       * amount is the amount transfer to the xuperchain.xuperchain.contract
+       * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
        * </pre>
        *
        * <code>string amount = 6;</code>
@@ -71089,8 +71089,8 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * amount is the amount transfer to the contract
-       * attention: In one transaction, transfer to only one contract is allowed
+       * amount is the amount transfer to the xuperchain.xuperchain.contract
+       * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
        * </pre>
        *
        * <code>string amount = 6;</code>
@@ -71109,8 +71109,8 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * amount is the amount transfer to the contract
-       * attention: In one transaction, transfer to only one contract is allowed
+       * amount is the amount transfer to the xuperchain.xuperchain.contract
+       * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
        * </pre>
        *
        * <code>string amount = 6;</code>
@@ -71124,8 +71124,8 @@ public final class XchainOuterClass {
       }
       /**
        * <pre>
-       * amount is the amount transfer to the contract
-       * attention: In one transaction, transfer to only one contract is allowed
+       * amount is the amount transfer to the xuperchain.xuperchain.contract
+       * attention: In one transaction, transfer to only one xuperchain.xuperchain.contract is allowed
        * </pre>
        *
        * <code>string amount = 6;</code>
@@ -87678,7 +87678,7 @@ public final class XchainOuterClass {
   }
   /**
    * <pre>
-   * Status of a contract
+   * Status of a xuperchain.xuperchain.contract
    * </pre>
    *
    * Protobuf type {@code pb.ContractStatus}
@@ -88069,7 +88069,7 @@ public final class XchainOuterClass {
     }
     /**
      * <pre>
-     * Status of a contract
+     * Status of a xuperchain.xuperchain.contract
      * </pre>
      *
      * Protobuf type {@code pb.ContractStatus}
@@ -91259,7 +91259,7 @@ public final class XchainOuterClass {
   }
   /**
    * <pre>
-   * ContractResponse is the response returnd by contract
+   * ContractResponse is the response returnd by xuperchain.xuperchain.contract
    * </pre>
    *
    * Protobuf type {@code pb.ContractResponse}
@@ -91594,7 +91594,7 @@ public final class XchainOuterClass {
     }
     /**
      * <pre>
-     * ContractResponse is the response returnd by contract
+     * ContractResponse is the response returnd by xuperchain.xuperchain.contract
      * </pre>
      *
      * Protobuf type {@code pb.ContractResponse}
