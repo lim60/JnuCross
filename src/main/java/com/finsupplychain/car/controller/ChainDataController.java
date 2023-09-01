@@ -43,7 +43,7 @@ public class ChainDataController {
         try {
             FunctionResult functionResult = customDeclareXCWrapper.uploadCustomFormTC(customFormOC);
             chainResult.setConResult(functionResult.result);
-            chainResult.setTraResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
+            chainResult.setTxResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,7 +63,7 @@ public class ChainDataController {
         try {
             functionResult = customDeclareXCWrapper.updateOCCustomFormState(onChainIndex, newState);
             chainResult.setConResult(functionResult.result);
-            chainResult.setTraResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
+            chainResult.setTxResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,7 +82,7 @@ public class ChainDataController {
         try {
             functionResult = customDeclareXCWrapper.queryOCCustomForm(onChainIndex);
             chainResult.setConResult(functionResult.result);
-            chainResult.setTraResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
+            chainResult.setTxResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,7 +101,7 @@ public class ChainDataController {
         try {
             functionResult = customDeclareXCWrapper.queryOCCustomFormState(onChainIndex);
             chainResult.setConResult(functionResult.result);
-            chainResult.setTraResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
+            chainResult.setTxResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
         } catch (Exception e) {
             e.printStackTrace();
         }

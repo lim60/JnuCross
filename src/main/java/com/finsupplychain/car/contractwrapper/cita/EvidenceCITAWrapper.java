@@ -1,5 +1,6 @@
 package com.finsupplychain.car.contractwrapper.cita;
 
+import com.citahub.cita.protocol.exceptions.TransactionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jnu.jnucross.chains.FunctionResult;
 import com.jnu.jnucross.chains.cita.CITAWrapper;
@@ -32,7 +33,7 @@ public class EvidenceCITAWrapper {
     public static String contractAddr_2 = "0xb9659caa1edb30de4a1e9f4f08641b8db59942ee"; /*23-08-31-20：17*/
 
 
-    public void deploy() throws IOException {
+    public void deploy() throws IOException, TransactionException {
         String txHash_1 = citaWrapper.deploy(bin_1,abi_1,true);
         System.out.println("txHash or contractAddress = " + txHash_1);
 

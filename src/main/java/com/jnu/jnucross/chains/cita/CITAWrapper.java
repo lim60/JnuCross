@@ -18,6 +18,7 @@ import com.citahub.cita.tx.RawTransactionManager;
 import com.citahub.cita.tx.TransactionManager;
 import com.citahub.cita.tx.response.PollingTransactionReceiptProcessor;
 import com.citahub.cita.tx.response.TransactionReceiptProcessor;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.jnu.jnucross.chains.*;
 
 
@@ -55,7 +56,7 @@ public class CITAWrapper extends ChainWrapper {
 
     public static CITAWrapper build() {
         CITAWrapper citaWrapper = new CITAWrapper();
-        citaWrapper.cita_url = "http://10.154.24.5:1337"; //"http://81.71.46.41:1337";//
+        citaWrapper.cita_url = "http://81.71.46.41:1337";//"http://10.154.24.5:1337"; //
         citaWrapper.client = CITAj.build(new HttpService(citaWrapper.cita_url));
         try {
             citaWrapper.credentials = Credentials.create("0xd22bc2c10f45a48a80d2f7b7b8312d05be8866d6ba3880518316af186024b744"); // 0x2e40857e98f1da9300b4991eca62231ebb7e0f4a13fabbd2fc9a1f19bff53825
@@ -92,7 +93,7 @@ public class CITAWrapper extends ChainWrapper {
         credentials = Credentials.create(com.citahub.cita.crypto.ECKeyPair.create(privateKey));
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, TransactionException {
         CITAWrapper chainWrapper = CITAWrapper.build();
 
         System.out.println("Balance = " + chainWrapper.getBalance());
@@ -125,72 +126,40 @@ public class CITAWrapper extends ChainWrapper {
     }
 
     @Override
-    public BigInteger getBalance(){
-        try {
-            return client.appGetBalance(credentials.getAddress(), DefaultBlockParameter.valueOf("latest")).send().getBalance();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return BigInteger.valueOf(0);
-        }
+    public BigInteger getBalance() throws IOException {
+        return client.appGetBalance(credentials.getAddress(), DefaultBlockParameter.valueOf("latest")).send().getBalance();
     }
 
-    public BigInteger getBalance(String address){
-        try {
-            return client.appGetBalance(address, DefaultBlockParameter.valueOf("latest")).send().getBalance();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return BigInteger.valueOf(0);
-        }
+    public BigInteger getBalance(String address) throws IOException {
+        return client.appGetBalance(address, DefaultBlockParameter.valueOf("latest")).send().getBalance();
     }
 
 
     @Override
-    public long getBlockNumber() {
-        try {
-            return client.appBlockNumber().send().getBlockNumber().longValue();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return -1;
+    public long getBlockNumber() throws IOException {
+        return client.appBlockNumber().send().getBlockNumber().longValue();
     }
 
     @Override
-    public Block getBlockByNumber(long blockNumber) {
-        AppBlock.Block citaBlock;
-        try {
-            citaBlock = client.appGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), true).send().getResult();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new Block();
-        }
+    public Block getBlockByNumber(long blockNumber) throws IOException {
+        AppBlock.Block citaBlock = client.appGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), true).send().getResult();
         return covertToBlock(citaBlock);
     }
 
     @Override
-    public Block getBlockByHash(String blockHash) {
-        AppBlock.Block citaBlock = null;
-        try {
-            citaBlock = client.appGetBlockByHash(blockHash, true).send().getBlock();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new Block();
-        }
+    public Block getBlockByHash(String blockHash) throws IOException {
+        AppBlock.Block citaBlock = client.appGetBlockByHash(blockHash, true).send().getBlock();
         return covertToBlock(citaBlock);
     }
 
     @Override
-    public Transaction getTransaction(String transactionHash) {
-        try {
-            com.citahub.cita.protocol.core.methods.response.Transaction citaTransaction = client.appGetTransactionByHash(transactionHash).send().getTransaction();
-            return coverToTransaction(citaTransaction);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new Transaction();
+    public Transaction getTransaction(String transactionHash) throws IOException {
+        com.citahub.cita.protocol.core.methods.response.Transaction citaTransaction = client.appGetTransactionByHash(transactionHash).send().getTransaction();
+        return coverToTransaction(citaTransaction);
     }
 
     // amount为本区块链中的最小单位WEI，1 Ether=10^18 Wei
-    public String transferTo(String toAddress, BigInteger amount, boolean wait) throws IOException {
+    public String transferTo(String toAddress, BigInteger amount, boolean wait) throws IOException, TransactionException {
         long blockNumber = getBlockNumber();
         com.citahub.cita.protocol.core.methods.request.Transaction tx =
                 new com.citahub.cita.protocol.core.methods.request.Transaction(
@@ -215,22 +184,14 @@ public class CITAWrapper extends ChainWrapper {
         return appSendTransaction.getSendTransactionResult().getHash();
     }
 
-    public TransactionReceipt waitForPolling(String txHash){
+    public TransactionReceipt waitForPolling(String txHash) throws TransactionException, IOException {
         TransactionReceiptProcessor transactionReceiptProcessor = new PollingTransactionReceiptProcessor(client, TransactionManager.DEFAULT_POLLING_FREQUENCY, TransactionManager.DEFAULT_POLLING_ATTEMPTS_PER_TX_HASH);
-        TransactionReceipt transactionReceipt = null;
-        try {
-            transactionReceipt = transactionReceiptProcessor.waitForTransactionReceipt(txHash);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }catch (TransactionException e) {
-            e.printStackTrace();
-        }
-        System.out.println(transactionReceipt);
+        TransactionReceipt transactionReceipt = transactionReceiptProcessor.waitForTransactionReceipt(txHash);
         return transactionReceipt;
     }
 
     // 如果wait的话，返回合约的地址，否则返回transaction的hash
-    public String deploy(String bin, String abi, boolean wait) throws IOException {
+    public String deploy(String bin, String abi, boolean wait) throws IOException, TransactionException {
         int version = getVersion();
         BigInteger chainId = getChainId();
         long currentHeight = getBlockNumber();
@@ -255,52 +216,47 @@ public class CITAWrapper extends ChainWrapper {
     public FunctionResult send(String abi, String contractName, String contractAddress, String method, List<String> args, boolean payable, BigInteger amount, boolean wait) throws Exception {
         Function function = convertFunction(abi, method, args.toArray(new String[0]));
         String encodeFunction = FunctionEncoder.encode(function);
-        try {
-            int version = getVersion();
-            BigInteger chainId = getChainId();
-            long currentHeight = getBlockNumber();
-            long validUntilBlock = currentHeight + 80;
-            String nonce = getNonce();
-            long quota = 1000000;
+        int version = getVersion();
+        BigInteger chainId = getChainId();
+        long currentHeight = getBlockNumber();
+        long validUntilBlock = currentHeight + 80;
+        String nonce = getNonce();
+        long quota = 1000000;
 
-            com.citahub.cita.protocol.core.methods.request.Transaction tx = com.citahub.cita.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
-                    contractAddress,
-                    nonce,
-                    quota,
-                    validUntilBlock,
-                    version,
-                    chainId,
-                    "0",
-                    encodeFunction);
-            String rawTx = tx.sign(credentials);
+        com.citahub.cita.protocol.core.methods.request.Transaction tx = com.citahub.cita.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
+                contractAddress,
+                nonce,
+                quota,
+                validUntilBlock,
+                version,
+                chainId,
+                "0",
+                encodeFunction);
+        String rawTx = tx.sign(credentials);
 
-            AppSendTransaction.SendTransactionResult result = client.appSendRawTransaction(rawTx)
-                    .send().getSendTransactionResult();
+        AppSendTransaction.SendTransactionResult result = client.appSendRawTransaction(rawTx)
+                .send().getSendTransactionResult();
 
-            System.out.println("------ result hash = " + result.getHash());
-            System.out.println("------ result status = " + result.getStatus());
+        System.out.println("------ result hash = " + result.getHash());
+        System.out.println("------ result status = " + result.getStatus());
 
-            Account account = new Account(Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPrivateKey()), client);
+        Account account = new Account(Numeric.toHexStringWithPrefix(credentials.getEcKeyPair().getPrivateKey()), client);
 
-            List<Type> list = null;
-            if (wait){
-                list = new ArrayList<>();
-                TransactionReceipt transactionReceipt = waitForPolling(result.getHash());
-                List<Log> logs = transactionReceipt.getLogs();
-                if ((logs != null) && (!logs.isEmpty())){
-                    list = FunctionReturnDecoder.decode(logs.get(0).getData(), function.getOutputParameters());
-                }
+        List<Type> list = null;
+        if (wait){
+            list = new ArrayList<>();
+            TransactionReceipt transactionReceipt = waitForPolling(result.getHash());
+            List<Log> logs = transactionReceipt.getLogs();
+            if ((logs != null) && (!logs.isEmpty())){
+                list = FunctionReturnDecoder.decode(logs.get(0).getData(), function.getOutputParameters());
             }
-            FunctionResult functionResult = new FunctionResult();
-            functionResult.transactionHash = result.getHash();
-            functionResult.result = list;
-            System.out.println(functionResult.result);
-            System.out.println(result);
-            return functionResult;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return null;
+        FunctionResult functionResult = new FunctionResult();
+        functionResult.transactionHash = result.getHash();
+        functionResult.result = list;
+        System.out.println(functionResult.result);
+        System.out.println(result);
+        return functionResult;
     }
 
     @Override
@@ -317,7 +273,10 @@ public class CITAWrapper extends ChainWrapper {
             System.out.println("     type  = " + type.getTypeAsString());
         }
 
-        return null;
+        FunctionResult functionResult = new FunctionResult();
+        functionResult.transactionHash = null;
+        functionResult.result = list;
+        return functionResult;
     }
 
 }
