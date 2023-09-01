@@ -1,7 +1,11 @@
 package com.finsupplychain.car.test;
 
+import com.finsupplychain.car.common.CustomDeclareState;
+import com.finsupplychain.car.contractwrapper.xuperchain.CustomDeclareXCWrapper;
 import com.finsupplychain.car.contractwrapper.xuperchain.EvidenceXCWrapper;
 import com.finsupplychain.car.contractwrapper.xuperchain.ImpawnLoanXCWrapper;
+import com.finsupplychain.car.controller.ChainDataController;
+import com.finsupplychain.car.entity.CustomFormOC;
 import com.finsupplychain.car.entity.ImpawnLoanRequestOC;
 import com.finsupplychain.car.entity.LoadExaminationOC;
 import org.junit.Test;
@@ -21,25 +25,18 @@ public class XCContractWrapperTest {
     public void testCustomDeclareWrapper() throws Exception {
 
         /*----------------CustomDeclareXCWrapper------------------------*/
-        /*CustomDeclareXCWrapper wrapper = new CustomDeclareXCWrapper();
+        ChainDataController controller = new ChainDataController();
 
-        CustomFormOC customFormOC = new CustomFormOC();
-        customFormOC.setOrderId("100000000001");
-        customFormOC.setCustomNo("01");
-        customFormOC.setCustomCode("123");
-        customFormOC.setCheckState("CF_N");
-        customFormOC.setFormDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
-        customFormOC.setCreateTime("230829");
-        customFormOC.setCertificateDigest("0xcfb58ad6ecf0df16c7ae9da4dc7e04e988801c4202a4d89dccbea128d9c6307c");
+        controller.customChainUpload("100000000001", "01", "123", "CF_N",
+                "0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c", "230829",
+                "0xcfb58ad6ecf0df16c7ae9da4dc7e04e988801c4202a4d89dccbea128d9c6307c");
+//        System.out.println("create result: " + result.);
 
-        BigInteger result = wrapper.uploadCustomFormTC(customFormOC);
-        System.out.println("create result: " + result);
+        controller.customChainStateUpdate(BigInteger.valueOf(0), CustomDeclareState.UPDATED);
 
-        wrapper.updateOCCustomFormState(result, CustomDeclareState.UPDATED);
+        controller.customChainQuery(BigInteger.valueOf(0));
 
-        wrapper.queryOCCustomForm(BigInteger.valueOf(0));
-
-        wrapper.queryOCCustomFormState(result);*/
+        controller.customChainStateQuery(BigInteger.valueOf(0));
 
 
         /*----------------ImportOrderXCWrapper------------------------*/
@@ -114,47 +111,47 @@ public class XCContractWrapperTest {
 
         /*----------------ImpawnLoanXCWrapper------------------------*/
 
-        ImpawnLoanXCWrapper impawnLoanXCWrapper = new ImpawnLoanXCWrapper();
-
-        ImpawnLoanRequestOC impawnLoanRequestOC =  new ImpawnLoanRequestOC();
-        impawnLoanRequestOC.setOrderIndexOnChain(BigInteger.valueOf(12));
-        impawnLoanRequestOC.setBankAddr("XC1234567890123456@xuper");
-        impawnLoanRequestOC.setRequestedValue(BigInteger.valueOf(12000000));
-        impawnLoanRequestOC.setClientAddr("XC0000007890123456@xuper");
-        impawnLoanRequestOC.setClientInfoDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
-        impawnLoanRequestOC.setClientOffAccount("10000000XA");
-        impawnLoanRequestOC.setBankInfoDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
-        impawnLoanRequestOC.setBankOffAccount("10000000XB");
-        impawnLoanXCWrapper.createImpawnLoanRequestOC(impawnLoanRequestOC);
-
-
-        LoadExaminationOC loanExamOC = new LoadExaminationOC();
-        loanExamOC.setOrderState("已入库");
-        loanExamOC.setTaxState("完成");
-        loanExamOC.setProposal("yes");
-        loanExamOC.setImportCertificate("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6307c");
-        impawnLoanXCWrapper.examineImpawnLoanOC(BigInteger.valueOf(0), loanExamOC);
-
-        impawnLoanRequestOC.setContractSignedDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6323c");
-        impawnLoanRequestOC.setCreditAgreementDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c62a31");
-        impawnLoanRequestOC.setNoticeDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c645de");
-        impawnLoanRequestOC.setReceiptDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c61234");
-
-        impawnLoanXCWrapper.signImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
-
-        impawnLoanXCWrapper.queryImpawnLoanStateOC(BigInteger.valueOf(0));
-
-        impawnLoanRequestOC.setBankToClientStat("A to B");
-        impawnLoanRequestOC.setClientOffAccount("10000000XA");
-        impawnLoanRequestOC.setBankOffAccount("10000000XB");
-
-        impawnLoanXCWrapper.makeImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
-
-        impawnLoanRequestOC.setClientToBankStat("B to A");
-        impawnLoanXCWrapper.refundImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
-
-        impawnLoanRequestOC.setUnsignImpawnContractDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6307c");
-        impawnLoanXCWrapper.unsignImpawnLoanOC(BigInteger.valueOf(0), impawnLoanRequestOC);
+//        ImpawnLoanXCWrapper impawnLoanXCWrapper = new ImpawnLoanXCWrapper();
+//
+//        ImpawnLoanRequestOC impawnLoanRequestOC =  new ImpawnLoanRequestOC();
+//        impawnLoanRequestOC.setOrderIndexOnChain(BigInteger.valueOf(12));
+//        impawnLoanRequestOC.setBankAddr("XC1234567890123456@xuper");
+//        impawnLoanRequestOC.setRequestedValue(BigInteger.valueOf(12000000));
+//        impawnLoanRequestOC.setClientAddr("XC0000007890123456@xuper");
+//        impawnLoanRequestOC.setClientInfoDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
+//        impawnLoanRequestOC.setClientOffAccount("10000000XA");
+//        impawnLoanRequestOC.setBankInfoDigest("0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c");
+//        impawnLoanRequestOC.setBankOffAccount("10000000XB");
+//        impawnLoanXCWrapper.createImpawnLoanRequestOC(impawnLoanRequestOC);
+//
+//
+//        LoadExaminationOC loanExamOC = new LoadExaminationOC();
+//        loanExamOC.setOrderState("已入库");
+//        loanExamOC.setTaxState("完成");
+//        loanExamOC.setProposal("yes");
+//        loanExamOC.setImportCertificate("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6307c");
+//        impawnLoanXCWrapper.examineImpawnLoanOC(BigInteger.valueOf(0), loanExamOC);
+//
+//        impawnLoanRequestOC.setContractSignedDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6323c");
+//        impawnLoanRequestOC.setCreditAgreementDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c62a31");
+//        impawnLoanRequestOC.setNoticeDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c645de");
+//        impawnLoanRequestOC.setReceiptDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c61234");
+//
+//        impawnLoanXCWrapper.signImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
+//
+//        impawnLoanXCWrapper.queryImpawnLoanStateOC(BigInteger.valueOf(0));
+//
+//        impawnLoanRequestOC.setBankToClientStat("A to B");
+//        impawnLoanRequestOC.setClientOffAccount("10000000XA");
+//        impawnLoanRequestOC.setBankOffAccount("10000000XB");
+//
+//        impawnLoanXCWrapper.makeImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
+//
+//        impawnLoanRequestOC.setClientToBankStat("B to A");
+//        impawnLoanXCWrapper.refundImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
+//
+//        impawnLoanRequestOC.setUnsignImpawnContractDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6307c");
+//        impawnLoanXCWrapper.unsignImpawnLoanOC(BigInteger.valueOf(0), impawnLoanRequestOC);
 
     }
 

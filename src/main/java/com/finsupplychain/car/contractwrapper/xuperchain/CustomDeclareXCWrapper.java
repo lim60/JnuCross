@@ -44,9 +44,9 @@ public class CustomDeclareXCWrapper {
         FunctionResult functionResult = xuperChainWrapper.send(abi, contractName, null, "createCustomForm", args, false, null, false);
         String returnIndex = functionResult.result.get(0).toString();
         customForm.setFormIndexOnChain(new BigInteger(returnIndex));
-        System.out.println("----" + functionResult.result.get(0));
-        System.out.println("----" + functionResult.transactionHash);
-        System.out.println("----" + new BigInteger(returnIndex));
+        /*System.out.println("--1--" + functionResult.result.get(0));
+        System.out.println("--2--" + functionResult.transactionHash);
+        System.out.println("--3--" + new BigInteger(returnIndex));*/
         return functionResult;
     }
 
