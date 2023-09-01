@@ -85,21 +85,21 @@ public class XuperChainWrapper extends ChainWrapper {
     public static void main(String[] args) throws Exception {
         XuperChainWrapper chainWrapper = XuperChainWrapper.build();
 //
-        System.out.println("Balance = " + chainWrapper.getBalance());
+//        System.out.println("Balance = " + chainWrapper.getBalance());
 
-        System.out.println(chainWrapper.account.getAKAddress());
+//        System.out.println(chainWrapper.account.getAKAddress());
 
 
 //
-        System.out.println("BlockNumber = " + chainWrapper.getBlockNumber()); // 获取块高
+//        System.out.println("BlockNumber = " + chainWrapper.getBlockNumber()); // 获取块高
         System.out.println("----------------------------------");
         System.out.println("The 1st block is = " + chainWrapper.getBlockByNumber(2)); // 通过块高获取块
-//        System.out.println("----------------------------------");
+        System.out.println("----------------------------------");
 //        // 通过hash获取块
 //        System.out.println("The block with hash 2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61 is = " + chainWrapper.getBlockByHash("2a11f1aebb9c3ff173bbe8e1cdbf679ce72b5ca35aed50f99d3a4f6b90670d61"));
 //        System.out.println("----------------------------------");
 ////        // 获取transaction by hash
-//        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("5939f2423d45b7512d9af6ac9f56553b21d5d03f0057da407f1133dbdc4a8c86"));
+        System.out.println("Get Transaction by hash = " + chainWrapper.getTransaction("9acaaf7a9ae6b9dd7a737b6e645657bf19f867b215d1edb09b49af3399f3c2df"));
         System.out.println("----------------------------------");
 //
 //        String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"x\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"name\":\"retVal\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]";
@@ -142,6 +142,7 @@ public class XuperChainWrapper extends ChainWrapper {
     @Override
     public Block getBlockByNumber(long blockNumber) {
         XchainOuterClass.InternalBlock xuperBlock = client.queryBlockByHeight(blockNumber);
+        System.out.println(xuperBlock);
         if (xuperBlock == null)
             return new Block();
         return covertToBlock(xuperBlock);
@@ -158,9 +159,16 @@ public class XuperChainWrapper extends ChainWrapper {
     @Override
     public Transaction getTransaction(String transactionHash) {
         XchainOuterClass.Transaction xuperChainTransaction = client.queryTx(transactionHash);
+
+        System.out.println("+++++");
+        System.out.println(xuperChainTransaction);
+        System.out.println("+++++");
+
         if(xuperChainTransaction == null)
             return new Transaction();
-        return coverToTransaction(xuperChainTransaction);
+        Transaction transaction = coverToTransaction(xuperChainTransaction);
+        transaction.setBlockNumber(this.getBlockByHash(Numeric.toHexStringNoPrefix(xuperChainTransaction.getBlockid().toByteArray())).getBlockHeader().getNumber());
+        return transaction;
     }
 
     // 返回合约账户

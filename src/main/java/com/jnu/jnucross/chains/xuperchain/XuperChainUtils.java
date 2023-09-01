@@ -9,9 +9,7 @@ import com.baidu.xuper.pb.XchainOuterClass;
 import org.bouncycastle.math.ec.ECPoint;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author SDKany
@@ -64,7 +62,7 @@ public class XuperChainUtils {
             e.printStackTrace();
         }
         transaction.setHash(Numeric.toHexStringNoPrefix(xuperChainTransaction.getTxid().toByteArray()));
-        transaction.setBlockNumber(Numeric.toBigInt(xuperChainTransaction.getBlockid().toByteArray()).longValue());
+        // transaction.setBlockNumber(); 此处无法获得，需要通过blockID重新获取
         try {
             transaction.setRawBytes(xuperChainTransaction.toByteArray());
         } catch (Exception e) {
@@ -72,6 +70,11 @@ public class XuperChainUtils {
             transaction.setRawBytes(new byte[0]);
         }
         transaction.setChainType(EnumType.ChainType.XuperChain);
+        if (xuperChainTransaction.getContractRequestsCount() > 0){
+            transaction.setContractName(xuperChainTransaction.getContractRequests(0).getContractName());
+            transaction.setMethodName(xuperChainTransaction.getContractRequests(0).getMethodName());
+            //transaction.setArgs(new HashMap<>(xuperChainTransaction.getContractRequests(0).getArgsMap()));
+        }
         return transaction;
     }
 
