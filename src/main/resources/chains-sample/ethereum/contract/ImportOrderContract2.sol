@@ -1,4 +1,4 @@
-//// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract ImportOrderContract {
@@ -23,9 +23,9 @@ contract ImportOrderContract {
     未入库、入库、质押、解押
     */
     enum ImportState { NotImport, Imported, Impawned, Released }
+    event StateUpdate(bool statechanged);
 
-
-     /*进口订单*/
+    /*进口订单*/
     //TODO 添加 【client_Name 客户名称】 【Loading_Port 装货港】
     //TODO 添加 【Destination_Port 目的港】【business_group_id 业务组id】【tenant_id 租户id】
     struct OrderEntity{
@@ -46,7 +46,7 @@ contract ImportOrderContract {
     }
 
     event ValueOrderEntity(uint orderIndex,
-                           string orderDigest);
+        string orderDigest);
 
 
 
@@ -61,8 +61,8 @@ contract ImportOrderContract {
     }
 
     event ValueCustomFormEntity(string createTime,
-                                string customNo,
-                                string customFormDigest
+        string customNo,
+        string customFormDigest
     );
 
     //到港订单
@@ -74,9 +74,9 @@ contract ImportOrderContract {
     }
 
     event ValueArriveEntity(string createTime,
-                            string onPortState,
-                            string onPortDate,
-                            string arriveEntityDigest
+        string onPortState,
+        string onPortDate,
+        string arriveEntityDigest
     );
 
     //入库订单
@@ -90,16 +90,16 @@ contract ImportOrderContract {
     }
 
     event ValueInboundEntity(string createTime,
-                             string inboundState,
-                             string inboundType,
-                             string inboundEntityDigest
+        string inboundState,
+        string inboundType,
+        string inboundEntityDigest
     );
 
 
     uint numOrdereEtity;
     mapping (uint => OrderEntity) Entity;
     uint onchainOrderIndex;
-    
+
     /*
     创建进口订单， 默认设置orderState=Created， 成功返回true
     @param orderId 进口订单号
@@ -186,7 +186,7 @@ contract ImportOrderContract {
         }
 
         return returnState;
-        
+
     }
 
 
@@ -220,16 +220,16 @@ contract ImportOrderContract {
         updateOrderState(index, State.TaxCollected);
         order.customForm = tmp;
         emit ValueCustomFormEntity(tmp.createTime,
-                                tmp.customNo,
-                                tmp.customFormDigest);
+            tmp.customNo,
+            tmp.customFormDigest);
         return (tmp.createTime, tmp.customNo, tmp.customFormDigest);
     }
 
     //查询报关单
-    function queryForm(uint index) public view returns(string memory, string memory, string memory, 
-    string memory, string memory, string memory){
+    function queryForm(uint index) public view returns(string memory, string memory, string memory,
+        string memory, string memory, string memory){
         OrderEntity storage order = Entity[index];
-        return (order.customForm.createTime, order.customForm.customNo, order.customForm.customCode, 
+        return (order.customForm.createTime, order.customForm.customNo, order.customForm.customCode,
         order.customForm.checkState, order.customForm.importData, order.customForm.customFormDigest);
     }
 
@@ -254,14 +254,14 @@ contract ImportOrderContract {
         order.arriveEntity = tmp;
 
         emit ValueArriveEntity(tmp.createTime,
-                          tmp.onPortState,
-                          tmp.onPortDate,
-                          tmp.arriveEntityDigest);
+            tmp.onPortState,
+            tmp.onPortDate,
+            tmp.arriveEntityDigest);
 
         return (tmp.createTime,
-                          tmp.onPortState,
-                          tmp.onPortDate,
-                          tmp.arriveEntityDigest);
+        tmp.onPortState,
+        tmp.onPortDate,
+        tmp.arriveEntityDigest);
     }
 
     //查询到港单
@@ -287,7 +287,7 @@ contract ImportOrderContract {
         OrderEntity storage order = Entity[index];
         InboundEntity memory tmp = InboundEntity(createTime, inboundState, inboundType, inboundEntityDigest, ImportState.NotImport);
         order.inboundEntity=tmp;
-        updateInboundState(index, ImportState.Imported);
+        order.inboundEntity.importState = ImportState.Imported;
 
         emit ValueInboundEntity(createTime, inboundState, inboundType, inboundEntityDigest);
         return (createTime, inboundState, inboundType, inboundEntityDigest);
@@ -319,21 +319,25 @@ contract ImportOrderContract {
 
 
     //更新入库单的状态为入库，同时更新进口订单状态
-    function updateInboundState(uint index, ImportState newState) internal{
+    /*function updateInboundState(uint index, ImportState newState) internal{
         OrderEntity storage order = Entity[index];
         order.inboundEntity.importState = newState;
-    }
+    }*/
 
     //客户贷款后，入库车辆更改为质押状态
     function ImpawnWhenLoaded(uint index) public returns(bool){
-        updateInboundState(index, ImportState.Impawned);
+        OrderEntity storage order = Entity[index];
+        order.inboundEntity.importState = ImportState.Impawned;
+        emit StateUpdate(true);
         return true;
     }
 
 
     //客户还款后，入库车辆更改为解押状态
     function ReleaseWhenRefunded(uint index) public returns(bool){
-        updateInboundState(index, ImportState.Released);
+        OrderEntity storage order = Entity[index];
+        order.inboundEntity.importState = ImportState.Released;
+        emit StateUpdate(true);
         return true;
     }
 }

@@ -109,11 +109,15 @@ public class XCChainDataController {
     }
 
     /*
-   新建存证
+   新建证据
+
     * @param orderIndex 订单在链上的唯一索引，用于关联订单实体
-    * @param evidenceDigest 首次创建，"进口订单"的证据
+    * @param evidenceDigest 首次创建，"进口订单"的证据摘要
 
     * @return chainResult
+    *其中，conResult包括：evidenceIndex, 证据链上索引
+                        "Created", 证据状态
+                        evidenceDigest 证据摘要
     */
     public ChainResult evidenceChainUpload(BigInteger orderIndex, String evidenceDigest) {
         ChainResult chainResult = new ChainResult();
@@ -129,13 +133,19 @@ public class XCChainDataController {
 
     /*
     依据业务所处不同阶段，可由中海龙、客户、银行调用该函数
+
+    更新证据
+
+
     * @param onChainIndex 证据索引
     * @param newState 新加入的证据状态，前端传入参数CustomCertificated，TaxCollected等
     * @param evidenceDigest 新加入的证据摘要
 
 
     * @return chainResult
-    新增证据，包括 报关核验、完税、进口、到港、入库、放款、合同签订、还款、出库
+        *其中，conResult包括：evidenceIndex, 证据链上索引
+                        newState, 新加入的证据状态
+                        evidenceDigest 证据摘要
     */
     public ChainResult evidenceChainUpdate(BigInteger evidenceIndex, String newState, String evidenceDigest) {
         ChainResult chainResult = new ChainResult();
@@ -150,8 +160,12 @@ public class XCChainDataController {
     }
 
     /*
+    证据状态查询
+
     * 入参：链上证据唯一索引
-    *
+        * @return chainResult
+        *其中，conResult包括：
+                        eviState 证据状态
     * */
     public ChainResult evidenceChainStateQuery(BigInteger evidenceIndex) {
         ChainResult chainResult = new ChainResult();
@@ -229,7 +243,9 @@ public class XCChainDataController {
        taxState完税证明状态，
        importCertificate进口证明书摘要，
        proposal 金融机构审查意见，'yes' or 'no'
-    *
+    *@return ChainResult，其中
+    conResult包括 bool true表示审查通过，false表示审查不通过
+
     * */
     public ChainResult financeChainExamine(BigInteger loanOnChainIndex, String orderState, String taxState,
                                            String importCertificate, String proposal) {
@@ -256,7 +272,9 @@ public class XCChainDataController {
     creditAgreementDigest仓单质押授信监管三方协议，
     noticeDigest出质通知书，
     receiptDigest出质通知书回执
-    *
+        *@return ChainResult，其中
+    conResult包括 链上索引，
+    *            贷款申请状态为Signed
     */
     public ChainResult financeChainSign(BigInteger loanOnChainIndex, String contractSignedDigest, String creditAgreementDigest,
                                         String noticeDigest, String receiptDigest) {
@@ -279,6 +297,12 @@ public class XCChainDataController {
     }
 
 
+    /**
+     * 查询贷款申请状态
+     * @param loanOnChainIndex
+     *@return ChainResult，其中
+    conResult包括 贷款申请状态
+     */
     public ChainResult financeChainQuery(BigInteger loanOnChainIndex) {
         ChainResult chainResult = new ChainResult();
         try {
@@ -296,6 +320,10 @@ public class XCChainDataController {
     @param bankToClientStat 银行to客户转账流水
     @param clientOffAccount 客户链下账户
     @param bankOffAccount 银行链上账户
+
+    *@return ChainResult，其中
+    conResult包括 链上索引，
+    *            贷款申请状态为Loaned
     */
     public ChainResult financeChainMake(BigInteger loanOnChainIndex, String bankToClientStat, String clientOffAccount,
                                         String bankOffAccount) {
@@ -321,6 +349,11 @@ public class XCChainDataController {
     @param clientToBankStat 客户to银行转账流水
     @param clientOffAccount 客户链下账户
     @param bankOffAccount 银行链上账户
+
+   *@return ChainResult，其中
+    conResult包括 链上索引，
+    *            贷款申请状态为Refunded
+     c
     */
     public ChainResult financeChainRefund(BigInteger loanOnChainIndex, String clientToBankStat, String clientOffAccount,
                                           String bankOffAccount) {
@@ -345,6 +378,9 @@ public class XCChainDataController {
     /*解除贷款合同
     *
     * @param unsignImpawnContractDigest 解除贷款合同证明摘要
+    *@return ChainResult，其中
+    conResult包括 链上索引，
+    *            贷款申请状态为Unsigned
     * */
     public ChainResult financeChainUnsign(BigInteger loanOnChainIndex, String unsignImpawnContractDigest) {
 
@@ -369,6 +405,10 @@ public class XCChainDataController {
     *orderId 进口订单号， createTime 创建时间，importType 进口类型，
     *contractId 合同编号，clientName 客户名称，loadingPort 装货港，destinationPort 目的港，
     * businessGroupId 业务组id，tenantId 租户id，orderDigest 订单摘要
+
+    *@return ChainResult，其中
+    conResult包括 链上索引，
+                  订单摘要
     */
     public ChainResult bussChainImportOrderUpload(String importOrderId, String createTime, String importType,
                                                   String contractId, String clientName, String loadingPort,
@@ -398,6 +438,12 @@ public class XCChainDataController {
     }
 
 
+    /*根据Index 查询进口订单
+    @param importOrderOnchainIndex 链上进口订单索引
+    *@return ChainResult，其中
+    conResult包括 链上进口订单索引
+                  订单摘要
+    * */
     public ChainResult bussChainImportOrderQuery(BigInteger importOrderOnchainIndex) {
         ChainResult chainResult = new ChainResult();
         try {
@@ -410,6 +456,11 @@ public class XCChainDataController {
         return chainResult;
     }
 
+    /*根据Index 查询进口订单
+    @param importOrderOnchainIndex 链上进口订单索引
+    *@return ChainResult，其中
+    * conResult包括 进口订单状态
+    * */
     public ChainResult bussChainImportOrderStateQuery(BigInteger importOrderOnchainIndex) {
         ChainResult chainResult = new ChainResult();
         try {
@@ -423,10 +474,15 @@ public class XCChainDataController {
     }
 
     /*
-    保存报关单
+    保存进口订单的报关单
     *@param CustomFormOC 包含
     *createTime 申报时间，customNo报关单号, customCode 海关编码，checkState 审核状态
     *customFormDigest 报关单内容摘要，onchainOrderIndex 链上报关单索引
+
+    *@return ChainResult，其中
+    * conResult包括 createTime 申报时间
+                   customNo 报关单号
+                   formDigest 报关单内容摘要
     */
     public ChainResult bussChainCustomeFormUpload(BigInteger importOrderOnchainIndex, String createTime, String customNo, String customCode,
                                                   String checkStat, String formDigest) {
@@ -449,6 +505,13 @@ public class XCChainDataController {
         return chainResult;
     }
 
+    /*
+    查询进口订单的报关单
+
+     *@return ChainResult，其中
+     * conResult包括 createTime 申报时间，customNo报关单号, customCode 海关编码，checkState 审核状态
+     *customFormDigest 报关单内容摘要
+    * */
     public ChainResult bussChainCustomeFormQuery(BigInteger importOrderOnchainIndex) {
         ChainResult chainResult = new ChainResult();
         try {
@@ -465,6 +528,12 @@ public class XCChainDataController {
     保存到港订单
     *@param ArrivalFormOC, 包括createTime更新时间，
     *onPortState 到港状态，onPortDate 到港日期，arriveEntityDigest 到港订单摘要
+
+    conResult字段包括：
+    createTime 更新时间，
+    onPortState 到港状态
+    onPortDate 到港日期
+    arriveEntityDigest 到港订单摘要
     */
     public ChainResult bussChainArrivalUpload(BigInteger importOrderOnchainIndex, String createTime, String onPortState, String onPortDate,
                                                   String arriveEntityDigest){
@@ -485,6 +554,15 @@ public class XCChainDataController {
         return chainResult;
     }
 
+    /*
+
+    查询到港订单
+    conResult字段包括：
+    createTime 更新时间，
+    onPortState 到港状态
+    onPortDate 到港日期
+    arriveEntityDigest 到港订单摘要
+    * */
     public ChainResult bussChainArrivalQuery(BigInteger importOrderOnchainIndex) {
         ChainResult chainResult = new ChainResult();
         try {
@@ -501,6 +579,12 @@ public class XCChainDataController {
     保存入库订单
     *@param InboundFormOC, 包括createTime入库时间, inboundState入库状态 01:新增 02:已生成波次单 03:完成
     *inboundType入库类型, inboundEntityDigest入库订单摘要
+
+   conResult字段包括
+   入库时间
+   入库状态 01:新增 02:已生成波次单 03:完成
+  入库类型
+  入库订单摘要
     */
     public ChainResult bussChainInboundUpload(BigInteger importOrderOnchainIndex, String createTime, String inboundState,
                                               String inboundType,
@@ -523,6 +607,14 @@ public class XCChainDataController {
         return chainResult;
     }
 
+    /*
+    * 查询入库单
+    conResult字段包括
+   入库时间
+   入库状态 01:新增 02:已生成波次单 03:完成
+  入库类型
+  入库订单摘要
+    * */
     public ChainResult bussChainInboundQuery(BigInteger importOrderOnchainIndex) {
         ChainResult chainResult = new ChainResult();
         try {
