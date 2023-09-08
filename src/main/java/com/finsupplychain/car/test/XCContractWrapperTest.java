@@ -1,6 +1,9 @@
 package com.finsupplychain.car.test;
 
+import com.finsupplychain.car.contractwrapper.xuperchain.ImpawnLoanXCWrapper;
 import com.finsupplychain.car.controller.XCChainDataController;
+import com.finsupplychain.car.entity.ImpawnLoanRequestOC;
+import com.finsupplychain.car.entity.LoadExaminationOC;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -49,8 +52,8 @@ public class XCContractWrapperTest {
 //        "01", "123", "CF_N", "0xcfb58ff6ecf0df16c7ae9da4dc7e04e988801c4207a4d89dccbea958d9c6307c"
 //        );
 //
-        controller.bussChainCustomeFormQuery(BigInteger.valueOf(0));
-//
+//        controller.bussChainCustomeFormQuery(BigInteger.valueOf(0));
+////
 //
 //        ArrivalFormOC arrivalFormOnChain = new ArrivalFormOC();
 //        arrivalFormOnChain.setCreateTime("230831");
@@ -91,9 +94,9 @@ public class XCContractWrapperTest {
 
         /*----------------ImpawnLoanXCWrapper------------------------*/
 
-//        ImpawnLoanXCWrapper impawnLoanXCWrapper = new ImpawnLoanXCWrapper();
-//
-//        ImpawnLoanRequestOC impawnLoanRequestOC =  new ImpawnLoanRequestOC();
+        ImpawnLoanXCWrapper impawnLoanXCWrapper = new ImpawnLoanXCWrapper();
+////
+        ImpawnLoanRequestOC impawnLoanRequestOC =  new ImpawnLoanRequestOC();
 //        impawnLoanRequestOC.setOrderIndexOnChain(BigInteger.valueOf(12));
 //        impawnLoanRequestOC.setBankAddr("XC1234567890123456@xuper");
 //        impawnLoanRequestOC.setRequestedValue(BigInteger.valueOf(12000000));
@@ -112,6 +115,8 @@ public class XCContractWrapperTest {
 //        loanExamOC.setImportCertificate("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6307c");
 //        impawnLoanXCWrapper.examineImpawnLoanOC(BigInteger.valueOf(0), loanExamOC);
 //
+        controller.financeChainMake(BigInteger.valueOf(0), "A to B", "10000000XA","10000000XB" );
+//
 //        impawnLoanRequestOC.setContractSignedDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c6323c");
 //        impawnLoanRequestOC.setCreditAgreementDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c62a31");
 //        impawnLoanRequestOC.setNoticeDigest("0xcfb58ff6ecf0df16c7aa1da4dc7e04e988802e4207a4d89dccbea958d9c645de");
@@ -120,13 +125,13 @@ public class XCContractWrapperTest {
 //        impawnLoanXCWrapper.signImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
 //
 //        impawnLoanXCWrapper.queryImpawnLoanStateOC(BigInteger.valueOf(0));
-//
+////
 //        impawnLoanRequestOC.setBankToClientStat("A to B");
 //        impawnLoanRequestOC.setClientOffAccount("10000000XA");
 //        impawnLoanRequestOC.setBankOffAccount("10000000XB");
-//
+//////
 //        impawnLoanXCWrapper.makeImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
-//
+////
 //        impawnLoanRequestOC.setClientToBankStat("B to A");
 //        impawnLoanXCWrapper.refundImpawnLoanOC(BigInteger.valueOf(0),impawnLoanRequestOC);
 //

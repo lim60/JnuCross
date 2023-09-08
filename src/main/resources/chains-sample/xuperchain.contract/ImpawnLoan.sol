@@ -214,24 +214,19 @@ contract ImpawnLoan {
     ) public returns (uint, string memory) {
 
         ImpawnLoanRequest storage loan = loans[loanIndex];
+        address bankAddress = loan.bankAddr;
+        address clientAddress = loan.clientAddr;
 
-        address bankAddr = loan.bankAddr;
-        address clientAddr = loan.clientAddr;
-
-        assert(loan.loanState == State.Signed);
-
-        //检查客户链上账户和链下账户关联性
-        ClientInfo memory client = clientInfos[clientAddr];
-        assert(keccak256(abi.encodePacked(client.clientOffchainAccount)) == keccak256(abi.encodePacked(clientAccount)));
-
-        //检查银行链上账户和链下账户关联性
-        BankInfo storage bank = bankInfos[bankAddr];
+        BankInfo storage bank = bankInfos[bankAddress];
         assert(keccak256(abi.encodePacked(bank.bankOffchainAccount)) == keccak256(abi.encodePacked(bankAccount)));
 
-        //存储银行流水
+        ClientInfo storage client = clientInfos[clientAddress];
+        assert(keccak256(abi.encodePacked(client.clientOffchainAccount)) == keccak256(abi.encodePacked(clientAccount)));
+
         loan.bankToClientStat = statement;
 
         updateImpawnLoanState(loanIndex, State.Loaned);
+
 
         // emit ImpawnNotice(loanIndex, "Loaned");
         return (loanIndex, "Loaned");

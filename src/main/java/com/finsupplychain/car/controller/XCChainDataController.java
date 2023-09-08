@@ -517,6 +517,7 @@ public class XCChainDataController {
         try {
             FunctionResult functionResult = importOrderXCWrapper.queryOrderCustomFormOC(importOrderOnchainIndex);
             chainResult.setConResult(functionResult.result);
+
             chainResult.setTxResult(xuperChainWrapper.getTransaction(functionResult.transactionHash));
         } catch (Exception e) {
             e.printStackTrace();
