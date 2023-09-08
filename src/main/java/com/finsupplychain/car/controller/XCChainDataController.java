@@ -359,7 +359,7 @@ public class XCChainDataController {
                                           String bankOffAccount) {
 
         ImpawnLoanRequestOC impawnLoanRequestOC = new ImpawnLoanRequestOC();
-        impawnLoanRequestOC.setBankToClientStat(clientToBankStat);
+        impawnLoanRequestOC.setClientToBankStat(clientToBankStat);
         impawnLoanRequestOC.setClientOffAccount(clientOffAccount);
         impawnLoanRequestOC.setBankOffAccount(bankOffAccount);
 
